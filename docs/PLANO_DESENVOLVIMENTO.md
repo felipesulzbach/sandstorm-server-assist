@@ -101,6 +101,11 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
   lint, typecheck, audit:code; no modo dev com os logs reais: 14 partidas no seletor, 6 erros na atual, cartão e
   validação (1 recusado). Nada foi apagado. Instalador e zip 0.1.2.
 
+## Repositório público (09/11/2026)
+
+- https://github.com/felipesulzbach/sandstorm-server-assist, branch `main`. Publicação na AWS a partir de outro
+  computador (precisa da chave de assinatura das atualizações, copiada à mão).
+
 ## Pendências
 
 - Rota `/sandstorm/` e volume já aplicados no checkout local do game-in (Caddyfile, compose, .gitignore, docs/PLANO.md;

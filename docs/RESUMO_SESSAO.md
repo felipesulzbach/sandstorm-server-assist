@@ -107,6 +107,12 @@ app (ADR-018). Achado: o app instalado (0.1.0, aberto desde 14:42) salvou o `con
 causa provável, duas cópias abertas. O servidor real não foi parado; nenhum log foi apagado. Aviso ao usuário: o
 log mostra "Invalid or unknown GameStatsToken" (token do GameStats recusado).
 
+**Depois (~21:00):** a pedido do usuário, repositório público criado: https://github.com/felipesulzbach/sandstorm-server-assist
+(branch `main`, primeiro commit 0.1.2). Antes do commit: caminhos do servidor do usuário tirados dos docs e de um
+teste, varredura de segredos limpa. A publicação na AWS será feita de outro computador (este não tem a chave SSH
+do game-in): ele precisa do clone, da chave de assinatura `~/.sandstorm-server-assist/update-signing-key.pem`
+(copiada à mão, nunca pelo git) e dos passos de `docs/PAGINA_DOWNLOAD.md`.
+
 ## Validação humana (pendente com o usuário)
 
 1. Instalar com `desktop/build/dist/sandstorm-server-assist-0.1.0-windows-setup.exe`, abrir pelo atalho e aceitar
