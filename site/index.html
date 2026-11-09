@@ -1,0 +1,182 @@
+<!doctype html>
+<!--
+  Página de download do Sandstorm Server Assist (ADR-016). Modelo: os marcadores {{...}} são preenchidos por
+  scripts/publish-site.mjs (versão, tamanhos e SHA-256 dos arquivos de desktop/build/dist). Servida pelo Caddy do
+  servidor do game-in em /sandstorm/ (CSP sem scripts nem estilos inline). O texto em inglês é o padrão; lang.js
+  troca para pt-PT, es-ES, ru e uk (pelo idioma do navegador ou pela escolha na página).
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sandstorm Server Assist</title>
+    <meta
+      name="description"
+      content="Install, configure and run an Insurgency: Sandstorm dedicated server with mod.io mods, step by step, on Windows."
+    />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="lang.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <div class="top">
+        <img class="logo" src="favicon.svg" width="64" height="64" alt="" />
+        <label class="lang">
+          <span class="sr-only" data-i18n="language">Language</span>
+          <select id="lang" aria-label="Language">
+            <option value="en">English</option>
+            <option value="pt">Português</option>
+            <option value="es">Español</option>
+            <option value="ru">Русский</option>
+            <option value="uk">Українська</option>
+          </select>
+        </label>
+      </div>
+      <h1>Sandstorm Server Assist</h1>
+      <p class="lead" data-i18n="lead">
+        Install, configure and run your own Insurgency: Sandstorm dedicated server with mod.io mods.
+        Step by step, with clear errors and your passwords kept safe.
+      </p>
+
+      <div class="actions">
+        <a
+          class="btn"
+          href="downloads/sandstorm-server-assist-setup.exe"
+          download
+          data-i18n="download"
+          >⬇ Download for Windows</a
+        >
+        <a
+          class="btn btn--secondary"
+          href="downloads/sandstorm-server-assist-portable.zip"
+          download
+          data-i18n="portable"
+          >Portable version (.zip)</a
+        >
+      </div>
+      <p class="note">
+        <span data-i18n="version">Version</span> {{VERSION}} ·
+        <span data-i18n="requires">Windows 10 or 11 (64-bit)</span> ·
+        <span data-i18n="installer">installer</span> {{SIZE_EXE}} ·
+        <span data-i18n="portableShort">portable</span>
+        {{SIZE_ZIP}}
+      </p>
+
+      <section class="features" aria-label="Features">
+        <div class="card">
+          <h3 data-i18n="f1t">⬇ Install with progress</h3>
+          <p data-i18n="f1">
+            Downloads SteamCMD and the game server from the official sources, with speed and time
+            left.
+          </p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="f2t">⚙ Server settings</h3>
+          <p data-i18n="f2">
+            Name, ports, players, maps, mod map, mutators, admins and map rotation, in plain words.
+          </p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="f3t">↺ Use the server you have</h3>
+          <p data-i18n="f3">
+            Reads an existing server and fills the fields. If you changed something, it asks what to
+            keep.
+          </p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="f4t">🧩 mod.io mods</h3>
+          <p data-i18n="f4">
+            Authorizes the server once and shows each mod being downloaded and mounted.
+          </p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="f5t">⚠ Errors explained</h3>
+          <p data-i18n="f5">
+            Every known error says what happened, the likely cause and how to fix it. Logs stay one
+            click away.
+          </p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="f6t">🔒 Secrets protected</h3>
+          <p data-i18n="f6">
+            Passwords and tokens are encrypted by Windows and never written to .ini or .bat files.
+          </p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="f7t">💾 Backup and restore</h3>
+          <p data-i18n="f7">
+            One password-protected file with everything to set up the server on another PC.
+          </p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="f8t">⟳ Automatic updates</h3>
+          <p data-i18n="f8">
+            The installed app updates itself with signed versions. The game server keeps running.
+          </p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="f9t">🌐 5 languages</h3>
+          <p>English, Português, Español, Русский, Українська.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 data-i18n="howTitle">How to install</h2>
+        <ol class="steps">
+          <li data-i18n="how1">
+            Download and open <strong>sandstorm-server-assist-setup.exe</strong>.
+          </li>
+          <li data-i18n="how2">
+            Windows may say the app is not recognized (SmartScreen). Click
+            <strong>More info</strong> and then <strong>Run anyway</strong>.
+          </li>
+          <li data-i18n="how3">
+            Follow the installer (no administrator needed) and open
+            <strong>Sandstorm Server Assist</strong> from the Start menu.
+          </li>
+          <li data-i18n="how4">
+            Accept the terms of use and the privacy notice, then follow the first steps on the
+            dashboard.
+          </li>
+        </ol>
+        <p class="hint" data-i18n="howPortable">
+          Prefer not to install? Download the <strong>portable version</strong>, extract it and open
+          <strong>sandstorm-server-assist.exe</strong>. It does not update itself: come back here
+          for new versions.
+        </p>
+      </section>
+
+      <section class="card card--spaced">
+        <h2 data-i18n="verifyTitle">Check the download</h2>
+        <p class="hint" data-i18n="verifyText">
+          To be sure the file arrived complete, compare the SHA-256 (in PowerShell:
+          <span class="code">Get-FileHash file</span>).
+        </p>
+        <dl class="hashes">
+          <dt>sandstorm-server-assist-setup.exe</dt>
+          <dd><span class="code">{{SHA_EXE}}</span></dd>
+          <dt>sandstorm-server-assist-portable.zip</dt>
+          <dd><span class="code">{{SHA_ZIP}}</span></dd>
+        </dl>
+      </section>
+
+      <footer>
+        <p>
+          Sandstorm Server Assist {{VERSION}} ·
+          <span data-i18n="published">published on</span> {{DATE}} ·
+          <a href="terms.html" data-i18n="terms">Terms of use</a> ·
+          <a href="privacy.html" data-i18n="privacy">Privacy</a> ·
+          <a href="https://www.apache.org/licenses/LICENSE-2.0" rel="noopener noreferrer"
+            >Apache License 2.0</a
+          >
+        </p>
+        <p data-i18n="disclaimer">
+          Unofficial project, not affiliated with or endorsed by New World Interactive, Focus
+          Entertainment, Valve or mod.io. Insurgency, Steam and mod.io are trademarks of their
+          owners. The app does not distribute the game: it downloads it from the official sources.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

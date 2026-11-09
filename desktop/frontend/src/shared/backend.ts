@@ -1,0 +1,129 @@
+// Ponte com o Go. Única parte do front que importa o código gerado pelo Wails (wailsjs/).
+// O front manda ids e opções; caminhos só vêm de diálogos abertos pelo Go.
+import * as Sys from '../../wailsjs/go/desktop/SystemAPI';
+import * as Cfg from '../../wailsjs/go/desktop/ConfigAPI';
+import * as Inst from '../../wailsjs/go/desktop/InstallAPI';
+import * as Srv from '../../wailsjs/go/desktop/ServerAPI';
+import * as Logs from '../../wailsjs/go/desktop/LogAPI';
+import * as Bak from '../../wailsjs/go/desktop/BackupAPI';
+import {
+  EventsOn,
+  Quit,
+  WindowIsMaximised,
+  WindowMinimise,
+  WindowToggleMaximise,
+} from '../../wailsjs/runtime/runtime';
+import type {
+  backupsvc,
+  config,
+  desktop,
+  installer,
+  logbuf,
+  runner,
+  server,
+  updater,
+} from '../../wailsjs/go/models';
+
+export type Profile = server.Profile;
+export type Admin = server.Admin;
+export type Status = runner.Status;
+export type InstallState = installer.State;
+export type InstallInfo = installer.Info;
+export type LogLine = logbuf.Line;
+export type LogRun = desktop.LogRun;
+export type LogCleanup = desktop.LogCleanup;
+export type ModsView = desktop.ModsView;
+export type ModRow = desktop.ModRow;
+export type Step = desktop.Step;
+export type Connect = desktop.Connect;
+export type MapsInfo = desktop.MapsInfo;
+export type AppInfo = desktop.Info;
+export type Settings = config.Settings;
+export type ExistingScan = desktop.ExistingScan;
+export type ApplyResult = config.ApplyResult;
+export type SyncDiff = server.Diff;
+export type UpdateState = updater.State;
+export type Terms = desktop.Terms;
+export type BackupSummary = backupsvc.Summary;
+export type CreateResult = desktop.CreateResult;
+export type SecretKey =
+  'serverPassword' | 'rconPassword' | 'gsltToken' | 'gameStatsToken' | 'modioEmail' | 'modioApiKey';
+
+export const backend = {
+  info: () => Sys.Info(),
+  openLink: (key: string) => Sys.OpenLink(key),
+  problemLinks: (code: string) => Sys.ProblemLinks(code),
+  settings: () => Sys.Settings(),
+  setLanguage: (lang: string) => Sys.SetLanguage(lang),
+  setShowConsole: (on: boolean) => Sys.SetShowConsole(on),
+  copyText: (text: string) => Sys.CopyText(text),
+  checklist: () => Sys.Checklist(),
+  terms: () => Sys.Terms(),
+  acceptTerms: (version: string) => Sys.AcceptTerms(version),
+  updateState: () => Sys.UpdateState(),
+  checkUpdates: () => Sys.CheckUpdates(),
+  installUpdate: () => Sys.InstallUpdate(),
+
+  profile: () => Cfg.Profile(),
+  saveProfile: (p: Profile) => Cfg.SaveProfile(p),
+  defaultProfile: () => Cfg.DefaultProfile(),
+  maps: () => Cfg.Maps(),
+  secretsState: () => Cfg.SecretsState() as Promise<Record<SecretKey, boolean>>,
+  setSecret: (key: SecretKey, value: string) =>
+    Cfg.SetSecret(key, value) as Promise<Record<SecretKey, boolean>>,
+  revealSecret: (key: SecretKey) => Cfg.RevealSecret(key),
+  extractSteamId: (text: string) => Cfg.ExtractSteamID(text),
+  chooseServerDir: () => Cfg.ChooseServerDir(),
+  chooseSteamCmdDir: () => Cfg.ChooseSteamCMDDir(),
+  scanExisting: () => Cfg.ScanExisting(),
+  applyExisting: (keepMine: string[]) => Cfg.ApplyExisting(keepMine),
+  rconInIni: () => Cfg.RconInIni(),
+  moveRconToVault: () => Cfg.MoveRconToVault(),
+
+  installState: () => Inst.State(),
+  installInfo: () => Inst.Info(),
+  fetchSteamCmd: () => Inst.FetchSteamCMD(),
+  installServer: (validate: boolean) => Inst.InstallServer(validate),
+  cancelInstall: () => Inst.Cancel(),
+
+  status: () => Srv.Status(),
+  start: () => Srv.Start(),
+  stop: () => Srv.Stop(),
+  restart: () => Srv.Restart(),
+  connect: () => Srv.Connect(),
+  mods: () => Srv.Mods(),
+  refreshSubscriptions: () => Srv.RefreshSubscriptions(),
+  requestCode: () => Srv.RequestCode(),
+  authorize: (code: string) => Srv.Authorize(code),
+  detectApiKey: () => Srv.DetectAPIKey(),
+
+  recentLogs: (limit: number) => Logs.Recent(limit),
+  clearLogs: () => Logs.Clear(),
+  openLogFolder: () => Logs.OpenFolder(),
+  logRuns: () => Logs.Runs(),
+  readLogRun: (id: string) => Logs.ReadRun(id),
+  logCleanup: () => Logs.Cleanup(),
+  setLogCleanup: (enabled: boolean, keep: number) => Logs.SetCleanup(enabled, keep),
+  cleanOldLogs: () => Logs.CleanOld(),
+
+  createBackup: (password: string, includeModio: boolean) => Bak.Create(password, includeModio),
+  chooseBackupFile: () => Bak.ChooseFile(),
+  inspectBackup: (password: string) => Bak.Inspect(password),
+  chooseRestoreDir: () => Bak.ChooseRestoreDir(),
+  restoreBackup: (password: string, restoreModio: boolean) => Bak.Restore(password, restoreModio),
+};
+
+/** Assina um evento do Go. Devolve a função que cancela. */
+export function on<T>(
+  event: 'server:status' | 'install:state' | 'log:lines' | 'update:state',
+  fn: (v: T) => void,
+) {
+  return EventsOn(event, fn);
+}
+
+export const windowControls = {
+  minimise: () => WindowMinimise(),
+  toggleMaximise: () => WindowToggleMaximise(),
+  isMaximised: () => WindowIsMaximised(),
+  close: () => Quit(),
+};

@@ -1,0 +1,44 @@
+{
+  "name": "sandstorm-server-assist",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "desktop/frontend"
+  ],
+  "scripts": {
+    "dev": "node scripts/desktop.mjs dev",
+    "build": "node scripts/desktop.mjs build",
+    "build:installer": "node scripts/desktop.mjs build --nsis",
+    "package": "node scripts/desktop.mjs package",
+    "update:keygen": "node scripts/update-key.mjs keygen",
+    "update:pubkey": "node scripts/update-key.mjs pubkey",
+    "update:manifest": "node scripts/update-manifest.mjs",
+    "site:preview": "node scripts/publish-site.mjs --preview",
+    "site:publish": "node scripts/publish-site.mjs",
+    "gen:bindings": "node scripts/desktop.mjs generate",
+    "lint": "eslint . && node scripts/desktop.mjs vet",
+    "format": "prettier --write . && gofmt -w desktop",
+    "typecheck": "npm run typecheck -w @ssa/frontend",
+    "test": "npm run test:go && npm test -w @ssa/frontend",
+    "test:go": "node scripts/desktop.mjs test",
+    "audit": "audit-ci --config audit-ci.jsonc && npm audit signatures",
+    "audit:go": "node scripts/govulncheck.mjs",
+    "audit:code": "node scripts/gosec.mjs && eslint --config eslint.security.config.js desktop/frontend/src",
+    "audit:all": "npm run audit && npm run audit:go && npm run audit:code",
+    "icon": "go -C desktop run ./cmd/makeicon"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.6",
+    "audit-ci": "^7.1.0",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-security": "^4.2.1",
+    "globals": "^17.14.0",
+    "prettier": "^3.9.10",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1"
+  },
+  "license": "Apache-2.0"
+}

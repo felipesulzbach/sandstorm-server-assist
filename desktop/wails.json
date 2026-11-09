@@ -1,0 +1,15 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "sandstorm-server-assist",
+  "outputfilename": "sandstorm-server-assist",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "info": {
+    "productName": "Sandstorm Server Assist",
+    "productVersion": "0.1.2",
+    "comments": "Instalar, configurar e iniciar um servidor dedicado de Insurgency: Sandstorm",
+    "copyright": "Copyright Sandstorm Server Assist contributors. Apache License 2.0."
+  }
+}

@@ -1,0 +1,6 @@
+node_modules
+dist
+desktop/frontend/wailsjs
+desktop/build
+tools
+package-lock.json

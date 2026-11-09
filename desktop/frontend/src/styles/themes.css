@@ -1,0 +1,173 @@
+/*
+ * Aparência escolhida em Configurações › Aparência (ADR-011, mesmo modelo do game-in):
+ * - temas de cor: <html data-theme="sand|black|olive|blue|light"> trocam só as variáveis (Areia é o :root);
+ * - skins: <html data-skin="sidebar|compact|cards|top"> mudam a forma do layout (Barra lateral é a base).
+ */
+
+/* ---------- Temas de cor ---------- */
+
+:root[data-theme='black'] {
+  --bg: #000;
+  --surface: #0f0f0f;
+  --surface-2: #1a1a1a;
+  --border: #262626;
+  --text: #e9e9e9;
+  --muted: #8f8f8f;
+  --sidebar: #000;
+  --sidebar-active: #1c1c1c;
+  --sidebar-muted: #7a7a7a;
+}
+
+:root[data-theme='olive'] {
+  --bg: #15170f;
+  --surface: #1d2116;
+  --surface-2: #272c1e;
+  --border: #353b29;
+  --text: #e8eadf;
+  --muted: #a3a891;
+  --accent: #9cb35a;
+  --accent-hover: #afc66b;
+  --accent-text: #11140a;
+  --accent-soft: #2c3519;
+  --sidebar: #11130c;
+  --sidebar-text: #dfe2d2;
+  --sidebar-muted: #8c917a;
+  --sidebar-active: #252a1b;
+}
+
+:root[data-theme='blue'] {
+  --bg: #0e1626;
+  --surface: #142037;
+  --surface-2: #1b2a45;
+  --border: #233554;
+  --text: #dde6f3;
+  --muted: #8fa2bf;
+  --accent: #3b82f6;
+  --accent-hover: #5596ff;
+  --accent-text: #fff;
+  --accent-soft: #1d3a85;
+  --sidebar: #0a1120;
+  --sidebar-text: #d5deec;
+  --sidebar-muted: #6f819e;
+  --sidebar-active: #1b2a45;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f3f0ea;
+  --surface: #ffffff;
+  --surface-2: #f0ece4;
+  --border: #e0dbd0;
+  --text: #1d1c1a;
+  --muted: #6b6760;
+  --accent: #b7791f;
+  --accent-hover: #c98a2c;
+  --accent-text: #fff;
+  --accent-soft: #f7ead3;
+  --ok: #15803d;
+  --ok-soft: #e7f5ec;
+  --danger: #b42318;
+  --danger-soft: #fdecea;
+  --warn: #8a5a00;
+  --warn-soft: #fff4dc;
+  --info: #1d4ed8;
+  --info-soft: #e6eefc;
+  --backdrop: rgb(30 25 15 / 0.35);
+  --shadow-modal: 0 12px 40px rgb(0 0 0 / 0.18);
+  --sidebar: #2a2723;
+  --sidebar-text: #ece8df;
+  --sidebar-muted: #a49d90;
+  --sidebar-active: #3a3630;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 2px 8px rgb(0 0 0 / 0.04);
+}
+
+/* ---------- Skins ---------- */
+
+/* Compacta: só ícones na lateral (o nome aparece ao passar o mouse). */
+[data-skin='compact'] .app {
+  grid-template-columns: 64px 1fr;
+}
+
+[data-skin='compact'] .nav__item {
+  justify-content: center;
+  padding: 10px 0;
+  position: relative;
+}
+
+[data-skin='compact'] .nav__label,
+[data-skin='compact'] .sidebar__foot {
+  display: none;
+}
+
+[data-skin='compact'] .nav__item .dot {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  margin: 0;
+}
+
+/* Cartões: painéis flutuantes com cantos arredondados sobre o fundo da lateral. */
+[data-skin='cards'] .app {
+  background: var(--sidebar);
+  gap: 8px;
+  padding: 0 8px 8px 0;
+}
+
+[data-skin='cards'] .content {
+  background: var(--bg);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+[data-skin='cards'] .card {
+  border-radius: 14px;
+}
+
+[data-skin='cards'] .logdrawer {
+  margin: 0 8px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+/* Barra no topo: menu horizontal sob a barra de título. */
+[data-skin='top'] .app {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
+}
+
+[data-skin='top'] .sidebar {
+  flex-direction: row;
+  align-items: center;
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--border);
+  overflow: visible;
+}
+
+[data-skin='top'] .sidebar nav {
+  flex: 1;
+}
+
+[data-skin='top'] .nav {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+[data-skin='top'] .nav--bottom {
+  margin: 0;
+  padding: 0;
+}
+
+[data-skin='top'] .nav__item {
+  padding: 7px 12px;
+  font-size: 13.5px;
+}
+
+[data-skin='top'] .sidebar__foot {
+  padding: 0 0 0 12px;
+  border-left: 1px solid var(--border);
+  margin-left: 8px;
+}
+
+[data-skin='top'] .page {
+  margin: 0 auto;
+}

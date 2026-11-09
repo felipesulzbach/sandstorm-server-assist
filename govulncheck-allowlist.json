@@ -1,0 +1,4 @@
+{
+  "$comment": "Vulnerabilidades Go aceitas conscientemente (lidas por scripts/govulncheck.mjs). Cada entrada: { \"id\": \"GO-AAAA-NNNN\", \"notes\": \"por quê\", \"expiry\": \"AAAA-MM-DD\" }. Sem prazo, a entrada é ignorada.",
+  "allowlist": []
+}

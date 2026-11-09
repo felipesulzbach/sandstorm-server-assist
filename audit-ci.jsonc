@@ -1,0 +1,18 @@
+{
+  // Verificação de vulnerabilidades das dependências npm (npm run audit).
+  // Falha a partir de "moderate", em produção E desenvolvimento (ferramentas de dev rodam na máquina e no CI).
+  "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json",
+  "moderate": true,
+  "report-type": "important",
+  // Exceções aceitas conscientemente. Toda entrada precisa de justificativa e data de revisão.
+  // Formato: { "GHSA-xxxx-xxxx-xxxx": { "active": true, "notes": "por quê", "expiry": "AAAA-MM-DD" } }
+  "allowlist": [
+    {
+      "GHSA-g3hv-75wg-m249": {
+        "active": true,
+        "notes": "minimatch <11 (DoS com padrão malicioso). Só no eslint/typescript-eslint (dev), com padrões da própria config do projeto; nada disso vai para o app (npm audit --omit=dev limpo). A correção é o major 11, que o eslint ainda não aceita. Remover quando atualizar.",
+        "expiry": "2026-12-31"
+      }
+    }
+  ]
+}
