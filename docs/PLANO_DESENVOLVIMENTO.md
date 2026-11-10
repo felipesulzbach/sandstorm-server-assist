@@ -1,6 +1,6 @@
 # Plano de desenvolvimento
 
-> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-09, por volta de 14:30 (fase 13).
+> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-09, por volta de 21:00 (página publicada).
 > Base: [RESUMO_PROJETO.md](RESUMO_PROJETO.md) · Decisões: [DECISOES.md](DECISOES.md)
 
 ## Situação
@@ -106,12 +106,19 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
 - https://github.com/felipesulzbach/sandstorm-server-assist, branch `main`. Publicação na AWS a partir de outro
   computador (precisa da chave de assinatura das atualizações, copiada à mão).
 
-## Pendências
+## Página de download publicada (09/11/2026, ~21:00)
 
-- Rota `/sandstorm/` e volume já aplicados no checkout local do game-in (Caddyfile, compose, .gitignore, docs/PLANO.md;
-  validados com `caddy validate` e `docker compose config`), sem commit. Falta: commit/push no game-in, levar ao
-  servidor, criar `deploy/sandstorm/` lá e recriar o Caddy (pede o usuário).
-- Primeira publicação: `SSA_SSH_HOST=... npm run site:publish` (envia ao servidor; pede o usuário).
+- **No ar:** https://game-in.duckdns.org/sandstorm/ com a versão 0.1.2 (instalador, zip portátil e `latest.json`
+  assinado). A atualização automática dos apps instalados passa a achar o manifesto.
+- game-in: rota `/sandstorm/` no `main` (`ff6f4f3`, mais `8292f5a`, que pôs a linha da tabela no lugar certo do
+  `docs/PLANO.md`); no servidor, `git pull`, pasta `deploy/sandstorm/` e só o Caddy recriado (`up -d --no-deps
+  caddy`). game-in (`/healthz`, `/`) e `/midia/` continuaram respondendo 200.
+- Gerado no PC de publicação: NSIS 3.13 instalado pelo winget (`NSIS.NSIS`), `npm run build:installer`, `package`,
+  `site:preview` e `site:publish`.
+- Conferido de fora: página, termos, privacidade, CSP, `Content-Disposition: attachment` nos downloads, SHA-256 do
+  instalador baixado igual ao do `latest.json`, página no navegador sem erros no console.
+
+## Pendências
 
 - Feito depois da primeira rodada: ícone, zip portátil, testes de installer/config/logbuf e teste real do
   download do SteamCMD (`SSA_STEAMCMD_E2E=1`, passou).

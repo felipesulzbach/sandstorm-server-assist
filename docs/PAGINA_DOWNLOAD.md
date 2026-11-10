@@ -12,7 +12,7 @@ instalado lê `https://game-in.duckdns.org/sandstorm/downloads/latest.json` para
 
 ## Preparar o servidor (uma vez, no repositório do game-in)
 
-Já aplicado no checkout local do game-in em 09/11/2026 (falta commit e levar ao servidor). O trecho fica aqui como
+Feito em 09/11/2026: no `main` do game-in e no servidor (página no ar desde então). O trecho fica aqui como
 referência.
 
 1. Em `deploy/compose.prod.yaml`, no serviço do Caddy, montar a pasta (ao lado da do midia):
@@ -51,6 +51,9 @@ npm run build:installer
 npm run package
 npm run site:preview
 ```
+
+O `build:installer` precisa do NSIS (`winget install NSIS.NSIS`). O `SSA_SSH_HOST` deve usar o nome ou o endereço que o
+`known_hosts` do PC já conhece; senão o SSH para em "Host key verification failed".
 
 Conferir a página em `desktop/build/dist/site`. Depois, com o endereço SSH do servidor do game-in:
 

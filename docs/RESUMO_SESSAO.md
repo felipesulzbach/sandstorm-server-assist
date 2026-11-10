@@ -113,6 +113,13 @@ teste, varredura de segredos limpa. A publicação na AWS será feita de outro c
 do game-in): ele precisa do clone, da chave de assinatura `~/.sandstorm-server-assist/update-signing-key.pem`
 (copiada à mão, nunca pelo git) e dos passos de `docs/PAGINA_DOWNLOAD.md`.
 
+**Depois (~21:00) · página publicada, no PC de publicação:** https://game-in.duckdns.org/sandstorm/ no ar com a
+0.1.2 (instalador, zip e `latest.json` assinado); a atualização automática passa a funcionar. Neste PC: `npm install`,
+testes/lint/typecheck/audit ok, NSIS instalado pelo winget, instalador e zip gerados. No game-in, o outro PC já tinha
+enviado a rota (`ff6f4f3`); aqui só foi corrigida a linha da tabela no `docs/PLANO.md` (`8292f5a`). No servidor:
+`git pull`, `deploy/sandstorm/` e só o Caddy recriado; game-in e `/midia/` seguiram no ar. Neste PC o `known_hosts`
+conhece o servidor pelo IP, não pelo nome: o `SSA_SSH_HOST` usou o endereço já conhecido.
+
 ## Validação humana (pendente com o usuário)
 
 1. Instalar com `desktop/build/dist/sandstorm-server-assist-0.1.0-windows-setup.exe`, abrir pelo atalho e aceitar
@@ -126,8 +133,8 @@ do game-in): ele precisa do clone, da chave de assinatura `~/.sandstorm-server-a
 
 ## Próximos passos possíveis (só com pedido do usuário)
 
-- Repositório público no GitHub com CI (o usuário avisa quando).
-- Rota `/sandstorm/` no Caddy do game-in e primeira publicação da página (`docs/PAGINA_DOWNLOAD.md`).
+- CI no repositório do GitHub (o usuário avisa quando).
+- Próximas versões: subir a versão, `npm run build:installer`, `package` e `site:publish` (`docs/PAGINA_DOWNLOAD.md`).
 - Detecção de conflito de mods antes de iniciar, RCON pelo app, regra do Firewall.
 
 ## Cuidados
