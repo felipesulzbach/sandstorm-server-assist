@@ -1,6 +1,6 @@
 # Plano de desenvolvimento
 
-> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-10, por volta de 13:30 (0.1.3 e verificador no ar).
+> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-10, à tarde (0.1.4 publicada).
 > Base: [RESUMO_PROJETO.md](RESUMO_PROJETO.md) · Decisões: [DECISOES.md](DECISOES.md)
 
 ## Situação
@@ -172,6 +172,9 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
 
 - `domain/pak` (índice do .pak, teste com fuzz), `modio.Mutators`, `ConfigAPI.ModMutators`, lista com rolagem e
   marca MOD, sem o campo de texto. ADR-023.
+- **Publicada** no PC de publicação: testes, lint, typecheck, `audit`, `audit:go` e `audit:code` limpos;
+  `build:installer`, `package`, `site:publish`. `latest.json` na 0.1.4, SHA-256 do instalador baixado confere,
+  página mostra 0.1.4; verificador, game-in e `/midia/` seguiram respondendo 200. Sem mudança no servidor.
 
 ## Pendências
 

@@ -141,9 +141,9 @@ saudável, rota `/sandstorm/api/` no ar) e 0.1.3 publicada na página (`latest.j
 passam a ver a atualização). Achado: depois de mudar o Caddyfile, recriar o Caddy com `--force-recreate`.
 
 **10/11 (tarde) · fase 20, versão 0.1.4:** a lista de mutators passou a achar os mutators dos mods instalados nos
-.pak (ADR-023), com rolagem e marca MOD; o campo de texto saiu. O usuário pediu para deixar o servidor parado.
+.pak (ADR-023), com rolagem e marca MOD; o campo de texto saiu. O usuário pediu para deixar o servidor parado. Publicada na página no mesmo dia (`latest.json` na 0.1.4).
 
-**Falta (com o usuário):** atualizar o app instalado para a 0.1.3, aceitar os termos novos, testar o botão
+**Falta (com o usuário):** atualizar o app instalado para a 0.1.4, aceitar os termos novos, testar o botão
 "Testar portas pela internet" com o servidor ligado, testar a troca para um mapa de mod e as mensagens no chat com jogadores. Da fase 19:
 testar com jogadores o painel (expulsar/banir), a troca com dia/noite, as regras no jogo, o webhook do Discord, a
 regra do Firewall (pede administrador) e o reinício diário.
