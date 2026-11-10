@@ -21,7 +21,7 @@ export function BindIpField({
   useEffect(() => {
     backend
       .localAddresses()
-      .then(setList)
+      .then((l) => setList(l ?? []))
       .catch(() => {});
   }, []);
 

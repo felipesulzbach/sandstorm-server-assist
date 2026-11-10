@@ -15,6 +15,8 @@ export function ReadRun(arg1:string):Promise<Array<logbuf.Line>>;
 
 export function Recent(arg1:number):Promise<Array<logbuf.Line>>;
 
+export function ReportScreenError(arg1:string,arg2:string):Promise<void>;
+
 export function Runs():Promise<Array<desktop.LogRun>>;
 
 export function SetCleanup(arg1:boolean,arg2:number):Promise<desktop.LogCleanup>;

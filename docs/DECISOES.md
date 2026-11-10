@@ -381,3 +381,18 @@ Registro curto: contexto, decisão e consequência. Decisão nova entra no fim.
     instalados continua na lista, marcado.
 - **Verificado:** nos 6 mods de mapa desta máquina, 37 cenários, todos ligados ao mapa principal; editor e seletores no
   modo dev. Não testado com o jogo: a aparência real dos estilos e da imagem, e negrito no chat.
+
+## ADR-025 · Listas nunca nulas e proteção contra erro de tela
+
+- **Contexto:** na 0.1.5, "Mostrar jogadores" com o servidor vazio deixou o app inteiro preto. O Go devolvia a lista
+  de jogadores e de banidos como `nil` (JSON `null`), a tela lia `players.length` e o React desmontava tudo,
+  porque não havia proteção para erro de tela.
+- **Decisão:**
+  - Listas que vão para a tela começam vazias no Go (`[]T{}`), nunca `nil`: jogadores, banidos, cenários da troca
+    de mapa, placas de rede, mutators e cenários dos mods. A tela também trata `null` como lista vazia.
+  - `shared/ErrorBoundary` em duas camadas: por página (aviso só na página, "Tentar de novo" e "Voltar ao Painel";
+    o menu continua) e no app inteiro (aviso em tela cheia com "Recarregar o app"). O servidor do jogo não é afetado.
+  - O erro vai para os Registos do app (`LogAPI.ReportScreenError`, nível erro), em uma linha, cortado em 2000
+    caracteres e com a máscara de segredos do log.
+- **Verificado:** teste do Go com o `listplayers` vazio no formato real (`{"players":[],"bans":[]}`), testes da
+  proteção (erro na página, troca de página, erro no app) e o botão no modo dev com o servidor real vazio.

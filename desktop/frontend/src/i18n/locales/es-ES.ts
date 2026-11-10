@@ -725,6 +725,15 @@ export const esES: Messages = {
     masked: 'Las contraseñas y los tokens aparecen como •••.',
   },
   error: {
+    screenTitle: 'Esta pantalla tuvo un error',
+    screenText:
+      'El resto de la app sigue funcionando. Vuelve a intentarlo o regresa al Panel. El detalle queda en Registros.',
+    appTitle: 'La app tuvo un error',
+    appText:
+      'Recarga la app para seguir usándola. El servidor sigue en marcha. El detalle queda en Registros.',
+    reload: 'Recargar la app',
+    retry: 'Reintentar',
+    home: 'Volver al Panel',
     what: 'Qué ha pasado',
     cause: 'Causa probable',
     solution: 'Cómo solucionarlo',

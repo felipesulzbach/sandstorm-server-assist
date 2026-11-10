@@ -1848,3 +1848,32 @@ textarea.markup__input {
   color: var(--muted);
   font-size: 12px;
 }
+
+/* Aviso de erro de tela (ErrorBoundary) */
+.screen-error {
+  display: grid;
+  gap: 12px;
+  border-color: var(--danger);
+}
+.screen-error .card__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--danger);
+}
+.screen-error__detail {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  overflow-wrap: anywhere;
+}
+.screen-error__full {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+  background: var(--bg);
+}
+.screen-error__full .screen-error {
+  max-width: 640px;
+}

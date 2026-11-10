@@ -158,6 +158,7 @@ export const backend = {
 
   recentLogs: (limit: number) => Logs.Recent(limit),
   clearLogs: () => Logs.Clear(),
+  reportScreenError: (where: string, detail: string) => Logs.ReportScreenError(where, detail),
   openLogFolder: () => Logs.OpenFolder(),
   logRuns: () => Logs.Runs(),
   readLogRun: (id: string) => Logs.ReadRun(id),

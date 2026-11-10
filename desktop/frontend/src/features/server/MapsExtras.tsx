@@ -29,11 +29,11 @@ export function MutatorPicker({
   useEffect(() => {
     backend
       .mutators()
-      .then(setList)
+      .then((l) => setList(l ?? []))
       .catch(() => {});
     backend
       .modMutators()
-      .then(setMods)
+      .then((l) => setMods(l ?? []))
       .catch(() => setMods([]));
   }, []);
 

@@ -61,7 +61,7 @@ func scanMods(root string) []installedMod {
 // Mutators lista os mutators dos mods instalados (ADR-023). Se nenhum .pak do mod puder ser lido e o mod tem a tag
 // "Mutator" no mod.io, usa o nome do plugin.
 func Mutators(root string) []ModMutator {
-	var out []ModMutator
+	out := []ModMutator{}
 	seen := map[string]bool{}
 	for _, im := range scanMods(root) {
 		names := im.contents.Mutators
@@ -84,7 +84,7 @@ func Mutators(root string) []ModMutator {
 // Scenarios lista os cenários dos mods instalados com o mapa de cada um (cenário sem mapa no mesmo mod fica de
 // fora: o servidor não teria para onde viajar).
 func Scenarios(root string) []ModScenario {
-	var out []ModScenario
+	out := []ModScenario{}
 	seen := map[string]bool{}
 	for _, im := range scanMods(root) {
 		for _, sc := range im.contents.Scenarios {

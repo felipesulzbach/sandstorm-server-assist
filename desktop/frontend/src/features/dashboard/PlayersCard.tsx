@@ -35,7 +35,8 @@ export function PlayersCard({ status }: { status: Status | null }) {
 
   const load = async () => {
     const v = await action.run(backend.players);
-    if (v) setView(v);
+    // Listas nulas viram vazias (servidor sem ninguém).
+    if (v) setView({ ...v, players: v.players ?? [], bans: v.bans ?? [] } as PlayersView);
   };
 
   const confirm = async () => {

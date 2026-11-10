@@ -26,6 +26,10 @@ export function Recent(arg1) {
   return window['go']['desktop']['LogAPI']['Recent'](arg1);
 }
 
+export function ReportScreenError(arg1, arg2) {
+  return window['go']['desktop']['LogAPI']['ReportScreenError'](arg1, arg2);
+}
+
 export function Runs() {
   return window['go']['desktop']['LogAPI']['Runs']();
 }

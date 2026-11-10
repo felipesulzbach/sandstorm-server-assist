@@ -40,10 +40,10 @@ type Address struct {
 
 // LocalAddresses lista os IPv4 das placas de rede ligadas (inclui as de programas de VPN), sem o loopback.
 func LocalAddresses() []Address {
-	var out []Address
+	out := []Address{}
 	ifaces, err := net.Interfaces()
 	if err != nil {
-		return nil
+		return out
 	}
 	for _, ifc := range ifaces {
 		if ifc.Flags&net.FlagUp == 0 || ifc.Flags&net.FlagLoopback != 0 {

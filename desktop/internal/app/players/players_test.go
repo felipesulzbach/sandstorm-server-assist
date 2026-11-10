@@ -1,6 +1,7 @@
 package players
 
 import (
+	"encoding/json"
 	"testing"
 
 	"sandstorm-server-assist/desktop/internal/domain/problems"
@@ -85,5 +86,34 @@ func TestNeedsRunningServer(t *testing.T) {
 	s := newService(&sent, &dials, false)
 	if _, err := s.Refresh(); problems.CodeOf(err) != problems.ServerNotRunning {
 		t.Fatal(err)
+	}
+}
+
+// Servidor sem ninguém: a tela tem de receber listas vazias ([]), não null (a 0.1.5 ficava com a tela preta).
+func TestEmptyServerSendsEmptyLists(t *testing.T) {
+	s := New(Deps{
+		Config: func() (server.Profile, server.Secrets, error) {
+			p := server.Default()
+			p.Rcon = true
+			return p, server.Secrets{RconPassword: "secret1"}, nil
+		},
+		Ready: func() bool { return true },
+		Dial: func(int, string) (Conn, error) {
+			var sent []string
+			return fakeConn{sent: &sent, reply: map[string]string{
+				// Formato real com o servidor vazio (conferido em 10/11/2026).
+				"listplayers": "ID\t | Name\t\t\t\t | NetID\t\t\t | IP\t\t\t | Score\t\t |\n===============\n",
+				"listbans":    "",
+			}}, nil
+		},
+		Log: func(string, string) {},
+	})
+	v, err := s.Refresh()
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, _ := json.Marshal(v)
+	if string(b) != `{"players":[],"bans":[]}` {
+		t.Fatalf("got %s", b)
 	}
 }

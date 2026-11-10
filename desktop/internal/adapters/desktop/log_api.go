@@ -159,3 +159,16 @@ func (l *LogAPI) CleanOld() (LogCleanup, error) {
 	}
 	return c, nil
 }
+
+// maxScreenError limita o texto de um erro de tela gravado no log.
+const maxScreenError = 2000
+
+// ReportScreenError grava no log do app um erro de tela que a proteção da tela segurou (ADR-025). O texto passa
+// pela máscara de segredos do log; vai cortado e numa linha só.
+func (l *LogAPI) ReportScreenError(where, detail string) {
+	text := strings.Join(strings.Fields(where+": "+detail), " ")
+	if len(text) > maxScreenError {
+		text = text[:maxScreenError]
+	}
+	l.a.log.Add("app", "Screen error: "+strings.ToValidUTF8(text, ""), "error")
+}

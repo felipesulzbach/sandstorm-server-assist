@@ -61,7 +61,7 @@ func ValidNetID(id string) bool { return netIDRe.MatchString(id) }
 //	===============================================================================
 //	0	 | Fulano	 | SteamNWI:765...	 | 203.0.113.5	 | 120	 |
 func ParsePlayers(out string) []Player {
-	var list []Player
+	list := []Player{} // vazia, nunca nil: a tela recebe [] e não null
 	for _, line := range strings.Split(strings.ReplaceAll(out, "\r\n", "\n"), "\n") {
 		cols := strings.Split(line, "|")
 		if len(cols) < 4 {
@@ -96,7 +96,7 @@ func ParsePlayers(out string) []Player {
 
 // ParseBans lê o listbans: cada linha com um net ID vira um banimento (o resto da linha fica como texto).
 func ParseBans(out string) []Ban {
-	var list []Ban
+	list := []Ban{}
 	seen := map[string]bool{}
 	for _, line := range strings.Split(strings.ReplaceAll(out, "\r\n", "\n"), "\n") {
 		id := netIDFind.FindString(line)

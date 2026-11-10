@@ -715,6 +715,14 @@ export const enUS = {
     masked: 'Passwords and tokens appear as •••.',
   },
   error: {
+    screenTitle: 'This screen had an error',
+    screenText:
+      'The rest of the app keeps working. Try again or go back to the Dashboard. The detail is in Logs.',
+    appTitle: 'The app had an error',
+    appText: 'Reload the app to keep using it. The server keeps running. The detail is in Logs.',
+    reload: 'Reload the app',
+    retry: 'Try again',
+    home: 'Back to the Dashboard',
     what: 'What happened',
     cause: 'Possible cause',
     solution: 'How to fix',

@@ -184,6 +184,11 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
   `build:installer`, `package`, `site:publish`. `latest.json` na 0.1.5, SHA-256 do instalador baixado confere,
   página mostra 0.1.5; verificador, game-in e `/midia/` seguiram respondendo 200. Sem mudança no servidor.
 
+## Fase 22 · Correção da tela preta e proteção contra erro de tela (10/11/2026, versão 0.1.6)
+
+- Listas vazias em vez de nulas no Go; tela tolerante a `null`; `ErrorBoundary` por página e no app; erro de tela
+  nos Registos. ADR-025.
+
 ## Pendências
 
 - Feito depois da primeira rodada: ícone, zip portátil, testes de installer/config/logbuf e teste real do

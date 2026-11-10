@@ -115,6 +115,7 @@ func (s *Service) Refresh() (View, error) {
 	if err != nil {
 		return View{}, err
 	}
+	// ParsePlayers e ParseBans devolvem listas vazias (não nil): servidor sem ninguém vira [] na tela.
 	v := View{Players: admin.ParsePlayers(out[0]), Bans: admin.ParseBans(out[1])}
 	s.mu.Lock()
 	s.players, s.bans = v.Players, v.Bans

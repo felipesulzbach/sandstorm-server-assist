@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { detectLang, I18nProvider, isLang, useI18n, type Lang } from './i18n';
 import { backend, type AppInfo } from './shared/backend';
+import { ErrorBoundary } from './shared/ErrorBoundary';
 import { TitleBar } from './shared/TitleBar';
 import { useServerStatus } from './shared/hooks';
 import { LogsProvider } from './features/logs/LogDrawer';
@@ -49,7 +50,10 @@ export function App() {
   return (
     <I18nProvider initial={lang}>
       <LogsProvider>
-        <Shell />
+        {/* Erro na moldura do app (menu, barra de título): aviso em tela cheia com "Recarregar". */}
+        <ErrorBoundary scope="app">
+          <Shell />
+        </ErrorBoundary>
       </LogsProvider>
     </I18nProvider>
   );
@@ -102,13 +106,16 @@ function Shell() {
           </footer>
         </aside>
         <main className="content">
-          {page === 'dashboard' && <DashboardPage go={setPage} status={status} />}
-          {page === 'install' && <InstallPage status={status} />}
-          {page === 'server' && <ServerPage />}
-          {page === 'mods' && <ModsPage status={status} />}
-          {page === 'backup' && <BackupPage status={status} />}
-          {page === 'settings' && <SettingsPage />}
-          {page === 'about' && <AboutPage info={info} terms={terms} />}
+          {/* Erro numa página mostra um aviso nela; o resto do app continua (antes ficava tudo preto). */}
+          <ErrorBoundary scope="page" resetKey={page} onHome={() => setPage('dashboard')}>
+            {page === 'dashboard' && <DashboardPage go={setPage} status={status} />}
+            {page === 'install' && <InstallPage status={status} />}
+            {page === 'server' && <ServerPage />}
+            {page === 'mods' && <ModsPage status={status} />}
+            {page === 'backup' && <BackupPage status={status} />}
+            {page === 'settings' && <SettingsPage />}
+            {page === 'about' && <AboutPage info={info} terms={terms} />}
+          </ErrorBoundary>
         </main>
       </div>
       {terms && !terms.accepted && <LegalGate terms={terms} onAccepted={setTerms} />}

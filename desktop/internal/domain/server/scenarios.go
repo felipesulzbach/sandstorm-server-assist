@@ -73,7 +73,7 @@ func SplitScenario(id string) (mapName, mode string) {
 // carregado), então os mapas de mod entram por aqui.
 func MapChoices(fromServer []string, p Profile) []Scenario {
 	seen := map[string]bool{}
-	var out []Scenario
+	out := []Scenario{}
 	add := func(id, source string) {
 		if seen[id] || !scenarioRe.MatchString(id) {
 			return

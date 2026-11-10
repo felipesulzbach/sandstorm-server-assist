@@ -719,6 +719,15 @@ export const ptPT: Messages = {
     masked: 'Palavras-passe e tokens aparecem como •••.',
   },
   error: {
+    screenTitle: 'Este ecrã teve um erro',
+    screenText:
+      'O resto da aplicação continua a funcionar. Tente de novo ou volte ao Painel. O detalhe fica nos Registos.',
+    appTitle: 'A aplicação teve um erro',
+    appText:
+      'Recarregue a aplicação para continuar a usá-la. O servidor continua a correr. O detalhe fica nos Registos.',
+    reload: 'Recarregar a aplicação',
+    retry: 'Tentar de novo',
+    home: 'Voltar ao Painel',
     what: 'O que aconteceu',
     cause: 'Causa provável',
     solution: 'Como resolver',

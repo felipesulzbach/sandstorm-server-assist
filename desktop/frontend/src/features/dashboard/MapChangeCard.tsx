@@ -47,8 +47,9 @@ export function MapChangeCard({ status, go }: { status: Status | null; go: (p: P
   }, [list]);
 
   const load = async () => {
-    const l = await action.run(backend.scenarios);
-    if (!l) return;
+    const got = await action.run(backend.scenarios);
+    if (got === undefined) return;
+    const l = got ?? [];
     setList(l);
     const cur = l.find((s) => s.id === status?.scenario);
     setChoice((c) => (l.some((s) => s.id === c) ? c : ((cur ?? l[0])?.id ?? '')));
