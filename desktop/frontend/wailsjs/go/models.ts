@@ -748,6 +748,24 @@ export namespace modio {
 	        this.modName = source["modName"];
 	    }
 	}
+	export class ModScenario {
+	    map: string;
+	    scenario: string;
+	    modId: number;
+	    modName: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ModScenario(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.map = source["map"];
+	        this.scenario = source["scenario"];
+	        this.modId = source["modId"];
+	        this.modName = source["modName"];
+	    }
+	}
 	export class Session {
 	    found: boolean;
 	    username: string;
@@ -1219,6 +1237,22 @@ export namespace server {
 	        this.map = source["map"];
 	        this.mode = source["mode"];
 	        this.source = source["source"];
+	    }
+	}
+	export class Segment {
+	    style: string;
+	    text: string;
+	    src?: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Segment(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.style = source["style"];
+	        this.text = source["text"];
+	        this.src = source["src"];
 	    }
 	}
 

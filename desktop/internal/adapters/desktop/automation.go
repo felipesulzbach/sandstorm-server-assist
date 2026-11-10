@@ -148,6 +148,19 @@ func (c *ConfigAPI) Mutators() []server.Mutator { return server.Mutators }
 // ModMutators devolve os mutators achados nos mods instalados (lidos dos .pak, ADR-023).
 func (c *ConfigAPI) ModMutators() []modio.ModMutator { return modio.Mutators(modio.RootDir()) }
 
+// ModScenarios devolve os mapas e cenários dos mods instalados (lidos dos .pak, ADR-024), para escolher o mapa de
+// mod depois de carregar.
+func (c *ConfigAPI) ModScenarios() []modio.ModScenario { return modio.Scenarios(modio.RootDir()) }
+
+// MarkupPreview confere a formatação de uma mensagem e devolve os pedaços para a prévia (chat=true: só o que o chat
+// aceita). O erro aponta o problema (tag desconhecida, sem fechar...).
+func (c *ConfigAPI) MarkupPreview(text string, chat bool) ([]server.Segment, error) {
+	if len(text) > 8000 {
+		return nil, problems.Field("motd", "validation.motd", "max", "1000")
+	}
+	return server.ParseMarkup(text, chat, "markup")
+}
+
 // RulesInfo é o catálogo da aba Regras.
 type RulesInfo struct {
 	Groups []string         `json:"groups"`

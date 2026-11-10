@@ -6,6 +6,7 @@ import {
   type CycleLine,
   type Lighting,
   type ModMutator,
+  type ModScenario,
   type Mutator,
 } from '../../shared/backend';
 
@@ -157,5 +158,126 @@ export function CycleLighting({
         ))}
       </ul>
     </div>
+  );
+}
+
+/** "Checkpoint_Security_Hardcore" → "Checkpoint Security Hardcore" (nomes dos mods, sem tradução). */
+const humanMode = (s: string) => s.replace(/_/g, ' ');
+
+/** Cenário preferido de um mapa: Checkpoint Security, se houver; senão o primeiro. */
+function preferred(list: ModScenario[]): ModScenario | undefined {
+  return list.find((s) => /_Checkpoint_Security$/.test(s.scenario)) ?? list[0];
+}
+
+/**
+ * Mapa de mod depois de carregar os mods (-ModDownloadTravelTo, ADR-024): mapa e cenário escolhidos de listas
+ * montadas pelo Go a partir dos .pak dos mods instalados, sem digitar. Um valor do perfil que não está nos mods
+ * instalados continua na lista, marcado.
+ */
+export function ModMapPicker({
+  map,
+  scenario,
+  disabled,
+  onChange,
+  mapError,
+  scenarioError,
+}: {
+  map: string;
+  scenario: string;
+  disabled: boolean;
+  onChange: (map: string, scenario: string) => void;
+  mapError: string | null;
+  scenarioError: string | null;
+}) {
+  const { t } = useI18n();
+  const [list, setList] = useState<ModScenario[] | null>(null);
+
+  useEffect(() => {
+    backend
+      .modScenarios()
+      .then((l) => setList(l ?? []))
+      .catch(() => setList([]));
+  }, []);
+
+  const on = map !== '' || scenario !== '';
+  const maps = [...new Map((list ?? []).map((s) => [s.map, s.modName])).entries()];
+  const ofMap = (list ?? []).filter((s) => s.map === map);
+  const mapKnown = maps.some(([m]) => m === map);
+  const scenarioKnown = ofMap.some((s) => s.scenario === scenario);
+  const modeOf = (sc: string) => humanMode(sc.replace(`Scenario_${map}_`, ''));
+
+  return (
+    <>
+      <label className="check check--block field--wide">
+        <input
+          type="checkbox"
+          checked={on}
+          disabled={disabled || (!on && (list ?? []).length === 0)}
+          onChange={(e) => {
+            const first = preferred(list ?? []);
+            if (e.target.checked && first) {
+              const pick = preferred((list ?? []).filter((s) => s.map === first.map)) ?? first;
+              onChange(pick.map, pick.scenario);
+            } else onChange('', '');
+          }}
+        />
+        <span>
+          {t('server.travel')}
+          <span className="field__hint">
+            {list && list.length === 0 && !on ? t('server.travelNoMods') : t('server.travelHint')}
+          </span>
+        </span>
+      </label>
+      {on && (
+        <>
+          <label className={`field ${mapError ? 'has-error' : ''}`}>
+            <span className="field__label">{t('server.travelMap')}</span>
+            <select
+              className="select"
+              value={map}
+              onChange={(e) => {
+                const pick = preferred((list ?? []).filter((s) => s.map === e.target.value));
+                if (pick) onChange(pick.map, pick.scenario);
+              }}
+            >
+              {!mapKnown && (
+                <option value={map}>{t('server.travelNotInstalled', { name: map })}</option>
+              )}
+              {maps.map(([m, mod]) => (
+                <option key={m} value={m}>
+                  {m === mod ? m : `${m} · ${mod}`}
+                </option>
+              ))}
+            </select>
+            {mapError && <span className="field__error">{mapError}</span>}
+          </label>
+          <label className={`field ${scenarioError ? 'has-error' : ''}`}>
+            <span className="field__label">{t('server.travelScenario')}</span>
+            <select
+              className="select"
+              value={scenario}
+              title={scenario}
+              onChange={(e) => onChange(map, e.target.value)}
+            >
+              {!scenarioKnown && (
+                <option value={scenario}>
+                  {t('server.travelNotInstalled', { name: scenario })}
+                </option>
+              )}
+              {ofMap.map((s) => (
+                <option key={s.scenario} value={s.scenario}>
+                  {modeOf(s.scenario)}
+                </option>
+              ))}
+            </select>
+            {scenarioError ? (
+              <span className="field__error">{scenarioError}</span>
+            ) : (
+              <span className="field__hint">{scenario}</span>
+            )}
+          </label>
+        </>
+      )}
+    </>
   );
 }

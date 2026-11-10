@@ -329,6 +329,9 @@ func (p Profile) Validate() error {
 	if err := p.validateMessages(); err != nil {
 		return err
 	}
+	if err := p.validateMarkup(); err != nil {
+		return err
+	}
 	if err := p.validateAutomation(); err != nil {
 		return err
 	}

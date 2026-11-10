@@ -129,3 +129,24 @@ func FuzzMutators(f *testing.F) {
 		_, _ = ParseFooter(b, int64(len(b)))
 	})
 }
+
+func TestScanMapsAndScenarios(t *testing.T) {
+	file := fakePak(map[string][]string{
+		"Content/Maps/":      {"Old_World.umap", "Old_World_AI.umap", "Old_World_Checkpoint_Security.umap"},
+		"Content/Scenarios/": {"Scenario_Old_World_Checkpoint_Security_Hardcore.uasset", "Scenario_Old_World_Push.uexp"},
+		"Content/Mutators/":  {"Quiet.uasset"},
+	})
+	size := int64(len(file))
+	ft, _ := ParseFooter(file[max(0, len(file)-TailSize):], size)
+	off, n, _ := DirIndex(file[ft.IndexOffset:ft.IndexOffset+ft.IndexSize], size)
+	c, err := Scan(file[off : off+n])
+	if err != nil || len(c.Maps) != 3 || len(c.Scenarios) != 1 || len(c.Mutators) != 1 {
+		t.Fatalf("%+v %v", c, err)
+	}
+	if got := ScenarioMap(c.Scenarios[0], c.Maps); got != "Old_World" {
+		t.Fatal(got)
+	}
+	if got := ScenarioMap("Scenario_Town_Checkpoint", c.Maps); got != "" {
+		t.Fatal(got)
+	}
+}

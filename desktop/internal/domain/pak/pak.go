@@ -150,36 +150,80 @@ func DirIndex(primary []byte, fileSize int64) (offset, size int64, err error) {
 // nameRe é o formato aceito para um nome de mutator (o mesmo da linha de comando).
 var nameRe = regexp.MustCompile(`^[A-Za-z0-9_]{1,64}$`)
 
-// Mutators lê o índice de pastas e devolve os nomes dos mutators (arquivos .uasset em pastas "Mutators").
-func Mutators(dirIndex []byte) ([]string, error) {
+// Contents é o que interessa num .pak de mod: mutators, mapas (.umap) e cenários (Scenario_*.uasset).
+type Contents struct {
+	Mutators  []string
+	Maps      []string
+	Scenarios []string
+}
+
+// scenarioRe é o nome de um cenário (o mesmo aceito na linha de comando).
+var scenarioRe = regexp.MustCompile(`^Scenario_[A-Za-z0-9_]{1,80}$`)
+
+// Scan lê o índice de pastas e separa mutators (arquivos .uasset em pastas "Mutators"), mapas (.umap) e cenários
+// (arquivos Scenario_*.uasset).
+func Scan(dirIndex []byte) (Contents, error) {
+	var c Contents
 	r := &reader{b: dirIndex}
 	dirs := int(r.i32())
 	if r.err != nil || dirs < 0 || dirs > maxEntries {
-		return nil, ErrFormat
+		return c, ErrFormat
 	}
 	seen := map[string]bool{}
-	var out []string
+	add := func(list *[]string, kind, name string) {
+		if !seen[kind+name] {
+			seen[kind+name] = true
+			*list = append(*list, name)
+		}
+	}
 	for d := 0; d < dirs && r.err == nil; d++ {
 		dir := strings.TrimSuffix(r.str(), "/")
 		files := int(r.i32())
 		if files < 0 || files > maxEntries {
-			return nil, ErrFormat
+			return Contents{}, ErrFormat
 		}
 		isMut := strings.EqualFold(dir[strings.LastIndex(dir, "/")+1:], "Mutators")
 		for i := 0; i < files && r.err == nil; i++ {
 			name := r.str()
 			r.i32() // posição do arquivo na lista
+			if base, ok := strings.CutSuffix(name, ".umap"); ok && nameRe.MatchString(base) {
+				add(&c.Maps, "m", base)
+				continue
+			}
 			base, ok := strings.CutSuffix(name, ".uasset")
-			if isMut && ok && nameRe.MatchString(base) && !seen[base] {
-				seen[base] = true
-				out = append(out, base)
+			switch {
+			case !ok:
+			case scenarioRe.MatchString(base):
+				add(&c.Scenarios, "s", base)
+			case isMut && nameRe.MatchString(base):
+				add(&c.Mutators, "u", base)
 			}
 		}
 	}
 	if r.err != nil {
-		return nil, r.err
+		return Contents{}, r.err
 	}
-	return out, nil
+	return c, nil
+}
+
+// Mutators lê o índice de pastas e devolve só os nomes dos mutators.
+func Mutators(dirIndex []byte) ([]string, error) {
+	c, err := Scan(dirIndex)
+	return c.Mutators, err
+}
+
+// ScenarioMap acha o mapa de um cenário: o mapa de nome mais curto tal que o cenário é Scenario_<mapa>_<modo>.
+// O mais curto é o mapa principal: os mods também têm submapas com o nome do modo (Border_Checkpoint_Insurgents
+// junto de Border). Aceita mapas com "_" no nome (Old_World) quando não há um mapa com só a primeira parte.
+// Vazio se nenhum casar.
+func ScenarioMap(scenario string, maps []string) string {
+	best := ""
+	for _, m := range maps {
+		if strings.HasPrefix(scenario, "Scenario_"+m+"_") && (best == "" || len(m) < len(best)) {
+			best = m
+		}
+	}
+	return best
 }
 
 // PluginName lê o nome do plugin no metadata_blob do mod.io ("PluginName:X,ContentDirectory:..."). Serve quando o

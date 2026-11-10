@@ -176,6 +176,11 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
   `build:installer`, `package`, `site:publish`. `latest.json` na 0.1.4, SHA-256 do instalador baixado confere,
   página mostra 0.1.4; verificador, game-in e `/midia/` seguiram respondendo 200. Sem mudança no servidor.
 
+## Fase 21 · Formatação das mensagens e mapa de mod da lista (10/11/2026, versão 0.1.5)
+
+- `domain/server/markup.go`, `ConfigAPI.MarkupPreview`, editor com barra e prévia (mensagem do dia, entrada, saída
+  e programadas), `pak.Scan` com mapas e cenários, `modio.Scenarios`, seletores do mapa de mod. ADR-024.
+
 ## Pendências
 
 - Feito depois da primeira rodada: ícone, zip portátil, testes de installer/config/logbuf e teste real do

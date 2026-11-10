@@ -360,3 +360,24 @@ Registro curto: contexto, decisão e consequência. Decisão nova entra no fim.
   mutator do perfil que nenhum mod instalado traz continua marcado, com aviso.
 - **Verificado:** nos 7 mods desta máquina (15 `.pak`, cerca de 11 GB) a leitura leva 0,01 s e acha só o
   NoRestrictedArea; nenhum mod de mapa deu falso positivo.
+
+## ADR-024 · Formatação das mensagens e mapa de mod escolhido da lista
+
+- **Contexto:** o usuário pediu formatação visual na mensagem do dia e nas mensagens programadas, com um editor, e
+  que o mapa de mod depois de carregar fosse escolhido numa lista em vez de digitado.
+- **O que o jogo aceita** (lido dos arquivos do servidor 1.22, índice dos .pak e o executável): a tela de carregamento
+  usa texto rico do Unreal com a tabela `MotdTextStyleSet` (linhas Default, Bold, Header1, Header2) e o decorador
+  `WebImageDecorator` com a tag `extimg` e o atributo `src`. O chat tem `ChatTextStyleSet` (Default, Bold); se o
+  `say` passa pelo texto rico não foi confirmado com o jogo aberto. Não há tag de cor livre.
+- **Decisão:**
+  - `domain/server/markup.go`: `<Bold>`, `<Header1>`, `<Header2>` (fechar com `</>`) e
+    `<extimg src="https://..."/>` na mensagem do dia; só `<Bold>` nas mensagens de chat. Tag desconhecida, sem
+    fechar, aninhada ou imagem sem https vira erro de validação. `ConfigAPI.MarkupPreview` devolve os pedaços para a
+    prévia (o app não baixa a imagem; quem baixa é o jogo de cada jogador).
+  - Editor na tela: botões que envolvem a seleção com a tag, campo para o endereço da imagem e prévia.
+  - Mapa de mod: `pak.Scan` também lista mapas (.umap) e cenários (Scenario_*.uasset); o mapa de um cenário é o
+    .umap de nome mais curto tal que o cenário é `Scenario_<mapa>_<modo>` (os mods têm submapas com o nome do
+    modo). `ConfigAPI.ModScenarios` alimenta os dois seletores (mapa e cenário). Valor do perfil que não está nos mods
+    instalados continua na lista, marcado.
+- **Verificado:** nos 6 mods de mapa desta máquina, 37 cenários, todos ligados ao mapa principal; editor e seletores no
+  modo dev. Não testado com o jogo: a aparência real dos estilos e da imagem, e negrito no chat.

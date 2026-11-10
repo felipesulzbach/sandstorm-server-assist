@@ -13,4 +13,7 @@ func TestMutatorsReal(t *testing.T) {
 	for _, m := range Mutators(RootDir()) {
 		t.Logf("%s (mod %d)", m.ID, m.ModID)
 	}
+	for _, s := range Scenarios(RootDir()) {
+		t.Logf("%s · %s (mod %d)", s.Map, s.Scenario, s.ModID)
+	}
 }

@@ -24,6 +24,7 @@ function goValidationKeys(): string[] {
     'domain/server/rules.go',
     'domain/server/mutators.go',
     'domain/server/automation.go',
+    'domain/server/markup.go',
     'domain/admin/admin.go',
     'app/config/profiles.go',
     'app/notify/notify.go',

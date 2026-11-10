@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Plus, RotateCcw, Save, ServerCog, Trash2 } from 'lucide-react';
 import { useI18n } from '../../i18n';
 import { backend, type MapsInfo, type Profile, type SecretKey } from '../../shared/backend';
@@ -7,7 +7,8 @@ import { useAction } from '../../shared/hooks';
 import { fieldError, toAppError } from '../../shared/problem';
 import { useExistingSync } from '../sync/ExistingSync';
 import { AutomationTab } from './AutomationTab';
-import { CycleLighting, MutatorPicker } from './MapsExtras';
+import { CycleLighting, ModMapPicker, MutatorPicker } from './MapsExtras';
+import { MarkupEditor } from './MarkupEditor';
 import { BindIpField, FirewallCard } from './NetworkExtras';
 import { PortCheck } from './PortCheck';
 import { ProfileBar } from './ProfileBar';
@@ -349,70 +350,68 @@ export function ServerPage() {
         )}
         {tab === 'messages' && (
           <div className="form">
-            <Field
+            <Block
               label={t('server.messages.motd')}
               hint={t('server.messages.motdHint')}
               error={err('motd')}
-              wide
             >
-              <textarea
-                className="input textarea"
-                rows={5}
-                maxLength={1000}
+              <MarkupEditor
                 value={form.motd ?? ''}
-                onChange={(e) => set('motd', e.target.value)}
+                maxLength={1000}
+                onChange={(v) => set('motd', v)}
               />
-            </Field>
-            <Field
+            </Block>
+            <Block
               label={t('server.messages.join')}
               hint={t('server.messages.chatHint')}
               error={err('joinMessage')}
-              wide
             >
-              <input
-                className="input"
+              <MarkupEditor
+                chat
+                multiline={false}
+                preview={false}
                 maxLength={150}
                 value={form.joinMessage ?? ''}
                 placeholder={t('server.messages.joinExample')}
-                onChange={(e) => set('joinMessage', e.target.value)}
+                onChange={(v) => set('joinMessage', v)}
               />
-            </Field>
-            <Field
+            </Block>
+            <Block
               label={t('server.messages.leave')}
               hint={t('server.messages.chatHint')}
               error={err('leaveMessage')}
-              wide
             >
-              <input
-                className="input"
+              <MarkupEditor
+                chat
+                multiline={false}
+                preview={false}
                 maxLength={150}
                 value={form.leaveMessage ?? ''}
                 placeholder={t('server.messages.leaveExample')}
-                onChange={(e) => set('leaveMessage', e.target.value)}
+                onChange={(v) => set('leaveMessage', v)}
               />
-            </Field>
-            <Field
+            </Block>
+            <Block
               label={t('server.messages.announcements')}
               hint={t('server.messages.announcementsHint')}
               error={err('announcements')}
-              wide
             >
-              <textarea
-                className="input textarea"
+              <MarkupEditor
+                chat
                 rows={4}
                 value={(form.announcements ?? []).join('\n')}
                 placeholder={t('server.messages.announcementsExample')}
-                onChange={(e) =>
+                onChange={(v) =>
                   set(
                     'announcements',
-                    e.target.value
+                    v
                       .split('\n')
                       .map((x) => x.trimStart())
                       .filter((x, i, all) => x !== '' || i === all.length - 1),
                   )
                 }
               />
-            </Field>
+            </Block>
             <Field label={t('server.messages.every')} error={err('announceEvery')}>
               <input
                 className="input input--short"
@@ -430,6 +429,31 @@ export function ServerPage() {
         )}
       </section>
       <p className="hint">{t('common.appliesNextStart')}</p>
+    </div>
+  );
+}
+
+/** Campo com controles próprios dentro (botões, caixas): bloco em vez de <label>. */
+function Block({
+  label,
+  hint,
+  error,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  error?: string | null;
+  children: ReactNode;
+}) {
+  return (
+    <div className={`field field--wide ${error ? 'has-error' : ''}`}>
+      <span className="field__label">{label}</span>
+      {children}
+      {error ? (
+        <span className="field__error">{error}</span>
+      ) : hint ? (
+        <span className="field__hint">{hint}</span>
+      ) : null}
     </div>
   );
 }
@@ -454,7 +478,6 @@ function MapsTab({
   const known = maps?.maps.find((m) => m.map === form.startMap);
   const modeId = known ? form.startScenario.replace(`Scenario_${known.scenario}_`, '') : '';
   const knownMode = !!known && (maps?.modes ?? []).some((m) => m.id === modeId);
-  const travelOn = form.travelMap !== '' || form.travelScenario !== '';
 
   return (
     <div className="form">
@@ -516,43 +539,14 @@ function MapsTab({
         </Field>
       )}
 
-      <label className="check check--block field--wide">
-        <input
-          type="checkbox"
-          checked={travelOn}
-          disabled={!form.useMods}
-          onChange={(e) =>
-            e.target.checked
-              ? patch({
-                  travelMap: 'Containment',
-                  travelScenario: 'Scenario_Containment_Checkpoint_Security',
-                })
-              : patch({ travelMap: '', travelScenario: '' })
-          }
-        />
-        <span>
-          {t('server.travel')}
-          <span className="field__hint">{t('server.travelHint')}</span>
-        </span>
-      </label>
-      {travelOn && (
-        <>
-          <Field label={t('server.travelMap')} error={err('travelMap')}>
-            <input
-              className="input"
-              value={form.travelMap}
-              onChange={(e) => set('travelMap', e.target.value.trim())}
-            />
-          </Field>
-          <Field label={t('server.travelScenario')} error={err('travelScenario')}>
-            <input
-              className="input"
-              value={form.travelScenario}
-              onChange={(e) => set('travelScenario', e.target.value.trim())}
-            />
-          </Field>
-        </>
-      )}
+      <ModMapPicker
+        map={form.travelMap}
+        scenario={form.travelScenario}
+        disabled={!form.useMods}
+        onChange={(travelMap, travelScenario) => patch({ travelMap, travelScenario })}
+        mapError={err('travelMap')}
+        scenarioError={err('travelScenario')}
+      />
 
       {/* Bloco, não <label>: a lista tem as próprias caixas de marcar. */}
       <div className={`field field--wide ${err('mutators') ? 'has-error' : ''}`}>
