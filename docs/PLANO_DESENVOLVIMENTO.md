@@ -1,6 +1,6 @@
 # Plano de desenvolvimento
 
-> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-10, à noite (0.1.5 publicada).
+> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-10, à noite (0.1.6 publicada).
 > Base: [RESUMO_PROJETO.md](RESUMO_PROJETO.md) · Decisões: [DECISOES.md](DECISOES.md)
 
 ## Situação
@@ -188,6 +188,9 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
 
 - Listas vazias em vez de nulas no Go; tela tolerante a `null`; `ErrorBoundary` por página e no app; erro de tela
   nos Registos. ADR-025.
+- **Publicada** no PC de publicação: testes, lint, typecheck, `audit`, `audit:go` e `audit:code` limpos;
+  `build:installer`, `package`, `site:publish`. `latest.json` na 0.1.6, SHA-256 do instalador baixado confere,
+  página mostra 0.1.6; verificador, game-in e `/midia/` seguiram respondendo 200. Sem mudança no servidor.
 
 ## Pendências
 
