@@ -1603,3 +1603,130 @@ code {
 .portcheck__list .is-info svg {
   color: var(--muted);
 }
+
+/* Configurações do servidor (ADR-022) */
+.select--short {
+  width: auto;
+  min-width: 120px;
+  flex: 0 0 auto;
+}
+.form__title {
+  margin: 8px 0 0;
+  font-size: 15px;
+}
+.text-ok {
+  color: var(--ok);
+}
+.profilebar {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.profilebar__pick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.profilebar__pick .select {
+  min-width: 220px;
+}
+.profilebar__form .input {
+  max-width: 280px;
+}
+.profilebar__others {
+  margin: 0;
+}
+.rules__group {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px 14px;
+  margin: 0;
+}
+.rules__group legend {
+  font-weight: 600;
+  padding: 0 6px;
+}
+.mutators {
+  display: grid;
+  gap: 12px;
+}
+.mutators__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 8px 14px;
+}
+.mutators__item {
+  align-items: flex-start;
+}
+.cycle {
+  display: grid;
+  gap: 8px;
+}
+.cycle__list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.cycle__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+.cycle__row code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.firewall {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+.players {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+.players th,
+.players td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.players th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 12px;
+}
+.players .pill {
+  margin-left: 6px;
+}
+.players__actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.players__confirm {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+.players__confirm .input,
+.players__say .input {
+  flex: 1;
+  min-width: 200px;
+}
+.players__say {
+  margin-top: 14px;
+}

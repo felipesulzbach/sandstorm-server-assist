@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+	"net"
 	"strconv"
 	"strings"
 
@@ -82,6 +83,28 @@ var syncFields = []syncField{
 		d.MapCycle = append([]string(nil), s.MapCycle...)
 	}},
 	{"motd", "list", func(p Profile) string { return p.Motd }, func(d *Profile, s Profile) { d.Motd = s.Motd }},
+	{"startLighting", "text", func(p Profile) string { return p.StartLighting }, func(d *Profile, s Profile) { d.StartLighting = s.StartLighting }},
+	{"bindIp", "text", func(p Profile) string { return p.BindIP }, func(d *Profile, s Profile) { d.BindIP = s.BindIP }},
+	{"modIds", "list", func(p Profile) string { return modIDsText(p) }, func(d *Profile, s Profile) {
+		d.ModIDs, d.CmdModList = append([]int(nil), s.ModIDs...), s.CmdModList
+	}},
+	{"rules", "list", func(p Profile) string { return rulesText(p.Rules) }, func(d *Profile, s Profile) {
+		d.Rules = map[string]string{}
+		for k, v := range s.Rules {
+			d.Rules[k] = v
+		}
+	}},
+}
+
+func modIDsText(p Profile) string {
+	if !p.CmdModList {
+		return ""
+	}
+	ids := make([]string, len(p.ModIDs))
+	for i, id := range p.ModIDs {
+		ids[i] = strconv.Itoa(id)
+	}
+	return strings.Join(ids, ", ")
 }
 
 // syncSecrets são os segredos que um servidor existente pode ter (o e-mail do mod.io não aparece no servidor).
@@ -107,10 +130,11 @@ func (d *Detected) ParseCommandLine(cmd string) {
 		return
 	}
 	// Numa linha de comando achada, o que não aparece está desligado.
-	for _, k := range []string{"useMods", "travelMap", "mutators", "rcon"} {
+	for _, k := range []string{"useMods", "travelMap", "mutators", "rcon", "startLighting", "bindIp"} {
 		d.Found[k] = true
 	}
 	d.Profile.UseMods, d.Profile.Rcon = false, false
+	d.Profile.StartLighting, d.Profile.BindIP = "", ""
 	d.Profile.TravelMap, d.Profile.TravelScenario, d.Profile.Mutators = "", "", nil
 
 	if !strings.HasPrefix(toks[0], "-") {
@@ -147,6 +171,20 @@ func (d *Detected) ParseCommandLine(cmd string) {
 			}
 		case "rcon":
 			d.Profile.Rcon = true
+		case "multihome":
+			if ip := net.ParseIP(val); ip != nil && ip.To4() != nil && !ip.IsUnspecified() {
+				d.Profile.BindIP = val
+			}
+		case "cmdmodlist":
+			var ids []int
+			for _, part := range strings.Split(val, ",") {
+				if id, err := strconv.Atoi(strings.TrimSpace(part)); err == nil && id > 0 {
+					ids = append(ids, id)
+				}
+			}
+			if len(ids) > 0 && len(ids) <= 200 {
+				d.Profile.ModIDs, d.Profile.CmdModList, d.Found["modIds"] = ids, true, true
+			}
 		case "rconlistenport":
 			d.setInt("rconPort", val, &d.Profile.RconPort)
 		case "rconpassword":
@@ -178,6 +216,12 @@ func (d *Detected) parseURL(url string) {
 			d.setInt("maxPlayers", v, &d.Profile.MaxPlayers)
 		case "password":
 			d.setSecret("serverPassword", v)
+		case "lighting":
+			for _, l := range []string{LightingDay, LightingNight} {
+				if strings.EqualFold(v, l) {
+					d.Profile.StartLighting = l
+				}
+			}
 		}
 	}
 	if identRe.MatchString(m) && scenarioRe.MatchString(s) {

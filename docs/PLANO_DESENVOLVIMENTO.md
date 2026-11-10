@@ -145,6 +145,18 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
 - Verificado: consulta A2S contra o servidor real desta máquina (só leitura: mapa e vagas lidos); no modo dev, o
   teste mostra o erro esperado enquanto o verificador não está no AWS.
 
+## Fase 19 · Mais configurações do servidor (10/11/2026, versão 0.1.3)
+
+- Regras do jogo (catálogo de 60 opções, aba Regras do jogo), mutators com descrição, dia ou noite (início, rotação,
+  troca de mapa), painel de jogadores (lista, expulsar, banir, tirar banimento, mensagem a todos), mensagens
+  programadas, reinício automático (diário com aviso e atualização; ao fechar sozinho), avisos no Discord, abrir com
+  o Windows e iniciar o servidor junto, regra do Firewall (UAC), placa de rede (`-MultiHome`), tick rate e banda,
+  vários perfis, lista de mods (`-CmdModList`). ADR-022.
+- Verificado: testes (domínio, players, watchdog, notify, perfis, regras no Game.ini/Engine.ini, winsys só
+  leitura), `listplayers`/`listbans`/`help` lidos do servidor real (formato e sintaxe), telas no modo dev
+  (abas, catálogo, mutators, rotação com dia/noite, validação, rede, firewall, definições).
+- Não testado ao vivo: ver ADR-022.
+
 ## Pendências
 
 - Feito depois da primeira rodada: ícone, zip portátil, testes de installer/config/logbuf e teste real do
@@ -155,6 +167,4 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
 ## Ideias de evolução
 
 - Detectar conflito de mods antes de iniciar (procurar caminhos repetidos nos `.pak`, como feito à mão).
-- RCON pelo app: jogadores e mensagens (trocar mapa feito na fase 16).
-- Criar a regra do Firewall do Windows para o InsurgencyServer.exe (pede administrador).
 - Repositório público no GitHub com CI (quando o usuário pedir).

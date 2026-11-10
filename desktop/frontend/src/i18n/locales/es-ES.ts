@@ -206,10 +206,19 @@ export const esES: Messages = {
     },
   },
   server: {
+    modList: 'Enviar mi lista de mods al servidor (-CmdModList)',
+    modListHint:
+      'Avanzado. Normalmente el servidor carga los mods suscritos por su cuenta de mod.io. Actívalo solo si quieres definir la lista aquí; las versiones recientes del juego pueden ignorarla.',
+    modIds: 'Ids de los mods',
+    modIdsHint: 'Los números de los mods en mod.io, separados por comas.',
+    mutatorsCustom: 'Mutators de mods',
+    mutatorsCustomHint: 'Nombres separados por comas. Ejemplo: NoRestrictedArea',
     title: 'Servidor',
     subtitle:
       'Nombre, mapas, administradores y contraseñas. Se usan la próxima vez que se inicie el servidor.',
     tabs: {
+      rules: 'Reglas del juego',
+      automation: 'Automatización',
       general: 'General',
       maps: 'Mapas',
       admins: 'Administradores',
@@ -239,7 +248,7 @@ export const esES: Messages = {
     travelScenario: 'Escenario del mapa del mod',
     mutators: 'Mutators',
     mutatorsHint:
-      'Separados por comas. Ejemplo: NoRestrictedArea. El mod del mutator debe estar suscrito.',
+      'Elige los mutators del juego. Los mutators de mods van en el campo de abajo, por nombre.',
     mapCycle: 'Rotación de mapas (MapCycle.txt)',
     mapCycleHint:
       'Una entrada por línea. Déjalo vacío para mantener el archivo que ya tiene el servidor.',
@@ -272,6 +281,12 @@ export const esES: Messages = {
       moved: 'Hecho: la contraseña ahora solo está en la caja fuerte.',
     },
     network: {
+      bindIp: 'Tarjeta de red del servidor',
+      bindIpHint:
+        'Deja "Todas" en la mayoría de los casos. Elige una tarjeta solo si el servidor debe responder en una sola red, como la de un programa de VPN (-MultiHome).',
+      bindIpMissing:
+        'Esta dirección no está en este equipo ahora. Si es de un programa de VPN, conecta la VPN antes de iniciar el servidor.',
+      bindIpAll: 'Todas las tarjetas de red',
       connectIp: 'IP que usan los jugadores',
       connectIpHint:
         'Por internet, es tu IP pública. Con un programa de VPN, es la IP que el programa muestra para este PC.',
@@ -281,6 +296,11 @@ export const esES: Messages = {
         'Puertos que abrir en el router (UDP): {port} (juego) y {queryPort} (consulta). No abras el puerto de RCON ({rconPort}).',
     },
     messages: {
+      announcements: 'Mensajes programados en el chat',
+      announcementsHint:
+        'Un mensaje por línea, hasta 10. La app envía uno cada vez, en orden, mientras el servidor está listo.',
+      announcementsExample: 'Únete a nuestro Discord: discord.gg/ejemplo',
+      every: 'Cada (minutos)',
       motd: 'Mensaje del día',
       motdHint:
         'Se muestra a los jugadores en la pantalla de carga al entrar. Hasta 1000 caracteres; puede tener varias líneas. Se aplica en el próximo inicio.',
@@ -348,6 +368,10 @@ export const esES: Messages = {
     rconInIni:
       'La contraseña RCON sigue escrita en Game.ini. Ve a Servidor › Contraseñas y tokens y usa "Mover a la caja fuerte".',
     fields: {
+      startLighting: 'Iluminación del mapa inicial',
+      bindIp: 'Tarjeta de red del servidor',
+      modIds: 'Lista de mods',
+      rules: 'Reglas del juego',
       motd: 'Mensaje del día',
       hostname: 'Nombre del servidor',
       port: 'Puerto del juego',
@@ -464,6 +488,10 @@ export const esES: Messages = {
     },
   },
   settings: {
+    startWithWindows: 'Abrir la app al iniciar Windows',
+    startWithWindowsHint: 'La app se abre minimizada al entrar en Windows.',
+    autoStartServer: 'Iniciar el servidor cuando la app se abre con Windows',
+    autoStartServerHint: 'Útil en un equipo que queda encendido como servidor.',
     title: 'Ajustes',
     subtitle: 'Idioma, apariencia y preferencias de la aplicación.',
     language: 'Idioma',
@@ -633,6 +661,7 @@ export const esES: Messages = {
           'mod.io: el correo de la cuenta del servidor (para recibir el código de acceso), el propio código y la clave de API del servidor, para autorizar y descargar mods.',
           'Página de descarga del proyecto: la búsqueda de actualizaciones solo pide la última versión; como cualquier web, ve tu dirección IP y la hora de la petición. No se envía ningún identificador tuyo.',
           'Prueba de puertos (solo cuando pulsas "Probar puertos desde internet"): el verificador del proyecto, en el servidor de la página de descarga, recibe tu dirección IP y los números de los puertos, prueba esos puertos desde fuera una vez y responde. No se guarda ni se registra nada.',
+          'Discord (solo si defines un webhook en Servidor › Automatización): los textos de los avisos que escribiste, con el nombre del servidor, el mapa y los nombres de los jugadores que entran o salen, van a tu canal de Discord. Discord recibe tu IP, como cualquier sitio web.',
           'Los enlaces en los que haces clic se abren en tu navegador, con las reglas de cada sitio.',
         ],
       },
@@ -777,7 +806,420 @@ export const esES: Messages = {
       ],
     },
   },
+  lighting: {
+    label: 'Iluminación',
+    default: 'Predeterminado del escenario',
+    Day: 'Día',
+    Night: 'Noche',
+    start: 'Iluminación del mapa inicial',
+    cycleTitle: 'Día o noche en la rotación',
+    allDay: 'Todo de día',
+    allNight: 'Todo de noche',
+    allDefault: 'Todo predeterminado',
+    unknownLine: 'línea que la app no lee',
+  },
+  mutators: {
+    AllYouCanEat: 'Empiezas con 100 puntos de suministro.',
+    AntiMaterielRiflesOnly: 'Solo fusiles antimaterial, más el equipo normal y explosivos.',
+    BoltActionsOnly: 'Solo fusiles de cerrojo, más el equipo normal y explosivos.',
+    Broke: 'Empiezas con 0 puntos de suministro.',
+    BulletSponge: 'Más salud.',
+    Competitive: 'Equipo más caro, rondas más cortas y capturas más rápidas.',
+    CompetitiveLoadouts: 'Clases cambiadas por las del Competitivo.',
+    FastMovement: 'Movimiento más rápido.',
+    Frenzy:
+      'Enemigos de la IA que solo atacan cuerpo a cuerpo. Cuidado con los enemigos especiales.',
+    Guerrillas: 'Empiezas con 5 puntos de suministro.',
+    Hardcore: 'Movimiento más lento y capturas más largas.',
+    HeadshotOnly: 'Los jugadores solo reciben daño por disparos a la cabeza.',
+    HotPotato: 'Cae una granada activa cuando un jugador muere.',
+    LockedAim: 'Las armas siempre apuntan al centro de la pantalla.',
+    NoAim: 'Sin apuntar con la mira.',
+    PistolsOnly: 'Solo pistolas, más el equipo normal y explosivos.',
+    ShotgunsOnly: 'Solo escopetas, más el equipo normal y explosivos.',
+    SlowCaptureTimes: 'Los objetivos tardan más en capturarse.',
+    SlowMovement: 'Movimiento más lento.',
+    SoldierOfFortune: 'Ganas puntos de suministro según sube tu puntuación.',
+    SpecialOperations: 'Empiezas con 30 puntos de suministro.',
+    Strapped: 'Empiezas con 1 punto de suministro.',
+    Ultralethal: 'Todos mueren de un disparo.',
+    Vampirism: 'Recuperas salud igual al daño que haces a los enemigos.',
+    Warlords: 'Empiezas con 10 puntos de suministro.',
+  },
+  rules: {
+    manage: 'Definir las reglas del juego aquí',
+    manageHint:
+      'La app escribe estas opciones en Game.ini y Engine.ini cuando el servidor se inicia. Las opciones vacías usan el valor del juego. Desactivado: la app no toca estos archivos.',
+    default: 'Predeterminado: {value}',
+    gameDefault: 'Valor del juego',
+    on: 'Activado',
+    off: 'Desactivado',
+    groups: {
+      coop: 'Coop: bots',
+      checkpoint: 'Checkpoint',
+      objectives: 'Objetivos',
+      friendlyFire: 'Fuego amigo y equipos',
+      teamKills: 'Muertes de compañeros',
+      chat: 'Chat, voz y registro de bajas',
+      match: 'Partida',
+      supply: 'Puntos de suministro',
+      votes: 'Votación para expulsar',
+      network: 'Rendimiento (Engine.ini)',
+    },
+    items: {
+      aiDifficulty: {
+        label: 'Dificultad de los bots',
+        hint: '0 es lo más fácil, 1 lo más difícil',
+      },
+      minimumEnemies: {
+        label: 'Mínimo de enemigos',
+        hint: 'Bots enemigos con pocos jugadores',
+      },
+      maximumEnemies: {
+        label: 'Máximo de enemigos',
+        hint: 'Bots enemigos con el servidor lleno',
+      },
+      friendlyBotQuota: {
+        label: 'Bots aliados',
+        hint: 'Bots en el equipo de los jugadores',
+      },
+      vehicleInsertion: {
+        label: 'Los enemigos llegan en vehículo',
+        hint: 'Entrada con camiones donde el mapa lo tiene',
+      },
+      defendTimer: {
+        label: 'Tiempo del contraataque (s)',
+        hint: 'Tiempo para defender cada punto',
+      },
+      defendTimerFinal: {
+        label: 'Tiempo del contraataque final (s)',
+        hint: 'Tiempo para defender el último punto',
+      },
+      retreatTimer: {
+        label: 'Tiempo de retirada de los bots (s)',
+        hint: 'Después del contraataque',
+      },
+      respawnDpr: {
+        label: 'Proporción para que vuelvan los bots',
+        hint: 'Parte de bots muertos antes de volver',
+      },
+      respawnDelay: {
+        label: 'Espera para que vuelvan los bots (s)',
+        hint: 'Antes de que vuelvan los bots',
+      },
+      postCaptureRushTimer: {
+        label: 'Carga tras el alijo (s)',
+        hint: 'Los bots avanzan tras destruir un alijo',
+      },
+      counterAttackRespawnDpr: {
+        label: 'Proporción en el contraataque',
+        hint: 'Parte de bots muertos antes de volver',
+      },
+      counterAttackRespawnDelay: {
+        label: 'Espera en el contraataque (s)',
+        hint: 'Antes de que vuelvan los bots',
+      },
+      enemyRespawnMin: {
+        label: 'Oleadas enemigas con pocos jugadores',
+        hint: 'Multiplicador',
+      },
+      enemyRespawnMax: {
+        label: 'Oleadas enemigas con el servidor lleno',
+        hint: 'Multiplicador',
+      },
+      finalCacheBots: {
+        label: 'Bots en el alijo final',
+        hint: 'Multiplicador',
+      },
+      captureTime: {
+        label: 'Tiempo de captura (s)',
+        hint: 'Tiempo para tomar un punto',
+      },
+      resetTime: {
+        label: 'Tiempo para reiniciar la captura (s)',
+        hint: '-1 mantiene el progreso',
+      },
+      captureSpeedup: {
+        label: 'Aceleración por jugador',
+        hint: 'Cada jugador extra captura más rápido',
+      },
+      captureSpeedupPlayers: {
+        label: 'Jugadores que aceleran',
+        hint: 'Máximo contado',
+      },
+      friendlyFire: {
+        label: 'Fuego amigo',
+        hint: 'Daño a los compañeros',
+      },
+      friendlyFireModifier: {
+        label: 'Daño del fuego amigo',
+        hint: '0 es nada, 1 es el daño completo',
+      },
+      friendlyFireReflect: {
+        label: 'Daño devuelto al atacante',
+        hint: '0 es nada, 1 es el daño completo',
+      },
+      autoBalance: {
+        label: 'Equilibrar equipos',
+        hint: 'Mueve jugadores cuando los equipos están desiguales',
+      },
+      autoBalanceDelay: {
+        label: 'Espera para equilibrar (s)',
+        hint: 'Después de que los equipos queden desiguales',
+      },
+      teamSelect: {
+        label: 'Los jugadores eligen equipo',
+        hint: 'Permite cambiar de equipo',
+      },
+      teamKillLimit: {
+        label: 'Muertes de compañeros antes de expulsar',
+        hint: '0 desactiva la expulsión',
+      },
+      teamKillGrace: {
+        label: 'Tiempo entre muertes de compañeros (s)',
+        hint: 'Las muertes en este intervalo cuentan una vez',
+      },
+      teamKillReduceTime: {
+        label: 'Perdonar una muerte de compañero tras (s)',
+        hint: 'La cuenta baja en 1',
+      },
+      killFeed: {
+        label: 'Registro de bajas',
+        hint: 'Muestra quién mató a quién',
+      },
+      killFeedSpectator: {
+        label: 'Registro de bajas para espectadores',
+        hint: 'Y en las repeticiones',
+      },
+      killerInfo: {
+        label: 'Mostrar quién te mató',
+        hint: 'Atacante y arma en la pantalla de muerte',
+      },
+      killDistance: {
+        label: 'Mostrar la distancia de la baja',
+        hint: 'En la pantalla de muerte',
+      },
+      deadSay: {
+        label: 'Los vivos leen a los muertos',
+        hint: 'Chat de los jugadores muertos',
+      },
+      deadSayTeam: {
+        label: 'Leer a compañeros muertos',
+        hint: 'Chat de equipo de los muertos',
+      },
+      deadVoice: {
+        label: 'Los vivos oyen a los muertos',
+        hint: 'Voz de los jugadores muertos',
+      },
+      enemyHearsLocal: {
+        label: 'Los enemigos oyen la voz local',
+        hint: 'Voz de proximidad',
+      },
+      intermissionVoice: {
+        label: 'Todos hablan entre rondas',
+        hint: 'Los dos equipos',
+      },
+      mapVoting: {
+        label: 'Votación de mapa',
+        hint: 'Al final de la partida',
+      },
+      useMapCycle: {
+        label: 'Usar la rotación de mapas',
+        hint: 'Desactivado repite el mismo mapa',
+      },
+      minimumPlayers: {
+        label: 'Jugadores para empezar',
+        hint: 'Por equipo',
+      },
+      roundLimit: {
+        label: 'Rondas por partida',
+        hint: 'Varía según el modo',
+      },
+      winLimit: {
+        label: 'Rondas para ganar',
+        hint: 'Varía según el modo',
+      },
+      roundTime: {
+        label: 'Tiempo de ronda (s)',
+        hint: 'Varía según el modo',
+      },
+      preRoundTime: {
+        label: 'Tiempo congelado al inicio (s)',
+        hint: 'Al empezar la ronda',
+      },
+      postRoundTime: {
+        label: 'Tiempo entre rondas (s)',
+        hint: 'Pantalla de intermedio',
+      },
+      idleLimit: {
+        label: 'Expulsar inactivos tras (s)',
+        hint: '0 nunca expulsa',
+      },
+      idleLimitLow: {
+        label: 'Límite de inactividad con pocos refuerzos (s)',
+        hint: 'Cuando el equipo tiene pocas vidas',
+      },
+      bots: {
+        label: 'Bots en versus',
+        hint: 'Completa los equipos con bots',
+      },
+      botQuota: {
+        label: 'Número de bots en versus',
+        hint: 'Con los bots activados',
+      },
+      initialSupply: {
+        label: 'Puntos de suministro iniciales',
+        hint: 'Para comprar equipo',
+      },
+      maximumSupply: {
+        label: 'Máximo de puntos de suministro',
+        hint: 'Límite que se puede ganar',
+      },
+      supplyGain: {
+        label: 'Ganar suministro durante la ronda',
+        hint: 'Por puntuación',
+      },
+      voteKick: {
+        label: 'Votación para expulsar',
+        hint: 'Los jugadores abren la votación con Esc › Call Vote',
+      },
+      voteMinPlayers: {
+        label: 'Jugadores para abrir una votación',
+        hint: 'Mínimo en el servidor',
+      },
+      votePassRatio: {
+        label: 'Votos a favor para aprobar',
+        hint: 'Parte del equipo (0 a 1)',
+      },
+      voteBanDuration: {
+        label: 'Bloqueo tras la votación (s)',
+        hint: '-1 solo expulsa',
+      },
+      tickRate: {
+        label: 'Tick rate',
+        hint: 'Actualizaciones por segundo; más usa más CPU y ancho de banda',
+      },
+      maxClientRate: {
+        label: 'Tasa máxima por cliente (red local)',
+        hint: 'Bytes por segundo por jugador',
+      },
+      maxInternetClientRate: {
+        label: 'Tasa máxima por cliente (internet)',
+        hint: 'Bytes por segundo por jugador',
+      },
+    },
+  },
+  profiles: {
+    label: 'Perfil',
+    saveFirst: 'Guarda o deshaz los cambios antes de cambiar de perfil.',
+    new: 'Perfil nuevo',
+    rename: 'Renombrar',
+    switchHint:
+      'Cambiar de perfil requiere el servidor detenido. Las contraseñas y los tokens se comparten.',
+    namePlaceholder: 'Ejemplo: Coop, Versus',
+    copyCurrent: 'Copiar el perfil actual',
+    create: 'Crear',
+    delete: 'Borrar perfil',
+    deleteYes: 'Borrar',
+  },
+  players: {
+    title: 'Jugadores',
+    load: 'Mostrar jugadores',
+    reload: 'Actualizar',
+    empty: 'No hay nadie en el servidor.',
+    name: 'Nombre',
+    score: 'Puntos',
+    actions: 'Acciones',
+    bot: 'bot',
+    kick: 'Expulsar',
+    ban: 'Bloquear',
+    confirmKick: '¿Expulsar a {name}?',
+    confirmBan: '¿Bloquear a {name}?',
+    duration: 'Duración',
+    reason: 'Motivo (opcional)',
+    confirmYes: 'Confirmar',
+    kicked: '{name} fue expulsado.',
+    banned: '{name} fue bloqueado.',
+    unbanned: 'Bloqueo retirado.',
+    bans: 'Bloqueados',
+    noBans: 'Ningún bloqueo.',
+    unban: 'Quitar bloqueo',
+    permanent: 'Permanente',
+    days: '{n} día(s)',
+    minutes: '{n} minutos',
+    sayPlaceholder: 'Mensaje para todos en el servidor',
+    say: 'Enviar',
+    said: 'Mensaje enviado.',
+  },
+  automation: {
+    restartTitle: 'Reinicio automático',
+    daily: 'Reiniciar todos los días a las',
+    dailyHint: 'Vacío = sin reinicio diario. Hora del equipo.',
+    next: 'Próximo reinicio: {when}',
+    update: 'Actualizar el servidor con SteamCMD en el reinicio diario',
+    updateHint:
+      'Las actualizaciones salen con los parches del juego; el reinicio tarda unos minutos más.',
+    updateNoSteamCmd: 'Define primero la carpeta de SteamCMD en Instalación.',
+    warn: 'Aviso en el chat antes del reinicio',
+    warnHint: 'Se envía 5 y 1 minuto antes. {minutes} se cambia por el número.',
+    warnExample: 'El servidor se reinicia en {minutes} min',
+    onCrash: 'Iniciar el servidor otra vez si se cierra solo',
+    onCrashHint: 'Espera 10 segundos. Se detiene tras 3 veces en 30 minutos.',
+    appOpen: 'La automatización solo funciona con la app abierta (puede estar minimizada).',
+    discordTitle: 'Avisos en Discord',
+    discordText:
+      'La app publica en un canal de Discord cuando el servidor arranca, se detiene, se cierra solo, o cuando alguien entra o sale. Vacío = ese aviso está desactivado.',
+    webhook: 'Dirección del webhook',
+    webhookHint:
+      'En Discord: ajustes del canal › Integraciones › Webhooks › Nuevo webhook › Copiar URL.',
+    discord: {
+      ready: 'Servidor en línea',
+      stopped: 'Servidor detenido',
+      crashed: 'Servidor cerrado solo',
+      join: 'Jugador entró',
+      leave: 'Jugador salió',
+    },
+    discordExample: {
+      ready: '🟢 {server} está en línea en {map}',
+      stopped: '⚪ {server} se detuvo',
+      crashed: '🔴 {server} se cerró solo',
+      join: '➡️ {name} entró en {server}',
+      leave: '⬅️ {name} salió de {server}',
+    },
+    fillExamples: 'Rellenar con ejemplos',
+    test: 'Probar',
+    testSent: 'Enviado. Revisa el canal.',
+    tags: '{server} = nombre del servidor, {map} = mapa, {name} = jugador. La prueba usa los textos guardados.',
+  },
+  firewall: {
+    title: 'Firewall de Windows',
+    notInstalled: 'Instala primero el servidor.',
+    ok: 'Reglas para el servidor encontradas en el Firewall de Windows.',
+    text: 'Sin regla, Windows puede bloquear a los jugadores, sobre todo en redes marcadas como "Pública" (habitual con programas de VPN).',
+    create: 'Crear la regla del firewall',
+    uac: 'Windows pide la confirmación de administrador.',
+  },
   validation: {
+    rule: 'El valor de {rule} debe estar entre {min} y {max}.',
+    ruleBool: 'Elige activado o desactivado en {rule}.',
+    ruleMinMax: 'El mínimo de enemigos no puede ser mayor que el máximo.',
+    lighting: 'Elige día, noche o el predeterminado del escenario.',
+    lightingNoMap:
+      'Este mapa no permite elegir día o noche desde la app. Déjalo en el predeterminado.',
+    bindIp: 'Elige una dirección IPv4 válida de este equipo.',
+    modIdsMax: 'Hasta {max} mods.',
+    modListEmpty: 'Escribe al menos un id de mod, o desactiva la lista de mods.',
+    webhook:
+      'Pega la dirección del webhook copiada de Discord (empieza por https://discord.com/api/webhooks/).',
+    announcementsMax: 'Hasta {max} mensajes programados.',
+    announceEvery: 'Elige entre {min} y {max} minutos.',
+    clock: 'Usa el formato HH:MM, por ejemplo 05:00.',
+    discordText: 'Hasta {max} caracteres, en una línea.',
+    reason: 'El motivo puede tener hasta {max} caracteres, en una línea y sin comillas.',
+    netId: 'Este jugador no está en la lista. Actualiza la lista y vuelve a intentarlo.',
+    banMinutes: 'Elige una duración de hasta {max} minutos.',
+    profileName: 'Escribe un nombre de 1 a 40 caracteres.',
+    profilesMax: 'Hasta {max} perfiles.',
     motd: 'El mensaje del día tiene hasta {max} caracteres y ningún carácter especial.',
     chatMessage: 'El mensaje tiene hasta {max} caracteres, en una línea.',
     chatNeedsRcon: 'Activa RCON en Contraseñas y tokens: la app envía este mensaje por RCON.',
@@ -1126,6 +1568,41 @@ export const esES: Messages = {
       solution: [
         'Pide a un amigo fuera de tu red que entre con tu dirección IPv4.',
         'O vuelve a probar más tarde.',
+      ],
+    },
+    'discord-failed': {
+      title: 'El mensaje de Discord no se envió',
+      what: 'Discord no aceptó el mensaje del webhook.',
+      cause: 'El webhook se borró, la dirección es incorrecta o no hay internet.',
+      solution: [
+        'En Discord, abre los ajustes del canal › Integraciones › Webhooks y copia la dirección otra vez.',
+        'Pégala en Servidor › Automatización y pulsa Probar.',
+      ],
+    },
+    'firewall-failed': {
+      title: 'La regla del firewall no se creó',
+      what: 'Windows no creó la regla para el servidor.',
+      cause:
+        'La confirmación de administrador falló u otro programa de seguridad bloqueó el cambio.',
+      solution: [
+        'Pulsa el botón otra vez y confirma la ventana de Windows.',
+        'O crea la regla a mano en Firewall de Windows Defender › Configuración avanzada › Reglas de entrada.',
+      ],
+    },
+    'autostart-failed': {
+      title: 'No se pudo cambiar el inicio de Windows',
+      what: 'La app no pudo añadirse ni quitarse de los programas que se abren con Windows.',
+      cause: 'Un programa de seguridad o una directiva de Windows bloqueó el cambio.',
+      solution: ['Vuelve a intentarlo.', 'O usa Configuración de Windows › Aplicaciones › Inicio.'],
+    },
+    'server-update-failed': {
+      title: 'El servidor no se actualizó',
+      what: 'El reinicio diario no pudo actualizar el servidor con SteamCMD.',
+      cause:
+        'La carpeta de SteamCMD no está definida, otra instalación estaba en curso o SteamCMD falló.',
+      solution: [
+        'Revisa Instalación: la carpeta de SteamCMD debe estar definida.',
+        'Actualiza una vez a mano en Instalación para ver el error.',
       ],
     },
   },

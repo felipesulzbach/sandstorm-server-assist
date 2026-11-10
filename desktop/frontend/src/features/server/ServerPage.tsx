@@ -6,10 +6,25 @@ import { ErrorCard, Field, Guide, PageHead, SecretField } from '../../shared/com
 import { useAction } from '../../shared/hooks';
 import { fieldError, toAppError } from '../../shared/problem';
 import { useExistingSync } from '../sync/ExistingSync';
+import { AutomationTab } from './AutomationTab';
+import { CycleLighting, MutatorPicker } from './MapsExtras';
+import { BindIpField, FirewallCard } from './NetworkExtras';
 import { PortCheck } from './PortCheck';
+import { ProfileBar } from './ProfileBar';
+import { RulesTab } from './RulesTab';
 
-type Tab = 'general' | 'maps' | 'admins' | 'secrets' | 'network' | 'messages';
-const TABS: Tab[] = ['general', 'maps', 'admins', 'secrets', 'network', 'messages'];
+type Tab =
+  'general' | 'maps' | 'rules' | 'admins' | 'secrets' | 'network' | 'messages' | 'automation';
+const TABS: Tab[] = [
+  'general',
+  'maps',
+  'rules',
+  'admins',
+  'secrets',
+  'network',
+  'messages',
+  'automation',
+];
 
 export function ServerPage() {
   const { t } = useI18n();
@@ -43,9 +58,12 @@ export function ServerPage() {
   const patch = (p: Partial<Profile>) => setForm((f) => ({ ...f!, ...p }) as Profile);
   const set = <K extends keyof Profile>(k: K, v: Profile[K]) =>
     patch({ [k]: v } as Partial<Profile>);
+  // O Go manda o id da regra ({rule}); a tela mostra o nome traduzido.
+  const withLabels = (p?: Record<string, string>) =>
+    p?.rule ? { ...p, rule: t(`rules.items.${p.rule}.label`) } : p;
   const err = (f: string) => {
     const e = fieldError(action.error, f);
-    return e?.msg ? t(e.msg, e.params) : null;
+    return e?.msg ? t(e.msg, withLabels(e.params)) : null;
   };
 
   const save = async () => {
@@ -82,6 +100,19 @@ export function ServerPage() {
     motd: 'messages',
     joinMessage: 'messages',
     leaveMessage: 'messages',
+    announcements: 'messages',
+    announceEvery: 'messages',
+    startLighting: 'maps',
+    bindIp: 'network',
+    modIds: 'general',
+    rules: 'rules',
+    autoRestartDaily: 'automation',
+    autoRestartWarn: 'automation',
+    discordReady: 'automation',
+    discordStopped: 'automation',
+    discordCrashed: 'automation',
+    discordJoin: 'automation',
+    discordLeave: 'automation',
   };
   const errTab = action.error?.field ? fieldTab[action.error.field] : undefined;
 
@@ -116,6 +147,14 @@ export function ServerPage() {
               motd: form.motd,
               joinMessage: form.joinMessage,
               leaveMessage: form.leaveMessage,
+              announcements: form.announcements,
+              announceEvery: form.announceEvery,
+              rules: form.rules,
+              autoRestart: form.autoRestart,
+              discord: form.discord,
+              bindIp: form.bindIp,
+              modIds: form.modIds,
+              cmdModList: form.cmdModList,
             } as Profile);
           }}
         >
@@ -133,11 +172,19 @@ export function ServerPage() {
         </button>
       </PageHead>
 
+      <ProfileBar
+        dirty={dirty}
+        onSwitched={(p) => {
+          setSaved(p);
+          setForm(p);
+          setSyncedAt(Date.now());
+        }}
+      />
       {generalError && <ErrorCard error={generalError} onClose={() => action.setError(null)} />}
       {sync.node}
       {action.error?.field && errTab && errTab !== tab && (
         <p className="banner banner--error">
-          {t(action.error.msg ?? 'problems.invalid-field.what', action.error.params)}{' '}
+          {t(action.error.msg ?? 'problems.invalid-field.what', withLabels(action.error.params))}{' '}
           <button type="button" className="link" onClick={() => setTab(errTab)}>
             {t(`server.tabs.${errTab}`)}
           </button>
@@ -220,10 +267,43 @@ export function ServerPage() {
                 <span className="field__hint">{t('server.useModsHint')}</span>
               </span>
             </label>
+            {form.useMods && (
+              <>
+                <label className="check check--block field--wide">
+                  <input
+                    type="checkbox"
+                    checked={form.cmdModList}
+                    onChange={(e) => set('cmdModList', e.target.checked)}
+                  />
+                  <span>
+                    {t('server.modList')}
+                    <span className="field__hint">{t('server.modListHint')}</span>
+                  </span>
+                </label>
+                {form.cmdModList && (
+                  <Field
+                    label={t('server.modIds')}
+                    hint={t('server.modIdsHint')}
+                    error={err('modIds')}
+                    wide
+                  >
+                    <ModIdsInput value={form.modIds ?? []} onChange={(v) => set('modIds', v)} />
+                  </Field>
+                )}
+              </>
+            )}
           </div>
         )}
 
         {tab === 'maps' && <MapsTab form={form} set={set} patch={patch} maps={maps} err={err} />}
+        {tab === 'rules' && (
+          <RulesTab
+            form={form}
+            set={(r) => set('rules', r as Profile['rules'])}
+            error={err('rules')}
+          />
+        )}
+        {tab === 'automation' && <AutomationTab form={form} set={set} err={err} />}
         {tab === 'admins' && <AdminsTab form={form} set={set} err={err} />}
         {tab === 'secrets' && <SecretsTab key={syncedAt} form={form} set={set} err={err} />}
 
@@ -242,6 +322,11 @@ export function ServerPage() {
                 onChange={(e) => set('connectIp', e.target.value.trim())}
               />
             </Field>
+            <BindIpField
+              value={form.bindIp ?? ''}
+              onChange={(ip) => set('bindIp', ip)}
+              error={err('bindIp')}
+            />
             <div className="field--wide">
               <p>
                 {t('server.network.ports', {
@@ -257,6 +342,7 @@ export function ServerPage() {
               />
               <Guide id="vpn" label={t('guides.vpn.title')} />
               <p className="hint">{t('server.network.firewall')}</p>
+              <FirewallCard />
               <PortCheck connectIp={form.connectIp} onUseIp={(ip) => set('connectIp', ip)} />
             </div>
           </div>
@@ -303,6 +389,38 @@ export function ServerPage() {
                 value={form.leaveMessage ?? ''}
                 placeholder={t('server.messages.leaveExample')}
                 onChange={(e) => set('leaveMessage', e.target.value)}
+              />
+            </Field>
+            <Field
+              label={t('server.messages.announcements')}
+              hint={t('server.messages.announcementsHint')}
+              error={err('announcements')}
+              wide
+            >
+              <textarea
+                className="input textarea"
+                rows={4}
+                value={(form.announcements ?? []).join('\n')}
+                placeholder={t('server.messages.announcementsExample')}
+                onChange={(e) =>
+                  set(
+                    'announcements',
+                    e.target.value
+                      .split('\n')
+                      .map((x) => x.trimStart())
+                      .filter((x, i, all) => x !== '' || i === all.length - 1),
+                  )
+                }
+              />
+            </Field>
+            <Field label={t('server.messages.every')} error={err('announceEvery')}>
+              <input
+                className="input input--short"
+                type="number"
+                min={2}
+                max={240}
+                value={form.announceEvery}
+                onChange={(e) => set('announceEvery', Number(e.target.value))}
               />
             </Field>
             <p className={`field--wide ${form.rcon ? 'hint' : 'banner banner--info'}`}>
@@ -358,6 +476,17 @@ function MapsTab({
               {m.label}
             </option>
           ))}
+        </select>
+      </Field>
+      <Field label={t('lighting.start')} error={err('startLighting')}>
+        <select
+          className="select"
+          value={form.startLighting ?? ''}
+          onChange={(e) => set('startLighting', e.target.value)}
+        >
+          <option value="">{t('lighting.default')}</option>
+          <option value="Day">{t('lighting.Day')}</option>
+          <option value="Night">{t('lighting.Night')}</option>
         </select>
       </Field>
       <Field label={t('server.mode')} error={err('startScenario')}>
@@ -431,19 +560,7 @@ function MapsTab({
         error={err('mutators')}
         wide
       >
-        <input
-          className="input"
-          value={(form.mutators ?? []).join(', ')}
-          onChange={(e) =>
-            set(
-              'mutators',
-              e.target.value
-                .split(',')
-                .map((s) => s.trim())
-                .filter(Boolean),
-            )
-          }
-        />
+        <MutatorPicker value={form.mutators ?? []} onChange={(v) => set('mutators', v)} />
       </Field>
       <Field
         label={t('server.mapCycle')}
@@ -467,7 +584,32 @@ function MapsTab({
           }
         />
       </Field>
+      <div className="field--wide">
+        <CycleLighting lines={form.mapCycle ?? []} onChange={(l) => set('mapCycle', l)} />
+      </div>
     </div>
+  );
+}
+
+/** Ids dos mods separados por vírgula (a tela só junta os números; o Go valida). */
+function ModIdsInput({ value, onChange }: { value: number[]; onChange: (v: number[]) => void }) {
+  const [text, setText] = useState(value.join(', '));
+  return (
+    <input
+      className="input"
+      value={text}
+      spellCheck={false}
+      placeholder="1234567, 2345678"
+      onChange={(e) => {
+        setText(e.target.value);
+        onChange(
+          e.target.value
+            .split(/[\s,;]+/)
+            .map((x) => Number(x))
+            .filter((n) => Number.isInteger(n) && n > 0),
+        );
+      }}
+    />
   );
 }
 

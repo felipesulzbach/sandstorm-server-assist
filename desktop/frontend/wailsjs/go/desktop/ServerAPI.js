@@ -6,8 +6,16 @@ export function Authorize(arg1) {
   return window['go']['desktop']['ServerAPI']['Authorize'](arg1);
 }
 
-export function ChangeMap(arg1) {
-  return window['go']['desktop']['ServerAPI']['ChangeMap'](arg1);
+export function Automation() {
+  return window['go']['desktop']['ServerAPI']['Automation']();
+}
+
+export function Ban(arg1, arg2, arg3) {
+  return window['go']['desktop']['ServerAPI']['Ban'](arg1, arg2, arg3);
+}
+
+export function ChangeMap(arg1, arg2) {
+  return window['go']['desktop']['ServerAPI']['ChangeMap'](arg1, arg2);
 }
 
 export function CheckPorts() {
@@ -22,12 +30,20 @@ export function DetectAPIKey() {
   return window['go']['desktop']['ServerAPI']['DetectAPIKey']();
 }
 
+export function Kick(arg1, arg2) {
+  return window['go']['desktop']['ServerAPI']['Kick'](arg1, arg2);
+}
+
 export function MapChange() {
   return window['go']['desktop']['ServerAPI']['MapChange']();
 }
 
 export function Mods() {
   return window['go']['desktop']['ServerAPI']['Mods']();
+}
+
+export function Players() {
+  return window['go']['desktop']['ServerAPI']['Players']();
 }
 
 export function RefreshSubscriptions() {
@@ -40,6 +56,10 @@ export function RequestCode() {
 
 export function Restart() {
   return window['go']['desktop']['ServerAPI']['Restart']();
+}
+
+export function Say(arg1) {
+  return window['go']['desktop']['ServerAPI']['Say'](arg1);
 }
 
 export function Scenarios() {
@@ -56,4 +76,12 @@ export function Status() {
 
 export function Stop() {
   return window['go']['desktop']['ServerAPI']['Stop']();
+}
+
+export function TestDiscord() {
+  return window['go']['desktop']['ServerAPI']['TestDiscord']();
+}
+
+export function Unban(arg1) {
+  return window['go']['desktop']['ServerAPI']['Unban'](arg1);
 }

@@ -120,6 +120,36 @@ export function SettingsPage() {
         </label>
       </section>
 
+      <section className="card">
+        <label className="check check--block">
+          <input
+            type="checkbox"
+            checked={settings?.startWithWindows ?? false}
+            onChange={async (e) =>
+              setSettings(
+                await backend.setAutostart(e.target.checked, settings?.autoStartServer ?? false),
+              )
+            }
+          />
+          <span>
+            {t('settings.startWithWindows')}
+            <span className="field__hint">{t('settings.startWithWindowsHint')}</span>
+          </span>
+        </label>
+        <label className="check check--block">
+          <input
+            type="checkbox"
+            checked={settings?.autoStartServer ?? false}
+            disabled={!settings?.startWithWindows}
+            onChange={async (e) => setSettings(await backend.setAutostart(true, e.target.checked))}
+          />
+          <span>
+            {t('settings.autoStartServer')}
+            <span className="field__hint">{t('settings.autoStartServerHint')}</span>
+          </span>
+        </label>
+      </section>
+
       <LogCleanupCard />
     </div>
   );

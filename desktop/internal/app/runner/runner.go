@@ -289,13 +289,18 @@ func (s *Service) Stop() error {
 
 // Restart para, espera os processos sumirem e inicia de novo.
 func (s *Service) Restart() error {
-	if err := s.Stop(); err != nil {
-		return err
-	}
-	if err := s.waitGone(30 * time.Second); err != nil {
+	if err := s.StopAndWait(); err != nil {
 		return err
 	}
 	return s.Start()
+}
+
+// StopAndWait para o servidor e espera os processos sumirem (reinício com atualização, ADR-022).
+func (s *Service) StopAndWait() error {
+	if err := s.Stop(); err != nil {
+		return err
+	}
+	return s.waitGone(30 * time.Second)
 }
 
 func (s *Service) waitGone(limit time.Duration) error {

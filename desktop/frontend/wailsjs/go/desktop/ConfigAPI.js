@@ -14,12 +14,28 @@ export function ChooseSteamCMDDir() {
   return window['go']['desktop']['ConfigAPI']['ChooseSteamCMDDir']();
 }
 
+export function CreateProfile(arg1, arg2) {
+  return window['go']['desktop']['ConfigAPI']['CreateProfile'](arg1, arg2);
+}
+
 export function DefaultProfile() {
   return window['go']['desktop']['ConfigAPI']['DefaultProfile']();
 }
 
+export function DeleteProfile(arg1) {
+  return window['go']['desktop']['ConfigAPI']['DeleteProfile'](arg1);
+}
+
 export function ExtractSteamID(arg1) {
   return window['go']['desktop']['ConfigAPI']['ExtractSteamID'](arg1);
+}
+
+export function LocalAddresses() {
+  return window['go']['desktop']['ConfigAPI']['LocalAddresses']();
+}
+
+export function MapCycleLines(arg1) {
+  return window['go']['desktop']['ConfigAPI']['MapCycleLines'](arg1);
 }
 
 export function Maps() {
@@ -30,16 +46,32 @@ export function MoveRconToVault() {
   return window['go']['desktop']['ConfigAPI']['MoveRconToVault']();
 }
 
+export function Mutators() {
+  return window['go']['desktop']['ConfigAPI']['Mutators']();
+}
+
 export function Profile() {
   return window['go']['desktop']['ConfigAPI']['Profile']();
+}
+
+export function Profiles() {
+  return window['go']['desktop']['ConfigAPI']['Profiles']();
 }
 
 export function RconInIni() {
   return window['go']['desktop']['ConfigAPI']['RconInIni']();
 }
 
+export function RenameProfile(arg1, arg2) {
+  return window['go']['desktop']['ConfigAPI']['RenameProfile'](arg1, arg2);
+}
+
 export function RevealSecret(arg1) {
   return window['go']['desktop']['ConfigAPI']['RevealSecret'](arg1);
+}
+
+export function Rules() {
+  return window['go']['desktop']['ConfigAPI']['Rules']();
 }
 
 export function SaveProfile(arg1) {
@@ -54,6 +86,14 @@ export function SecretsState() {
   return window['go']['desktop']['ConfigAPI']['SecretsState']();
 }
 
+export function SetMapCycleLighting(arg1, arg2, arg3) {
+  return window['go']['desktop']['ConfigAPI']['SetMapCycleLighting'](arg1, arg2, arg3);
+}
+
 export function SetSecret(arg1, arg2) {
   return window['go']['desktop']['ConfigAPI']['SetSecret'](arg1, arg2);
+}
+
+export function SwitchProfile(arg1) {
+  return window['go']['desktop']['ConfigAPI']['SwitchProfile'](arg1);
 }

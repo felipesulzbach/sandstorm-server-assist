@@ -130,8 +130,16 @@ app (rede neutra), testar as portas pela internet e mensagens de entrada/saída.
 rota no game-in (ADR-021); termos 2026-11-10. O usuário saiu e pediu para seguir até o fim, aceitar as
 recomendações e fazer commit e push. O agendamento automático de retomada foi recusado pelo modo automático.
 
+**10/11 (~11:00–13:00) · fase 19, ainda 0.1.3:** o usuário pediu as 14 configurações da lista (ADR-022). Feitas:
+regras do jogo, mutators, dia/noite, jogadores, mensagens programadas, reinício automático, Discord, abrir com o
+Windows, Firewall, placa de rede, tick rate, perfis e lista de mods. O servidor real parou às 12:09 sem linhas de
+desligamento e sem registro de travamento (antes do modo dev abrir; os testes não encerram processos); não foi
+iniciado de novo.
+
 **Falta (com o usuário):** subir o verificador no AWS (passos em `docs/PAGINA_DOWNLOAD.md`), publicar a 0.1.3,
-aceitar os termos novos, testar a troca para um mapa de mod e as mensagens no chat com jogadores.
+aceitar os termos novos, testar a troca para um mapa de mod e as mensagens no chat com jogadores. Da fase 19:
+testar com jogadores o painel (expulsar/banir), a troca com dia/noite, as regras no jogo, o webhook do Discord, a
+regra do Firewall (pede administrador) e o reinício diário.
 
 ## Validação humana (pendente com o usuário)
 

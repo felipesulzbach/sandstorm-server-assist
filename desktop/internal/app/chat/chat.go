@@ -27,6 +27,8 @@ type Deps struct {
 	// Log escreve no log do app (o texto passa pela máscara de segredos).
 	Log func(text, level string)
 	Now func() time.Time
+	// OnPlayer recebe quem entrou ("join") ou saiu ("leave"), com o nome completo (avisos no Discord). Pode ser nil.
+	OnPlayer func(kind, name string)
 }
 
 // MaxAge: linhas mais velhas que isso não geram mensagem (o app pode ler o log de uma partida já em andamento).
@@ -45,6 +47,10 @@ type Service struct {
 	queue  chan string
 	sendMu sync.Mutex
 	conn   Conn
+
+	// Mensagens programadas (ADR-022): próxima vez e qual mensagem.
+	nextAt time.Time
+	next   int
 }
 
 // New cria o serviço. Async liga a fila de envio (o app); nos testes, Handle devolve o comando sem enviar.
@@ -107,6 +113,9 @@ func (s *Service) Handle(ev logparse.Event) string {
 	if template == "" || (!ev.Time.IsZero() && s.d.Now().Sub(ev.Time) > MaxAge) {
 		return ""
 	}
+	if s.d.OnPlayer != nil {
+		s.d.OnPlayer(template, cleanPlayer(name))
+	}
 	p, sec, err := s.d.Config()
 	if err != nil || !p.Rcon || sec.RconPassword == "" {
 		return ""
@@ -134,11 +143,60 @@ func (s *Service) match(joined string) (string, string) {
 	return "", joined
 }
 
+// cleanPlayer tira espaços sobrando do nome.
+func cleanPlayer(name string) string { return strings.Join(strings.Fields(name), " ") }
+
+// Broadcast põe uma mensagem na fila do chat (avisos do reinício automático).
+func (s *Service) Broadcast(text string) {
+	cmd := server.AnnouncementCommand(text)
+	if cmd == "" || s.queue == nil {
+		return
+	}
+	select {
+	case s.queue <- cmd:
+	default:
+	}
+}
+
+// Tick manda as mensagens programadas, uma por vez, a cada AnnounceEvery minutos enquanto o servidor está pronto.
+// Devolve o comando enviado (vazio se nenhum), para os testes.
+func (s *Service) Tick(ready bool) string {
+	now := s.d.Now()
+	p, sec, err := s.d.Config()
+	s.mu.Lock()
+	if !ready || err != nil || len(p.Announcements) == 0 || !p.Rcon || sec.RconPassword == "" {
+		s.nextAt = time.Time{}
+		s.mu.Unlock()
+		return ""
+	}
+	every := time.Duration(p.AnnounceEvery) * time.Minute
+	if s.nextAt.IsZero() {
+		s.nextAt = now.Add(every)
+	}
+	if now.Before(s.nextAt) {
+		s.mu.Unlock()
+		return ""
+	}
+	text := p.Announcements[s.next%len(p.Announcements)]
+	s.next++
+	s.nextAt = now.Add(every)
+	s.mu.Unlock()
+	cmd := server.AnnouncementCommand(text)
+	if cmd != "" && s.queue != nil {
+		select {
+		case s.queue <- cmd:
+		default:
+		}
+	}
+	return cmd
+}
+
 // Reset esquece os jogadores e fecha a conexão (servidor parou ou reiniciou).
 func (s *Service) Reset() {
 	s.mu.Lock()
 	clear(s.logins)
 	clear(s.joined)
+	s.nextAt = time.Time{}
 	s.mu.Unlock()
 	s.sendMu.Lock()
 	s.closeConn()

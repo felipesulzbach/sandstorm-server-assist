@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -19,19 +20,24 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
+	"sandstorm-server-assist/desktop/internal/adapters/discord"
 	"sandstorm-server-assist/desktop/internal/adapters/fsx"
 	"sandstorm-server-assist/desktop/internal/adapters/modio"
 	"sandstorm-server-assist/desktop/internal/adapters/proc"
 	"sandstorm-server-assist/desktop/internal/adapters/rcon"
 	upd "sandstorm-server-assist/desktop/internal/adapters/updater"
 	"sandstorm-server-assist/desktop/internal/adapters/vault"
+	"sandstorm-server-assist/desktop/internal/adapters/winsys"
 	"sandstorm-server-assist/desktop/internal/app/chat"
 	"sandstorm-server-assist/desktop/internal/app/config"
 	"sandstorm-server-assist/desktop/internal/app/installer"
 	"sandstorm-server-assist/desktop/internal/app/logbuf"
 	"sandstorm-server-assist/desktop/internal/app/mapchange"
+	"sandstorm-server-assist/desktop/internal/app/notify"
+	"sandstorm-server-assist/desktop/internal/app/players"
 	"sandstorm-server-assist/desktop/internal/app/runner"
 	"sandstorm-server-assist/desktop/internal/app/updater"
+	"sandstorm-server-assist/desktop/internal/app/watchdog"
 	"sandstorm-server-assist/desktop/internal/domain/legal"
 	"sandstorm-server-assist/desktop/internal/domain/logparse"
 	"sandstorm-server-assist/desktop/internal/domain/server"
@@ -51,6 +57,13 @@ type app struct {
 	updates *updater.Service
 	maps    *mapchange.Service
 	chat    *chat.Service
+	players *players.Service
+	notify  *notify.Service
+	watch   *watchdog.Service
+	// lastPhase é a fase vista no último tique (avisos do Discord quando muda).
+	lastPhase runner.Phase
+	// autostart: o Windows abriu o app ao entrar (--autostart).
+	autostart bool
 	// updatesOnce liga a procura de atualizações uma vez, só depois do aceite dos termos (ADR-015).
 	updatesOnce sync.Once
 }
@@ -58,6 +71,11 @@ type app struct {
 // Run monta a aplicação e abre a janela. Só volta quando a janela fecha.
 func Run(assets fs.FS) error {
 	a := newApp()
+	a.autostart = slices.Contains(os.Args[1:], winsys.AutostartFlag)
+	startState := options.Normal
+	if a.autostart {
+		startState = options.Minimised
+	}
 	sys := &SystemAPI{a: a}
 	cfgAPI := &ConfigAPI{a: a}
 	inst := &InstallAPI{a: a}
@@ -73,8 +91,9 @@ func Run(assets fs.FS) error {
 		MinHeight:        620,
 		BackgroundColour: &options.RGBA{R: 21, G: 20, B: 18, A: 255},
 		// Sem a barra do Windows: a tela desenha a própria barra de título (como no midia-multi-tools).
-		Frameless:   true,
-		AssetServer: &assetserver.Options{Assets: assets},
+		Frameless:        true,
+		WindowStartState: startState,
+		AssetServer:      &assetserver.Options{Assets: assets},
 		OnStartup: func(ctx context.Context) {
 			a.ctx = ctx
 			a.log.SetNotify(func(lines []logbuf.Line) { runtime.EventsEmit(ctx, "log:lines", lines) })
@@ -89,7 +108,9 @@ func Run(assets fs.FS) error {
 			a.updates.SetNotify(func(st updater.State) { runtime.EventsEmit(ctx, "update:state", st) })
 			if legal.Accepted(a.cfg.Settings().TermsAccepted) {
 				a.startUpdates()
+				a.autoStartServer()
 			}
+			a.syncAutostart()
 			go a.loop(ctx)
 		},
 		OnBeforeClose: func(ctx context.Context) bool {
@@ -190,8 +211,39 @@ func newApp() *app {
 		},
 		Log: func(text, level string) { log.Add("app", text, level) },
 	})
-	a.chat = chat.New(chat.Deps{
+	a.notify = notify.New(notify.Deps{
 		Config: cfg.Current,
+		Post:   discord.Post,
+		Log:    func(text, level string) { log.Add("app", text, level) },
+	}, true)
+	a.players = players.New(players.Deps{
+		Config: cfg.Current,
+		Ready:  func() bool { return a.runner.Status().Phase == runner.Ready },
+		Dial: func(port int, password string) (players.Conn, error) {
+			c, err := rcon.Dial(port, password)
+			if errors.Is(err, rcon.ErrAuth) {
+				return nil, players.ErrAuth
+			}
+			if err != nil {
+				return nil, err
+			}
+			return c, nil
+		},
+		Log: func(text, level string) { log.Add("app", text, level) },
+	})
+	a.watch = watchdog.New(watchdog.Deps{
+		Config:      cfg.Current,
+		Phase:       func() string { return string(a.runner.Status().Phase) },
+		Start:       a.runner.Start,
+		Restart:     a.runner.Restart,
+		StopAndWait: a.runner.StopAndWait,
+		Update:      a.updateServer,
+		Say:         func(text string) { a.chat.Broadcast(text) },
+		Log:         func(text, level string) { log.Add("app", text, level) },
+	})
+	a.chat = chat.New(chat.Deps{
+		OnPlayer: func(kind, name string) { a.notify.Event(kind, "", name) },
+		Config:   cfg.Current,
 		Dial: func(port int, password string) (chat.Conn, error) {
 			c, err := rcon.Dial(port, password)
 			if err != nil {
@@ -241,6 +293,7 @@ func (a *app) loop(ctx context.Context) {
 			return
 		case <-tick.C:
 			a.runner.Tick()
+			a.tickAutomation()
 		case <-flush.C:
 			a.log.Flush()
 		}

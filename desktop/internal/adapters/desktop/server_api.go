@@ -75,8 +75,8 @@ func (s *ServerAPI) MapChange() mapchange.Info { return s.a.maps.Info() }
 // Scenarios pede ao servidor ligado a lista de mapas (inclui os mapas dos mods montados) e junta com os do perfil.
 func (s *ServerAPI) Scenarios() ([]server.Scenario, error) { return s.a.maps.Scenarios() }
 
-// ChangeMap troca para um cenário da lista (a tela manda só o id).
-func (s *ServerAPI) ChangeMap(id string) error { return s.a.maps.Change(id) }
+// ChangeMap troca para um cenário da lista (a tela manda só o id e, se quiser, Day ou Night).
+func (s *ServerAPI) ChangeMap(id, lighting string) error { return s.a.maps.Change(id, lighting) }
 
 // ---- teste de portas pela internet (ADR-021) ----
 

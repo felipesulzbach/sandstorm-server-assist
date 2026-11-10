@@ -12,6 +12,10 @@ export function Checklist():Promise<Array<desktop.Step>>;
 
 export function CopyText(arg1:string):Promise<void>;
 
+export function CreateFirewallRule():Promise<desktop.FirewallInfo>;
+
+export function Firewall():Promise<desktop.FirewallInfo>;
+
 export function Info():Promise<desktop.Info>;
 
 export function InstallUpdate():Promise<void>;
@@ -19,6 +23,8 @@ export function InstallUpdate():Promise<void>;
 export function OpenLink(arg1:string):Promise<void>;
 
 export function ProblemLinks(arg1:string):Promise<Array<string>>;
+
+export function SetAutostart(arg1:boolean,arg2:boolean):Promise<config.Settings>;
 
 export function SetLanguage(arg1:string):Promise<config.Settings>;
 

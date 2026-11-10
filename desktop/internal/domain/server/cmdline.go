@@ -48,6 +48,9 @@ func BuildLaunch(p Profile, s Secrets, securityCode string) (Launch, error) {
 	}
 
 	url := fmt.Sprintf("%s?Scenario=%s?MaxPlayers=%d", p.StartMap, p.StartScenario, p.MaxPlayers)
+	if p.StartLighting != "" {
+		url += "?Lighting=" + p.StartLighting
+	}
 	if s.ServerPassword != "" {
 		url += "?Password=" + s.ServerPassword
 	}
@@ -62,6 +65,16 @@ func BuildLaunch(p Profile, s Secrets, securityCode string) (Launch, error) {
 		if p.TravelMap != "" {
 			args = append(args, fmt.Sprintf("-ModDownloadTravelTo=%s?Scenario=%s", p.TravelMap, p.TravelScenario))
 		}
+		if p.CmdModList && len(p.ModIDs) > 0 {
+			ids := make([]string, len(p.ModIDs))
+			for i, id := range p.ModIDs {
+				ids[i] = strconv.Itoa(id)
+			}
+			args = append(args, `-CmdModList="`+strings.Join(ids, ",")+`"`)
+		}
+	}
+	if p.BindIP != "" {
+		args = append(args, "-MultiHome="+p.BindIP)
 	}
 	if len(p.Mutators) > 0 {
 		args = append(args, "-mutators="+strings.Join(p.Mutators, ","))

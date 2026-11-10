@@ -39,12 +39,20 @@ type Settings struct {
 	LogCleanup bool `json:"logCleanup"`
 	// LogKeep é quantas partidas manter (serverlogs.MinKeep a MaxKeep; 0 = padrão).
 	LogKeep int `json:"logKeep,omitempty"`
+	// StartWithWindows abre o app ao entrar no Windows (minimizado). AutoStartServer inicia o servidor quando o app
+	// abre assim (ADR-022).
+	StartWithWindows bool `json:"startWithWindows"`
+	AutoStartServer  bool `json:"autoStartServer"`
 }
 
 type file struct {
-	Version  int            `json:"version"`
-	Profile  server.Profile `json:"profile"`
-	Settings Settings       `json:"settings"`
+	Version int            `json:"version"`
+	Profile server.Profile `json:"profile"`
+	// ActiveID e ActiveName são do perfil em uso (Profile). Others são os outros perfis guardados (ADR-022).
+	ActiveID   string         `json:"activeId,omitempty"`
+	ActiveName string         `json:"activeName,omitempty"`
+	Others     []NamedProfile `json:"others,omitempty"`
+	Settings   Settings       `json:"settings"`
 }
 
 // SecretStore é o cofre (DPAPI no app, memória nos testes).
@@ -144,6 +152,7 @@ func (s *Service) SaveProfile(p server.Profile) (server.Profile, error) {
 	if err := p.Validate(); err != nil {
 		return s.data.Profile, err
 	}
+	p.Rules = server.CleanRules(p.Rules)
 	s.data.Profile = p
 	return p, s.save()
 }
@@ -204,6 +213,15 @@ func (s *Service) SetShowConsole(on bool) (Settings, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.data.Settings.ShowConsole = on
+	return s.data.Settings, s.save()
+}
+
+// SetAutostart grava as preferências de abrir com o Windows (quem mexe no registro é a ponte, ADR-022).
+func (s *Service) SetAutostart(withWindows, startServer bool) (Settings, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.data.Settings.StartWithWindows = withWindows
+	s.data.Settings.AutoStartServer = withWindows && startServer
 	return s.data.Settings, s.save()
 }
 
@@ -403,7 +421,12 @@ func (s *Service) Detect(apiKey string) (server.Detected, string, error) {
 			d.Profile.Motd, d.Found["motd"] = text, true
 		}
 	}
-	if b, err := fsx.ReadLimited(filepath.Join(dir, GameIni), 1<<20); err == nil {
+	game, gerr := fsx.ReadLimited(filepath.Join(dir, GameIni), 1<<20)
+	engine, _ := fsx.ReadLimited(filepath.Join(dir, EngineIni), 1<<20)
+	if rules := server.ReadRules(string(game), string(engine)); rules != nil {
+		d.Profile.Rules, d.Found["rules"] = rules, true
+	}
+	if b, err := game, gerr; err == nil {
 		text := string(b)
 		if on, _ := ini.Get(text, "Rcon", "bEnabled"); strings.EqualFold(on, "true") {
 			d.Profile.Rcon, d.Found["rcon"] = true, true
@@ -547,9 +570,12 @@ func (s *Service) RconInIni() bool {
 	return ok && pw != ""
 }
 
-// Prepare grava Admins.txt, MapCycle.txt e Motd.txt a partir do perfil antes de iniciar (cópia .bak na primeira
-// vez). Listas e textos vazios não mexem nos arquivos.
+// Prepare grava Admins.txt, MapCycle.txt, Motd.txt e as regras (Game.ini e Engine.ini) a partir do perfil antes de
+// iniciar (cópia .bak na primeira vez). Listas e textos vazios não mexem nos arquivos.
 func Prepare(p server.Profile) error {
+	if err := writeRules(p); err != nil {
+		return err
+	}
 	if len(p.Admins) > 0 {
 		if err := fsx.WriteAtomic(filepath.Join(p.ServerDir, AdminsTxt), []byte(server.AdminsFile(p.Admins)), true); err != nil {
 			return err
@@ -562,6 +588,41 @@ func Prepare(p server.Profile) error {
 	}
 	if motd := server.MotdFile(p.Motd); motd != "" {
 		if err := fsx.WriteAtomic(filepath.Join(p.ServerDir, MotdTxt), []byte(motd), true); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// writeRules grava as regras do perfil no Game.ini e no Engine.ini (só os arquivos que mudam).
+func writeRules(p server.Profile) error {
+	if p.Rules == nil {
+		return nil
+	}
+	gamePath, enginePath := filepath.Join(p.ServerDir, GameIni), filepath.Join(p.ServerDir, EngineIni)
+	read := func(path string) (string, error) {
+		b, err := fsx.ReadLimited(path, 1<<20)
+		if err != nil && !IsNotExist(err) {
+			return "", err
+		}
+		return string(b), nil
+	}
+	game, err := read(gamePath)
+	if err != nil {
+		return err
+	}
+	engine, err := read(enginePath)
+	if err != nil {
+		return err
+	}
+	g, e := server.ApplyRules(game, engine, p.Rules)
+	if g != game {
+		if err := fsx.WriteAtomic(gamePath, []byte(g), true); err != nil {
+			return err
+		}
+	}
+	if e != engine {
+		if err := fsx.WriteAtomic(enginePath, []byte(e), true); err != nil {
 			return err
 		}
 	}

@@ -1,3 +1,44 @@
+export namespace admin {
+	
+	export class Ban {
+	    netId: string;
+	    text: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Ban(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.netId = source["netId"];
+	        this.text = source["text"];
+	    }
+	}
+	export class Player {
+	    id: string;
+	    name: string;
+	    netId: string;
+	    ip: string;
+	    score: number;
+	    bot: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Player(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.netId = source["netId"];
+	        this.ip = source["ip"];
+	        this.score = source["score"];
+	        this.bot = source["bot"];
+	    }
+	}
+
+}
+
 export namespace backupsvc {
 	
 	export class Summary {
@@ -92,6 +133,24 @@ export namespace config {
 		    return a;
 		}
 	}
+	export class ProfileRef {
+	    id: string;
+	    name: string;
+	    hostname: string;
+	    active: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new ProfileRef(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.hostname = source["hostname"];
+	        this.active = source["active"];
+	    }
+	}
 	export class Settings {
 	    language: string;
 	    showConsole: boolean;
@@ -99,6 +158,8 @@ export namespace config {
 	    termsAcceptedAt?: string;
 	    logCleanup: boolean;
 	    logKeep?: number;
+	    startWithWindows: boolean;
+	    autoStartServer: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Settings(source);
@@ -112,6 +173,8 @@ export namespace config {
 	        this.termsAcceptedAt = source["termsAcceptedAt"];
 	        this.logCleanup = source["logCleanup"];
 	        this.logKeep = source["logKeep"];
+	        this.startWithWindows = source["startWithWindows"];
+	        this.autoStartServer = source["autoStartServer"];
 	    }
 	}
 
@@ -119,6 +182,41 @@ export namespace config {
 
 export namespace desktop {
 	
+	export class AutomationInfo {
+	    // Go type: time
+	    nextRestart: any;
+	    hasWebhook: boolean;
+	    hasSteamCmd: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new AutomationInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.nextRestart = this.convertValues(source["nextRestart"], null);
+	        this.hasWebhook = source["hasWebhook"];
+	        this.hasSteamCmd = source["hasSteamCmd"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class Connect {
 	    ip: string;
 	    port: number;
@@ -169,6 +267,20 @@ export namespace desktop {
 		    return a;
 		}
 	}
+	export class CycleLine {
+	    scenario: string;
+	    lighting: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CycleLine(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.scenario = source["scenario"];
+	        this.lighting = source["lighting"];
+	    }
+	}
 	export class ExistingScan {
 	    found: boolean;
 	    logFile: string;
@@ -206,6 +318,20 @@ export namespace desktop {
 		    }
 		    return a;
 		}
+	}
+	export class FirewallInfo {
+	    ready: boolean;
+	    rules: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new FirewallInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.ready = source["ready"];
+	        this.rules = source["rules"];
+	    }
 	}
 	export class Info {
 	    appVersion: string;
@@ -372,6 +498,38 @@ export namespace desktop {
 	        this.root = source["root"];
 	        this.mods = this.convertValues(source["mods"], ModRow);
 	        this.subscribedAt = this.convertValues(source["subscribedAt"], null);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RulesInfo {
+	    groups: string[];
+	    rules: server.RuleDef[];
+	
+	    static createFrom(source: any = {}) {
+	        return new RulesInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.groups = source["groups"];
+	        this.rules = this.convertValues(source["rules"], server.RuleDef);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -651,6 +809,43 @@ export namespace netcheck {
 
 }
 
+export namespace players {
+	
+	export class View {
+	    players: admin.Player[];
+	    bans: admin.Ban[];
+	
+	    static createFrom(source: any = {}) {
+	        return new View(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.players = this.convertValues(source["players"], admin.Player);
+	        this.bans = this.convertValues(source["bans"], admin.Ban);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+}
+
 export namespace problems {
 	
 	export class Error {
@@ -776,6 +971,24 @@ export namespace server {
 	        this.name = source["name"];
 	    }
 	}
+	export class AutoRestart {
+	    daily: string;
+	    warnMessage: string;
+	    update: boolean;
+	    onCrash: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new AutoRestart(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.daily = source["daily"];
+	        this.warnMessage = source["warnMessage"];
+	        this.update = source["update"];
+	        this.onCrash = source["onCrash"];
+	    }
+	}
 	export class Diff {
 	    key: string;
 	    kind: string;
@@ -794,6 +1007,26 @@ export namespace server {
 	        this.mine = source["mine"];
 	        this.server = source["server"];
 	        this.state = source["state"];
+	    }
+	}
+	export class Discord {
+	    ready: string;
+	    stopped: string;
+	    crashed: string;
+	    join: string;
+	    leave: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Discord(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.ready = source["ready"];
+	        this.stopped = source["stopped"];
+	        this.crashed = source["crashed"];
+	        this.join = source["join"];
+	        this.leave = source["leave"];
 	    }
 	}
 	export class Map {
@@ -826,6 +1059,20 @@ export namespace server {
 	        this.label = source["label"];
 	    }
 	}
+	export class Mutator {
+	    id: string;
+	    label: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Mutator(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.label = source["label"];
+	    }
+	}
 	export class Profile {
 	    serverDir: string;
 	    steamcmdDir: string;
@@ -835,19 +1082,27 @@ export namespace server {
 	    maxPlayers: number;
 	    startMap: string;
 	    startScenario: string;
+	    startLighting: string;
 	    travelMap: string;
 	    travelScenario: string;
 	    useMods: boolean;
 	    mutators: string[];
 	    rcon: boolean;
 	    rconPort: number;
+	    bindIp: string;
 	    connectIp: string;
 	    admins: Admin[];
 	    mapCycle: string[];
 	    modIds: number[];
+	    cmdModList: boolean;
 	    motd: string;
 	    joinMessage: string;
 	    leaveMessage: string;
+	    announcements: string[];
+	    announceEvery: number;
+	    rules: Record<string, string>;
+	    autoRestart: AutoRestart;
+	    discord: Discord;
 	
 	    static createFrom(source: any = {}) {
 	        return new Profile(source);
@@ -863,19 +1118,27 @@ export namespace server {
 	        this.maxPlayers = source["maxPlayers"];
 	        this.startMap = source["startMap"];
 	        this.startScenario = source["startScenario"];
+	        this.startLighting = source["startLighting"];
 	        this.travelMap = source["travelMap"];
 	        this.travelScenario = source["travelScenario"];
 	        this.useMods = source["useMods"];
 	        this.mutators = source["mutators"];
 	        this.rcon = source["rcon"];
 	        this.rconPort = source["rconPort"];
+	        this.bindIp = source["bindIp"];
 	        this.connectIp = source["connectIp"];
 	        this.admins = this.convertValues(source["admins"], Admin);
 	        this.mapCycle = source["mapCycle"];
 	        this.modIds = source["modIds"];
+	        this.cmdModList = source["cmdModList"];
 	        this.motd = source["motd"];
 	        this.joinMessage = source["joinMessage"];
 	        this.leaveMessage = source["leaveMessage"];
+	        this.announcements = source["announcements"];
+	        this.announceEvery = source["announceEvery"];
+	        this.rules = source["rules"];
+	        this.autoRestart = this.convertValues(source["autoRestart"], AutoRestart);
+	        this.discord = this.convertValues(source["discord"], Discord);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -895,6 +1158,34 @@ export namespace server {
 		    }
 		    return a;
 		}
+	}
+	export class RuleDef {
+	    id: string;
+	    group: string;
+	    file: string;
+	    section: string;
+	    key: string;
+	    kind: string;
+	    min: number;
+	    max: number;
+	    default: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new RuleDef(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.group = source["group"];
+	        this.file = source["file"];
+	        this.section = source["section"];
+	        this.key = source["key"];
+	        this.kind = source["kind"];
+	        this.min = source["min"];
+	        this.max = source["max"];
+	        this.default = source["default"];
+	    }
 	}
 	export class Scenario {
 	    id: string;
@@ -937,6 +1228,25 @@ export namespace updater {
 	        this.version = source["version"];
 	        this.progress = source["progress"];
 	        this.stage = source["stage"];
+	    }
+	}
+
+}
+
+export namespace winsys {
+	
+	export class Address {
+	    ip: string;
+	    name: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Address(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.ip = source["ip"];
+	        this.name = source["name"];
 	    }
 	}
 

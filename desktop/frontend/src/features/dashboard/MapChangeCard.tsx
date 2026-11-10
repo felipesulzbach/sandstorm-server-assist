@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Map as MapIcon, RefreshCw } from 'lucide-react';
 import type { PageId } from '../../App';
 import { useI18n } from '../../i18n';
-import { backend, type Scenario, type Status } from '../../shared/backend';
+import { backend, type Lighting, type Scenario, type Status } from '../../shared/backend';
 import { ErrorCard } from '../../shared/components';
 import { useAction } from '../../shared/hooks';
 import { useLogs } from '../logs/LogDrawer';
@@ -21,6 +21,7 @@ export function MapChangeCard({ status, go }: { status: Status | null; go: (p: P
   const [rcon, setRcon] = useState<boolean | null>(null);
   const [list, setList] = useState<Scenario[] | null>(null);
   const [choice, setChoice] = useState('');
+  const [lighting, setLighting] = useState<Lighting>('');
   const [confirming, setConfirming] = useState(false);
   const [sentTo, setSentTo] = useState<Scenario | null>(null);
 
@@ -61,7 +62,7 @@ export function MapChangeCard({ status, go }: { status: Status | null; go: (p: P
     const target = chosen;
     setConfirming(false);
     const ok = await action.run(async () => {
-      await backend.changeMap(target.id);
+      await backend.changeMap(target.id, lighting);
       return true;
     });
     if (ok) setSentTo(target);
@@ -130,6 +131,17 @@ export function MapChangeCard({ status, go }: { status: Status | null; go: (p: P
                     </optgroup>
                   ))}
                 </select>
+                <select
+                  className="select select--short"
+                  aria-label={t('lighting.label')}
+                  value={lighting}
+                  disabled={action.busy || confirming}
+                  onChange={(e) => setLighting(e.target.value as Lighting)}
+                >
+                  <option value="">{t('lighting.default')}</option>
+                  <option value="Day">{t('lighting.Day')}</option>
+                  <option value="Night">{t('lighting.Night')}</option>
+                </select>
                 <button
                   type="button"
                   className="icon-btn"
@@ -169,7 +181,12 @@ export function MapChangeCard({ status, go }: { status: Status | null; go: (p: P
                   <button
                     type="button"
                     className="btn btn--primary"
-                    disabled={!ready || action.busy || !chosen || chosen.id === status?.scenario}
+                    disabled={
+                      !ready ||
+                      action.busy ||
+                      !chosen ||
+                      (chosen.id === status?.scenario && lighting === '')
+                    }
                     onClick={() => setConfirming(true)}
                   >
                     <MapIcon size={16} aria-hidden /> {t('dashboard.mapChange.change')}

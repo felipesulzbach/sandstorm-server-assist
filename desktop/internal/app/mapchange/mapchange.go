@@ -117,11 +117,15 @@ func (s *Service) Scenarios() ([]server.Scenario, error) {
 
 // Change troca para um cenário da última lista. A lista precisa ter sido pedida antes (a tela só mostra o botão
 // com a lista aberta).
-func (s *Service) Change(id string) error {
+func (s *Service) Change(id, lighting string) error {
 	s.mu.Lock()
 	list := s.list
 	s.mu.Unlock()
-	cmd, err := server.TravelCommand(id, list)
+	p, sec, err := s.d.Config()
+	if err != nil {
+		return err
+	}
+	cmd, err := server.TravelWithLighting(id, lighting, list, p.MaxPlayers, sec.ServerPassword)
 	if err != nil {
 		return err
 	}

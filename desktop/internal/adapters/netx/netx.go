@@ -21,6 +21,11 @@ var AllowedHosts = map[string]bool{
 	"steamcdn-a.akamaihd.net": true, // SteamCMD (Valve)
 	"g-254.modapi.io":         true, // API do mod.io do Insurgency: Sandstorm
 	"game-in.duckdns.org":     true, // página de download e atualização automática do app (ADR-014)
+	// Webhook do Discord, só se o usuário configurar (ADR-022).
+	"discord.com":        true,
+	"discordapp.com":     true,
+	"ptb.discord.com":    true,
+	"canary.discord.com": true,
 }
 
 // Client faz pedidos só para AllowedHosts, sem seguir redirecionamento para outro host.

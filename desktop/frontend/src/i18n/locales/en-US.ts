@@ -203,9 +203,18 @@ export const enUS = {
     },
   },
   server: {
+    modList: 'Send my mod list to the server (-CmdModList)',
+    modListHint:
+      'Advanced. Normally the server loads the mods subscribed by its mod.io account. Turn on only if you want to set the list here; recent game versions may ignore it.',
+    modIds: 'Mod ids',
+    modIdsHint: 'The numbers of the mods on mod.io, separated by commas.',
+    mutatorsCustom: 'Mutators from mods',
+    mutatorsCustomHint: 'Names separated by commas. Example: NoRestrictedArea',
     title: 'Server',
     subtitle: 'Name, maps, administrators and passwords. Used the next time the server starts.',
     tabs: {
+      rules: 'Game rules',
+      automation: 'Automation',
       general: 'General',
       maps: 'Maps',
       admins: 'Administrators',
@@ -232,8 +241,7 @@ export const enUS = {
     travelMap: 'Mod map name',
     travelScenario: 'Mod map scenario',
     mutators: 'Mutators',
-    mutatorsHint:
-      'Separated by commas. Example: NoRestrictedArea. The mutator mod must be subscribed.',
+    mutatorsHint: 'Pick the game mutators. Mutators from mods go in the field below, by name.',
     mapCycle: 'Map rotation (MapCycle.txt)',
     mapCycleHint: 'One entry per line. Leave empty to keep the file the server already has.',
     admins: {
@@ -264,6 +272,12 @@ export const enUS = {
       moved: 'Done: the password is now only in the vault.',
     },
     network: {
+      bindIp: 'Network card of the server',
+      bindIpHint:
+        'Leave on "All" in most cases. Choose one card only if the server must answer on a single network, such as the network of a VPN program (-MultiHome).',
+      bindIpMissing:
+        'This address is not on this computer now. If it belongs to a VPN program, connect the VPN before starting the server.',
+      bindIpAll: 'All network cards',
       connectIp: 'IP players use',
       connectIpHint:
         'Over the internet, it is your public IP. Over a VPN program, it is the IP the program shows for this PC.',
@@ -273,6 +287,11 @@ export const enUS = {
         'Ports to open on the router (UDP): {port} (game) and {queryPort} (query). Do not open the RCON port ({rconPort}).',
     },
     messages: {
+      announcements: 'Scheduled messages in the chat',
+      announcementsHint:
+        'One message per line, up to 10. The app sends one at a time, in order, while the server is ready.',
+      announcementsExample: 'Join our Discord: discord.gg/example',
+      every: 'Every (minutes)',
       motd: 'Message of the day',
       motdHint:
         'Shown to players on the loading screen when they join. Up to 1000 characters; it can have several lines. Applies on the next start.',
@@ -340,6 +359,10 @@ export const enUS = {
     rconInIni:
       'The RCON password is still written in Game.ini. Go to Server › Passwords & tokens and use "Move to the vault".',
     fields: {
+      startLighting: 'Start map lighting',
+      bindIp: 'Network card of the server',
+      modIds: 'Mod list',
+      rules: 'Game rules',
       motd: 'Message of the day',
       hostname: 'Server name',
       port: 'Game port',
@@ -454,6 +477,10 @@ export const enUS = {
     },
   },
   settings: {
+    startWithWindows: 'Open the app when Windows starts',
+    startWithWindowsHint: 'The app opens minimized when you sign in to Windows.',
+    autoStartServer: 'Start the server when the app opens with Windows',
+    autoStartServerHint: 'Useful for a computer that stays on as a server.',
     title: 'Settings',
     subtitle: 'Language, appearance and app preferences.',
     language: 'Language',
@@ -623,6 +650,7 @@ export const enUS = {
           'mod.io: the server account e-mail (to receive the login code), the code itself and the server API key, to authorize and download mods.',
           'Project download page: the check for updates asks only for the latest version; like any website, it sees your IP address and the request time. No identifier of yours is sent.',
           'Port test (only when you click "Test ports from the internet"): the project checker, on the download page server, receives your IP address and the port numbers, tests those ports from outside once and answers. Nothing is stored or logged.',
+          'Discord (only if you set a webhook in Server › Automation): the notice texts you wrote, with the server name, the map and the names of players who join or leave, go to your Discord channel. Discord receives your IP, like any website.',
           'Links you click open in your browser, under the rules of each site.',
         ],
       },
@@ -767,7 +795,416 @@ export const enUS = {
       ],
     },
   },
+  lighting: {
+    label: 'Lighting',
+    default: 'Scenario default',
+    Day: 'Day',
+    Night: 'Night',
+    start: 'Start map lighting',
+    cycleTitle: 'Day or night in the rotation',
+    allDay: 'All day',
+    allNight: 'All night',
+    allDefault: 'All default',
+    unknownLine: 'line the app does not read',
+  },
+  mutators: {
+    AllYouCanEat: 'Start with 100 supply points.',
+    AntiMaterielRiflesOnly: 'Only anti-materiel rifles, plus normal equipment and explosives.',
+    BoltActionsOnly: 'Only bolt-action rifles, plus normal equipment and explosives.',
+    Broke: 'Start with 0 supply points.',
+    BulletSponge: 'More health.',
+    Competitive: 'More expensive equipment, shorter rounds, faster captures.',
+    CompetitiveLoadouts: 'Classes replaced by the Competitive ones.',
+    FastMovement: 'Move faster.',
+    Frenzy: 'AI enemies that only attack with melee. Watch out for special enemies.',
+    Guerrillas: 'Start with 5 supply points.',
+    Hardcore: 'Slower movement and longer captures.',
+    HeadshotOnly: 'Players only take damage from headshots.',
+    HotPotato: 'A live grenade drops when a player dies.',
+    LockedAim: 'Weapons always point to the center of the screen.',
+    NoAim: 'No aiming down sights.',
+    PistolsOnly: 'Only pistols, plus normal equipment and explosives.',
+    ShotgunsOnly: 'Only shotguns, plus normal equipment and explosives.',
+    SlowCaptureTimes: 'Objectives take longer to capture.',
+    SlowMovement: 'Move slower.',
+    SoldierOfFortune: 'Gain supply points as your score goes up.',
+    SpecialOperations: 'Start with 30 supply points.',
+    Strapped: 'Start with 1 supply point.',
+    Ultralethal: 'Everyone dies with one shot.',
+    Vampirism: 'Gain health equal to the damage you deal to enemies.',
+    Warlords: 'Start with 10 supply points.',
+  },
+  rules: {
+    manage: 'Set the game rules here',
+    manageHint:
+      'The app writes these options to Game.ini and Engine.ini when the server starts. Empty options use the game default. Off: the app does not touch these files.',
+    default: 'Default: {value}',
+    gameDefault: 'Game default',
+    on: 'On',
+    off: 'Off',
+    groups: {
+      coop: 'Coop: bots',
+      checkpoint: 'Checkpoint',
+      objectives: 'Objectives',
+      friendlyFire: 'Friendly fire and teams',
+      teamKills: 'Team kills',
+      chat: 'Chat, voice and kill feed',
+      match: 'Match',
+      supply: 'Supply points',
+      votes: 'Vote to kick',
+      network: 'Performance (Engine.ini)',
+    },
+    items: {
+      aiDifficulty: {
+        label: 'Bot difficulty',
+        hint: '0 is the easiest, 1 the hardest',
+      },
+      minimumEnemies: {
+        label: 'Minimum enemies',
+        hint: 'Enemy bots with few players',
+      },
+      maximumEnemies: {
+        label: 'Maximum enemies',
+        hint: 'Enemy bots with the server full',
+      },
+      friendlyBotQuota: {
+        label: 'Friendly bots',
+        hint: 'Bots on the players team',
+      },
+      vehicleInsertion: {
+        label: 'Enemies arrive by vehicle',
+        hint: 'Insertion with trucks where the map has it',
+      },
+      defendTimer: {
+        label: 'Counter-attack time (s)',
+        hint: 'Time to defend each point',
+      },
+      defendTimerFinal: {
+        label: 'Final counter-attack time (s)',
+        hint: 'Time to defend the last point',
+      },
+      retreatTimer: {
+        label: 'Bot retreat time (s)',
+        hint: 'After the counter-attack',
+      },
+      respawnDpr: {
+        label: 'Bot respawn ratio',
+        hint: 'Share of bots dead before they respawn',
+      },
+      respawnDelay: {
+        label: 'Bot respawn delay (s)',
+        hint: 'Wait before bots respawn',
+      },
+      postCaptureRushTimer: {
+        label: 'Rush after the cache (s)',
+        hint: 'Bots rush after a cache is destroyed',
+      },
+      counterAttackRespawnDpr: {
+        label: 'Respawn ratio in counter-attack',
+        hint: 'Share of bots dead before they respawn',
+      },
+      counterAttackRespawnDelay: {
+        label: 'Respawn delay in counter-attack (s)',
+        hint: 'Wait before bots respawn',
+      },
+      enemyRespawnMin: {
+        label: 'Enemy waves with few players',
+        hint: 'Multiplier',
+      },
+      enemyRespawnMax: {
+        label: 'Enemy waves with the server full',
+        hint: 'Multiplier',
+      },
+      finalCacheBots: {
+        label: 'Bots at the final cache',
+        hint: 'Multiplier',
+      },
+      captureTime: {
+        label: 'Capture time (s)',
+        hint: 'Time to take a point',
+      },
+      resetTime: {
+        label: 'Capture reset time (s)',
+        hint: '-1 keeps the progress',
+      },
+      captureSpeedup: {
+        label: 'Speed-up per player',
+        hint: 'Each extra player captures faster',
+      },
+      captureSpeedupPlayers: {
+        label: 'Players that speed up',
+        hint: 'Maximum counted',
+      },
+      friendlyFire: {
+        label: 'Friendly fire',
+        hint: 'Damage to teammates',
+      },
+      friendlyFireModifier: {
+        label: 'Friendly fire damage',
+        hint: '0 is none, 1 is full damage',
+      },
+      friendlyFireReflect: {
+        label: 'Damage reflected to the attacker',
+        hint: '0 is none, 1 is full damage',
+      },
+      autoBalance: {
+        label: 'Balance teams',
+        hint: 'Moves players when teams are uneven',
+      },
+      autoBalanceDelay: {
+        label: 'Wait to balance (s)',
+        hint: 'After the teams become uneven',
+      },
+      teamSelect: {
+        label: 'Players choose the team',
+        hint: 'Allow switching teams',
+      },
+      teamKillLimit: {
+        label: 'Team kills before kick',
+        hint: '0 turns off the kick',
+      },
+      teamKillGrace: {
+        label: 'Time between team kills (s)',
+        hint: 'Kills in this window count once',
+      },
+      teamKillReduceTime: {
+        label: 'Forgive a team kill after (s)',
+        hint: 'The count goes down by 1',
+      },
+      killFeed: {
+        label: 'Kill feed',
+        hint: 'Shows who killed whom',
+      },
+      killFeedSpectator: {
+        label: 'Kill feed for spectators',
+        hint: 'And in replays',
+      },
+      killerInfo: {
+        label: 'Show who killed you',
+        hint: 'Killer and weapon on the death screen',
+      },
+      killDistance: {
+        label: 'Show the kill distance',
+        hint: 'On the death screen',
+      },
+      deadSay: {
+        label: 'Living players read the dead',
+        hint: 'Chat from dead players',
+      },
+      deadSayTeam: {
+        label: 'Read dead teammates',
+        hint: 'Team chat from the dead',
+      },
+      deadVoice: {
+        label: 'Living players hear the dead',
+        hint: 'Voice of dead players',
+      },
+      enemyHearsLocal: {
+        label: 'Enemies hear local voice',
+        hint: 'Nearby voice chat',
+      },
+      intermissionVoice: {
+        label: 'Everyone talks between rounds',
+        hint: 'Both teams',
+      },
+      mapVoting: {
+        label: 'Map vote',
+        hint: 'At the end of the match',
+      },
+      useMapCycle: {
+        label: 'Use the map rotation',
+        hint: 'Off repeats the same map',
+      },
+      minimumPlayers: {
+        label: 'Players to start',
+        hint: 'Per team',
+      },
+      roundLimit: {
+        label: 'Rounds per match',
+        hint: 'Varies by mode',
+      },
+      winLimit: {
+        label: 'Rounds to win',
+        hint: 'Varies by mode',
+      },
+      roundTime: {
+        label: 'Round time (s)',
+        hint: 'Varies by mode',
+      },
+      preRoundTime: {
+        label: 'Freeze time (s)',
+        hint: 'At the start of the round',
+      },
+      postRoundTime: {
+        label: 'Time between rounds (s)',
+        hint: 'Intermission screen',
+      },
+      idleLimit: {
+        label: 'Kick idle players after (s)',
+        hint: '0 never kicks',
+      },
+      idleLimitLow: {
+        label: 'Idle limit with few reinforcements (s)',
+        hint: 'When the team has few lives',
+      },
+      bots: {
+        label: 'Bots in versus',
+        hint: 'Fill the teams with bots',
+      },
+      botQuota: {
+        label: 'Number of bots in versus',
+        hint: 'With bots on',
+      },
+      initialSupply: {
+        label: 'Starting supply points',
+        hint: 'To buy equipment',
+      },
+      maximumSupply: {
+        label: 'Maximum supply points',
+        hint: 'Limit that can be earned',
+      },
+      supplyGain: {
+        label: 'Earn supply during the round',
+        hint: 'By score',
+      },
+      voteKick: {
+        label: 'Vote to kick',
+        hint: 'Players call the vote with Esc › Call Vote',
+      },
+      voteMinPlayers: {
+        label: 'Players to start a vote',
+        hint: 'Minimum on the server',
+      },
+      votePassRatio: {
+        label: 'Yes votes to pass',
+        hint: 'Share of the team (0 to 1)',
+      },
+      voteBanDuration: {
+        label: 'Ban after the vote (s)',
+        hint: '-1 only kicks',
+      },
+      tickRate: {
+        label: 'Tick rate',
+        hint: 'Updates per second; more uses more CPU and bandwidth',
+      },
+      maxClientRate: {
+        label: 'Max client rate (LAN)',
+        hint: 'Bytes per second per player',
+      },
+      maxInternetClientRate: {
+        label: 'Max client rate (internet)',
+        hint: 'Bytes per second per player',
+      },
+    },
+  },
+  profiles: {
+    label: 'Profile',
+    saveFirst: 'Save or undo the changes before switching profiles.',
+    new: 'New profile',
+    rename: 'Rename',
+    switchHint: 'Switching profiles needs the server stopped. Passwords and tokens are shared.',
+    namePlaceholder: 'Example: Coop, Versus',
+    copyCurrent: 'Copy the current profile',
+    create: 'Create',
+    delete: 'Delete profile',
+    deleteYes: 'Delete',
+  },
+  players: {
+    title: 'Players',
+    load: 'Show players',
+    reload: 'Refresh',
+    empty: 'Nobody on the server.',
+    name: 'Name',
+    score: 'Score',
+    actions: 'Actions',
+    bot: 'bot',
+    kick: 'Kick',
+    ban: 'Ban',
+    confirmKick: 'Kick {name}?',
+    confirmBan: 'Ban {name}?',
+    duration: 'Duration',
+    reason: 'Reason (optional)',
+    confirmYes: 'Confirm',
+    kicked: '{name} was kicked.',
+    banned: '{name} was banned.',
+    unbanned: 'Ban removed.',
+    bans: 'Banned',
+    noBans: 'No bans.',
+    unban: 'Remove ban',
+    permanent: 'Permanent',
+    days: '{n} day(s)',
+    minutes: '{n} minutes',
+    sayPlaceholder: 'Message to everyone on the server',
+    say: 'Send',
+    said: 'Message sent.',
+  },
+  automation: {
+    restartTitle: 'Automatic restart',
+    daily: 'Restart every day at',
+    dailyHint: 'Empty = no daily restart. Computer time.',
+    next: 'Next restart: {when}',
+    update: 'Update the server with SteamCMD in the daily restart',
+    updateHint: 'Updates come out with game patches; the restart takes a few minutes longer.',
+    updateNoSteamCmd: 'Set the SteamCMD folder in Installation first.',
+    warn: 'Warning in the chat before the restart',
+    warnHint: 'Sent 5 and 1 minute before. {minutes} becomes the number.',
+    warnExample: 'The server restarts in {minutes} min',
+    onCrash: 'Start the server again if it closes by itself',
+    onCrashHint: 'Waits 10 seconds. Pauses after 3 times in 30 minutes.',
+    appOpen: 'The automation only works with the app open (it can stay minimized).',
+    discordTitle: 'Discord notices',
+    discordText:
+      'The app posts in a Discord channel when the server goes up, stops, closes by itself, or when someone joins or leaves. Empty = that notice is off.',
+    webhook: 'Webhook address',
+    webhookHint: 'In Discord: channel settings › Integrations › Webhooks › New webhook › Copy URL.',
+    discord: {
+      ready: 'Server online',
+      stopped: 'Server stopped',
+      crashed: 'Server closed by itself',
+      join: 'Player joined',
+      leave: 'Player left',
+    },
+    discordExample: {
+      ready: '🟢 {server} is online on {map}',
+      stopped: '⚪ {server} stopped',
+      crashed: '🔴 {server} closed by itself',
+      join: '➡️ {name} joined {server}',
+      leave: '⬅️ {name} left {server}',
+    },
+    fillExamples: 'Fill with examples',
+    test: 'Test',
+    testSent: 'Sent. Check the channel.',
+    tags: '{server} = server name, {map} = map, {name} = player. The test uses the saved texts.',
+  },
+  firewall: {
+    title: 'Windows Firewall',
+    notInstalled: 'Install the server first.',
+    ok: 'Rules for the server found in the Windows Firewall.',
+    text: 'Without a rule, Windows may block players, mostly on networks marked as "Public" (common with VPN programs).',
+    create: 'Create the firewall rule',
+    uac: 'Windows asks for administrator confirmation.',
+  },
   validation: {
+    rule: 'The value of {rule} must be between {min} and {max}.',
+    ruleBool: 'Choose on or off for {rule}.',
+    ruleMinMax: 'The minimum number of enemies cannot be greater than the maximum.',
+    lighting: 'Choose day, night or the scenario default.',
+    lightingNoMap:
+      'This map does not allow choosing day or night from the app. Leave it on the default.',
+    bindIp: 'Choose a valid IPv4 address of this computer.',
+    modIdsMax: 'Up to {max} mods.',
+    modListEmpty: 'Type at least one mod id, or turn off the mod list.',
+    webhook:
+      'Paste the webhook address copied from Discord (it starts with https://discord.com/api/webhooks/).',
+    announcementsMax: 'Up to {max} scheduled messages.',
+    announceEvery: 'Choose between {min} and {max} minutes.',
+    clock: 'Use the HH:MM format, for example 05:00.',
+    discordText: 'Up to {max} characters, on one line.',
+    reason: 'The reason can have up to {max} characters, on one line and without quotes.',
+    netId: 'This player is not in the list. Refresh the list and try again.',
+    banMinutes: 'Choose a duration of up to {max} minutes.',
+    profileName: 'Type a name with 1 to 40 characters.',
+    profilesMax: 'Up to {max} profiles.',
     motd: 'The message of the day has up to {max} characters and no special characters.',
     chatMessage: 'The message has up to {max} characters, in one line.',
     chatNeedsRcon: 'Turn on RCON in Passwords & tokens: the app sends this message through RCON.',
@@ -1108,6 +1545,40 @@ export const enUS = {
       solution: [
         'Ask a friend outside your network to join with your IPv4 address.',
         'Or test again later.',
+      ],
+    },
+    'discord-failed': {
+      title: 'The Discord message was not sent',
+      what: 'Discord did not accept the message from the webhook.',
+      cause: 'The webhook was deleted, the address is wrong or there is no internet.',
+      solution: [
+        'In Discord, open the channel settings › Integrations › Webhooks and copy the address again.',
+        'Paste it in Server › Automation and click Test.',
+      ],
+    },
+    'firewall-failed': {
+      title: 'The firewall rule was not created',
+      what: 'Windows did not create the rule for the server.',
+      cause:
+        'The administrator confirmation failed or another security program blocked the change.',
+      solution: [
+        'Click the button again and confirm the Windows window.',
+        'Or create the rule by hand in Windows Defender Firewall › Advanced settings › Inbound rules.',
+      ],
+    },
+    'autostart-failed': {
+      title: 'Could not change the Windows startup',
+      what: 'The app could not add or remove itself from the programs that open with Windows.',
+      cause: 'A security program or a Windows policy blocked the change.',
+      solution: ['Try again.', 'Or use Windows Settings › Apps › Startup.'],
+    },
+    'server-update-failed': {
+      title: 'The server was not updated',
+      what: 'The daily restart could not update the server with SteamCMD.',
+      cause: 'The SteamCMD folder is not set, another installation was running or SteamCMD failed.',
+      solution: [
+        'Check Installation: the SteamCMD folder must be set.',
+        'Update once by hand in Installation to see the error.',
       ],
     },
   },

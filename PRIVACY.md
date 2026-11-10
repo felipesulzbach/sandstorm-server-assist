@@ -27,9 +27,10 @@ Everything you type stays on your PC, except what goes to the services you choos
 | mod.io                       | Server account e-mail (to get the login code), the code and the server API key, for mods.                                                             |
 | Project download page        | Update check: asks only for the latest version. Like any website, it sees your IP and the time.                                                       |
 | Project port checker         | Only when you click "Test ports from the internet": your IP and the port numbers, to test those ports from outside once. Nothing is stored or logged. |
+| Discord (your webhook)       | Only if you set a webhook: the notice texts you wrote, with the server name, the map and the names of players who join or leave.                      |
 | Sites of the links you click | They open in your browser, under each site's rules.                                                                                                   |
 
-The update check and the port test send no identifier of yours. The app accepts only HTTPS connections, and only to these hosts.
+The update check and the port test send no identifier of yours. Discord notices go only to the channel you chose. The app accepts only HTTPS connections, and only to these hosts.
 
 ## 4. Your game server
 

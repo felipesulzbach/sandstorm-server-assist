@@ -14,6 +14,7 @@ import {
   WindowToggleMaximise,
 } from '../../wailsjs/runtime/runtime';
 import type {
+  admin,
   backupsvc,
   config,
   desktop,
@@ -21,9 +22,11 @@ import type {
   logbuf,
   mapchange,
   netcheck,
+  players,
   runner,
   server,
   updater,
+  winsys,
 } from '../../wailsjs/go/models';
 
 export type Profile = server.Profile;
@@ -42,6 +45,18 @@ export type MapsInfo = desktop.MapsInfo;
 export type MapChange = mapchange.Info;
 export type Scenario = server.Scenario;
 export type PortCheck = netcheck.Result;
+export type Mutator = server.Mutator;
+export type RuleDef = server.RuleDef;
+export type RulesInfo = desktop.RulesInfo;
+export type CycleLine = desktop.CycleLine;
+export type LocalAddress = winsys.Address;
+export type ProfileRef = config.ProfileRef;
+export type PlayersView = players.View;
+export type Player = admin.Player;
+export type Ban = admin.Ban;
+export type AutomationInfo = desktop.AutomationInfo;
+export type FirewallInfo = desktop.FirewallInfo;
+export type Lighting = '' | 'Day' | 'Night';
 export type AppInfo = desktop.Info;
 export type Settings = config.Settings;
 export type ExistingScan = desktop.ExistingScan;
@@ -52,7 +67,13 @@ export type Terms = desktop.Terms;
 export type BackupSummary = backupsvc.Summary;
 export type CreateResult = desktop.CreateResult;
 export type SecretKey =
-  'serverPassword' | 'rconPassword' | 'gsltToken' | 'gameStatsToken' | 'modioEmail' | 'modioApiKey';
+  | 'serverPassword'
+  | 'rconPassword'
+  | 'gsltToken'
+  | 'gameStatsToken'
+  | 'modioEmail'
+  | 'modioApiKey'
+  | 'discordWebhook';
 
 export const backend = {
   info: () => Sys.Info(),
@@ -68,6 +89,10 @@ export const backend = {
   updateState: () => Sys.UpdateState(),
   checkUpdates: () => Sys.CheckUpdates(),
   installUpdate: () => Sys.InstallUpdate(),
+  setAutostart: (withWindows: boolean, startServer: boolean) =>
+    Sys.SetAutostart(withWindows, startServer),
+  firewall: () => Sys.Firewall(),
+  createFirewallRule: () => Sys.CreateFirewallRule(),
 
   profile: () => Cfg.Profile(),
   saveProfile: (p: Profile) => Cfg.SaveProfile(p),
@@ -84,6 +109,17 @@ export const backend = {
   applyExisting: (keepMine: string[]) => Cfg.ApplyExisting(keepMine),
   rconInIni: () => Cfg.RconInIni(),
   moveRconToVault: () => Cfg.MoveRconToVault(),
+  mutators: () => Cfg.Mutators(),
+  rules: () => Cfg.Rules(),
+  mapCycleLines: (lines: string[]) => Cfg.MapCycleLines(lines),
+  setMapCycleLighting: (lines: string[], index: number, lighting: Lighting) =>
+    Cfg.SetMapCycleLighting(lines, index, lighting),
+  localAddresses: () => Cfg.LocalAddresses(),
+  profiles: () => Cfg.Profiles(),
+  createProfile: (name: string, copyCurrent: boolean) => Cfg.CreateProfile(name, copyCurrent),
+  renameProfile: (id: string, name: string) => Cfg.RenameProfile(id, name),
+  deleteProfile: (id: string) => Cfg.DeleteProfile(id),
+  switchProfile: (id: string) => Cfg.SwitchProfile(id),
 
   installState: () => Inst.State(),
   installInfo: () => Inst.Info(),
@@ -98,7 +134,14 @@ export const backend = {
   connect: () => Srv.Connect(),
   mapChange: () => Srv.MapChange(),
   scenarios: () => Srv.Scenarios(),
-  changeMap: (id: string) => Srv.ChangeMap(id),
+  changeMap: (id: string, lighting: Lighting) => Srv.ChangeMap(id, lighting),
+  players: () => Srv.Players(),
+  kick: (netId: string, reason: string) => Srv.Kick(netId, reason),
+  ban: (netId: string, minutes: number, reason: string) => Srv.Ban(netId, minutes, reason),
+  unban: (netId: string) => Srv.Unban(netId),
+  say: (text: string) => Srv.Say(text),
+  automation: () => Srv.Automation(),
+  testDiscord: () => Srv.TestDiscord(),
   checkPorts: () => Srv.CheckPorts(),
   mods: () => Srv.Mods(),
   refreshSubscriptions: () => Srv.RefreshSubscriptions(),

@@ -3,6 +3,7 @@ package server
 import (
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"sandstorm-server-assist/desktop/internal/domain/problems"
@@ -113,6 +114,33 @@ func TravelCommand(id string, choices []Scenario) (string, error) {
 		}
 	}
 	return "", problems.Field("scenario", "validation.scenarioUnknown")
+}
+
+// TravelWithLighting monta a troca de mapa com dia ou noite (ADR-022). O travelscenario não aceita a iluminação,
+// então vai "travel <mapa>?Scenario=<cenário>?Lighting=<Day|Night>" com as vagas e a senha da partida (o travel
+// troca a URL inteira). Sem iluminação, é o travelscenario de sempre.
+func TravelWithLighting(id, lighting string, choices []Scenario, maxPlayers int, password string) (string, error) {
+	cmd, err := TravelCommand(id, choices)
+	if err != nil || lighting == "" {
+		return cmd, err
+	}
+	if lighting != LightingDay && lighting != LightingNight {
+		return "", problems.Field("lighting", "validation.lighting")
+	}
+	m := ""
+	for _, c := range choices {
+		if c.ID == id {
+			m = c.Map
+		}
+	}
+	if !identRe.MatchString(m) {
+		return "", problems.Field("lighting", "validation.lightingNoMap")
+	}
+	url := m + "?Scenario=" + id + "?Lighting=" + lighting + "?MaxPlayers=" + strconv.Itoa(maxPlayers)
+	if password != "" {
+		url += "?Password=" + password
+	}
+	return "travel " + url, nil
 }
 
 // reTravelRefused reconhece a resposta do servidor quando ele não aceita a troca.

@@ -308,3 +308,40 @@ Registro curto: contexto, decisão e consequência. Decisão nova entra no fim.
     2026-11-10, o app pede o aceite de novo.
 - **Alternativas:** API do Steam (`GetServersAtAddress`) só diz que o Steam conhece o servidor, não que os
   jogadores alcançam a porta; sites de terceiros testam TCP, e o jogo usa UDP.
+
+## ADR-022 · Mais configurações do servidor (regras, jogadores, automação, Windows, perfis)
+
+- **Contexto:** o usuário pediu as 14 configurações sugeridas depois da 0.1.3. Fonte das opções: o guia oficial de
+  administração do servidor (Server Admin Guide da New World Interactive) e o `help` do RCON do servidor real.
+- **Decisão:**
+  - **Regras do jogo** (`domain/server/rules.go`): catálogo de 60 opções do Game.ini (coop, checkpoint,
+    objetivos, fogo amigo, team kills, chat e voz, partida, suprimentos, votação para expulsar) e do Engine.ini
+    (tick rate e banda). `Profile.Rules` nil = o app não mexe nos arquivos (servidor configurado à mão continua
+    igual); ligado, o app grava as opções com valor e apaga as vazias ao iniciar (`config.Prepare`, cópia .bak).
+    "Trazer do servidor" lê as opções do catálogo. A tela monta os campos a partir do catálogo.
+  - **Mutators:** lista oficial (25) com descrição traduzida, mais mutators de mods pelo nome.
+  - **Dia ou noite:** `?Lighting=` na URL de início, `Lighting="Day|Night"` nas linhas da rotação e na troca de
+    mapa (com iluminação vai `travel <mapa>?Scenario=…?Lighting=…?MaxPlayers=…[?Password=…]`, porque o
+    travelscenario não aceita a iluminação; sem iluminação continua o travelscenario).
+  - **Jogadores** (`app/players`, `domain/admin`): `listplayers` e `listbans` numa conexão por clique;
+    expulsar (`kick`), banir (`banid` com minutos ou `permban`), tirar banimento (`unban`) e mensagem a todos
+    (`say`). Só net IDs da última lista; motivo sem aspas nem controle, até 100 caracteres.
+  - **Mensagens programadas:** até 10, uma por vez a cada N minutos (2–240), pela mesma conexão do chat (ADR-020).
+  - **Reinício automático** (`app/watchdog`): diário num horário, com aviso no chat 5 e 1 minuto antes (texto do
+    usuário com {minutes}) e atualização pelo SteamCMD; e ao fechar sozinho (espera 10 s, para depois de 3 vezes em
+    30 minutos). Só com o app aberto.
+  - **Discord** (`app/notify`, `adapters/discord`): webhook no cofre (só endereços oficiais do Discord, hosts no
+    netx); textos do usuário para no ar, parado, fechou sozinho, entrou e saiu ({server}, {map}, {name}); nomes
+    escapados e `allowed_mentions` vazio (ninguém é chamado). Fila de 32, um envio por segundo.
+  - **Windows** (`adapters/winsys`): abrir com o Windows (registro `HKCU\…\Run`, abre minimizado com
+    `--autostart`; opção de iniciar o servidor junto); regra do Firewall: o app abre uma cópia de si como
+    administrador (UAC) com `--firewall-rule`, que lê a pasta do servidor da configuração e cria as regras de
+    entrada para `InsurgencyServer.exe` e `InsurgencyServer-Win64-Shipping.exe` (netsh, nomes fixos); lista as
+    placas de rede para o `-MultiHome`.
+  - **Perfis** (`app/config/profiles.go`): o perfil em uso continua em `file.Profile`; os outros ficam guardados.
+    Trocar só com o servidor parado. Segredos do cofre compartilhados. Um servidor por vez.
+  - **Lista de mods** (`-CmdModList`): opcional e desligada; com o mod.io atual quem manda são as inscrições da
+    conta do servidor, e a tela avisa que versões novas do jogo podem ignorar a lista.
+  - Aviso de dados: linha do Discord. A versão 2026-11-10 ainda não foi publicada, então não muda.
+- **Não confirmado ao vivo:** o efeito das opções no jogo, o travel com iluminação, `kick`/`banid` com jogadores, o
+  `-CmdModList` com o mod.io atual, a regra do Firewall (pede administrador) e o webhook real.

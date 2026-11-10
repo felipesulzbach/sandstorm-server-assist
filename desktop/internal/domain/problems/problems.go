@@ -50,6 +50,10 @@ const (
 	PortCheckFailed    = "port-check-failed"
 	PortCheckLimit     = "port-check-limit"
 	PortCheckIPv6      = "port-check-ipv6"
+	DiscordFailed      = "discord-failed"
+	FirewallFailed     = "firewall-failed"
+	AutostartFailed    = "autostart-failed"
+	ServerUpdateFailed = "server-update-failed"
 )
 
 // links de ajuda de cada problema (chaves de links conhecidos, abertos pelo Go).
@@ -72,6 +76,7 @@ var Codes = []string{
 	DiskFull, NoInternet, InvalidField, VaultUnavailable, BackupPassword, BackupCorrupt, BackupWrite,
 	ConfigWrite, Busy, Canceled, UpdateFailed, ModsNotMounted, LogDelete,
 	RconOff, RconFailed, RconAuth, MapChangeFailed, PortCheckFailed, PortCheckLimit, PortCheckIPv6,
+	DiscordFailed, FirewallFailed, AutostartFailed, ServerUpdateFailed,
 }
 
 // Links devolve os links de ajuda de um código.

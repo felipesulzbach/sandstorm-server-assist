@@ -27,6 +27,14 @@ with mod.io mods** — without editing `.bat` and `.ini` files by hand.
   leaves (sent by the app through RCON; `{name}` becomes the player name).
 - **Port test from the internet**: one click checks, from outside, whether the query port answers and whether the
   RCON port is wrongly exposed, and shows your public IP. Guides for router port forwarding or a VPN program.
+- **Game rules**: bots and difficulty, checkpoint timers, friendly fire, team kills, kill feed, chat and voice,
+  map vote, vote kick, supply points, tick rate and more, written to Game.ini and Engine.ini (60 options). Mutators
+  with descriptions, day or night per map.
+- **Players**: list, kick, ban (minutes or permanent), remove bans and message everyone (RCON).
+- **Automation**: scheduled chat messages, daily restart with chat warning and SteamCMD update, restart when the
+  server closes by itself, Discord notices (webhook), open with Windows and start the server.
+- **Windows and network**: firewall rule for the server (with administrator confirmation), network card choice
+  (-MultiHome). Several profiles (for example Coop and Versus).
 - **Errors explained**: every known error shows what happened, the likely cause and how to fix it.
 - **Logs** hidden by default, in a drawer that opens with one click, with filters and search. Passwords and
   tokens are masked.

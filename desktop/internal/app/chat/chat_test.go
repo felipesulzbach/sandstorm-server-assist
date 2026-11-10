@@ -132,3 +132,34 @@ func TestReset(t *testing.T) {
 		t.Fatalf("after reset = %q", cmd)
 	}
 }
+
+func TestAnnouncements(t *testing.T) {
+	now := time.Date(2026, 11, 10, 12, 0, 0, 0, time.UTC)
+	s := New(Deps{
+		Config: func() (server.Profile, server.Secrets, error) {
+			p := server.Default()
+			p.Rcon, p.Announcements, p.AnnounceEvery = true, []string{"one", "two"}, 5
+			return p, server.Secrets{RconPassword: "secret1"}, nil
+		},
+		Now: func() time.Time { return now },
+		Log: func(string, string) {},
+	}, false)
+	if s.Tick(true) != "" {
+		t.Fatal("sent before the interval")
+	}
+	now = now.Add(5 * time.Minute)
+	if got := s.Tick(true); got != "say one" {
+		t.Fatal(got)
+	}
+	now = now.Add(5 * time.Minute)
+	if got := s.Tick(true); got != "say two" {
+		t.Fatal(got)
+	}
+	now = now.Add(5 * time.Minute)
+	if s.Tick(false) != "" {
+		t.Fatal("sent with the server not ready")
+	}
+	if s.Tick(true) != "" {
+		t.Fatal("interval must restart after the server comes back")
+	}
+}

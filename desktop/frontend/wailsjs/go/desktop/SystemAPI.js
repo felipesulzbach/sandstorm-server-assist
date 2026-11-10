@@ -18,6 +18,14 @@ export function CopyText(arg1) {
   return window['go']['desktop']['SystemAPI']['CopyText'](arg1);
 }
 
+export function CreateFirewallRule() {
+  return window['go']['desktop']['SystemAPI']['CreateFirewallRule']();
+}
+
+export function Firewall() {
+  return window['go']['desktop']['SystemAPI']['Firewall']();
+}
+
 export function Info() {
   return window['go']['desktop']['SystemAPI']['Info']();
 }
@@ -32,6 +40,10 @@ export function OpenLink(arg1) {
 
 export function ProblemLinks(arg1) {
   return window['go']['desktop']['SystemAPI']['ProblemLinks'](arg1);
+}
+
+export function SetAutostart(arg1, arg2) {
+  return window['go']['desktop']['SystemAPI']['SetAutostart'](arg1, arg2);
 }
 
 export function SetLanguage(arg1) {

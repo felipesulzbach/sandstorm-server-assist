@@ -39,6 +39,8 @@ type Profile struct {
 
 	StartMap      string `json:"startMap"`
 	StartScenario string `json:"startScenario"`
+	// StartLighting é a iluminação do mapa inicial (?Lighting=Day|Night). Vazio = padrão do cenário.
+	StartLighting string `json:"startLighting"`
 	// Mapa de mod para onde o servidor viaja depois de montar os mods (-ModDownloadTravelTo). Vazio = não viaja.
 	TravelMap      string `json:"travelMap"`
 	TravelScenario string `json:"travelScenario"`
@@ -49,6 +51,9 @@ type Profile struct {
 	Rcon     bool `json:"rcon"`
 	RconPort int  `json:"rconPort"`
 
+	// BindIP é a placa de rede (ou a rede de um programa de VPN) em que o servidor escuta (-MultiHome). Vazio = todas.
+	BindIP string `json:"bindIp"`
+
 	// ConnectIP é o IP que os jogadores usam (IP público ou o IP de um programa de VPN). Só para mostrar na tela.
 	ConnectIP string `json:"connectIp"`
 
@@ -56,12 +61,46 @@ type Profile struct {
 	MapCycle []string `json:"mapCycle"`
 	// ModIDs são os mods esperados (informativo: quem decide é a inscrição da conta do servidor no mod.io).
 	ModIDs []int `json:"modIds"`
+	// CmdModList manda os ModIDs ao servidor (-CmdModList). Desligado = o servidor usa as inscrições da conta.
+	CmdModList bool `json:"cmdModList"`
 
 	// Mensagens (ADR-020). Motd aparece na tela de carregamento (Motd.txt). JoinMessage e LeaveMessage vão para o
 	// chat pelo RCON quando um jogador entra ou sai; {name} vira o nome do jogador. Vazio = desligado.
 	Motd         string `json:"motd"`
 	JoinMessage  string `json:"joinMessage"`
 	LeaveMessage string `json:"leaveMessage"`
+	// Announcements vão para o chat, uma por vez, a cada AnnounceEvery minutos (ADR-022).
+	Announcements []string `json:"announcements"`
+	AnnounceEvery int      `json:"announceEvery"`
+
+	// Rules são as opções do Game.ini e do Engine.ini (rules.go). nil = o app não mexe nelas.
+	Rules map[string]string `json:"rules"`
+
+	// AutoRestart: reinício diário, ao travar e atualização pelo SteamCMD (ADR-022).
+	AutoRestart AutoRestart `json:"autoRestart"`
+	// Discord: textos dos avisos por webhook (vazio = aviso desligado). O endereço fica no cofre.
+	Discord Discord `json:"discord"`
+}
+
+// AutoRestart é o reinício automático do servidor.
+type AutoRestart struct {
+	// Daily é a hora do reinício diário ("HH:MM", hora local). Vazio = desligado.
+	Daily string `json:"daily"`
+	// WarnMessage vai para o chat 5 e 1 minuto antes ({minutes} vira o número). Vazio = sem aviso. Precisa do RCON.
+	WarnMessage string `json:"warnMessage"`
+	// Update atualiza o servidor pelo SteamCMD no reinício diário.
+	Update bool `json:"update"`
+	// OnCrash inicia de novo quando o servidor fecha sozinho (até 3 vezes em 30 minutos).
+	OnCrash bool `json:"onCrash"`
+}
+
+// Discord são os textos dos avisos. {server} vira o nome do servidor, {map} o mapa e {name} o jogador.
+type Discord struct {
+	Ready   string `json:"ready"`
+	Stopped string `json:"stopped"`
+	Crashed string `json:"crashed"`
+	Join    string `json:"join"`
+	Leave   string `json:"leave"`
 }
 
 // Secrets ficam só no cofre DPAPI e no backup cifrado (ADR-002).
@@ -73,10 +112,12 @@ type Secrets struct {
 	ModioEmail     string `json:"modioEmail"`
 	// ModioAPIKey é a chave de API do mod.io (não vem no código: o projeto é público, ADR-010).
 	ModioAPIKey string `json:"modioApiKey"`
+	// DiscordWebhook é o endereço do webhook do Discord (quem tem o endereço consegue postar no canal).
+	DiscordWebhook string `json:"discordWebhook"`
 }
 
 // SecretKeys são os nomes aceitos para ler, mostrar e trocar um segredo (a tela manda só a chave).
-var SecretKeys = []string{"serverPassword", "rconPassword", "gsltToken", "gameStatsToken", "modioEmail", "modioApiKey"}
+var SecretKeys = []string{"serverPassword", "rconPassword", "gsltToken", "gameStatsToken", "modioEmail", "modioApiKey", "discordWebhook"}
 
 func (s *Secrets) field(key string) *string {
 	switch key {
@@ -92,6 +133,8 @@ func (s *Secrets) field(key string) *string {
 		return &s.ModioEmail
 	case "modioApiKey":
 		return &s.ModioAPIKey
+	case "discordWebhook":
+		return &s.DiscordWebhook
 	}
 	return nil
 }
@@ -122,7 +165,7 @@ func (s Secrets) With(key, value string) (Secrets, error) {
 
 // Values devolve os segredos preenchidos (para mascarar em log).
 func (s Secrets) Values() []string {
-	return []string{s.ServerPassword, s.RconPassword, s.GSLTToken, s.GameStatsToken, s.ModioAPIKey}
+	return []string{s.ServerPassword, s.RconPassword, s.GSLTToken, s.GameStatsToken, s.ModioAPIKey, s.DiscordWebhook}
 }
 
 // Default é o perfil inicial, igual ao que funcionou no servidor configurado à mão (resumo_sessao.md).
@@ -136,6 +179,7 @@ func Default() Profile {
 		StartScenario: "Scenario_Farmhouse_Checkpoint_Security",
 		UseMods:       true,
 		RconPort:      27015,
+		AnnounceEvery: 15,
 	}
 }
 
@@ -149,6 +193,8 @@ var (
 	apiKeyRe   = regexp.MustCompile(`^[0-9a-fA-F]{32}$`)
 	emailRe    = regexp.MustCompile(`^[^\s@"<>]{1,64}@[A-Za-z0-9.\-]{1,190}\.[A-Za-z]{2,24}$`)
 	codeRe     = regexp.MustCompile(`^[A-Za-z0-9]{5}$`)
+	// Webhook do Discord: só os endereços oficiais.
+	webhookRe = regexp.MustCompile(`^https://(?:(?:ptb|canary)\.)?discord(?:app)?\.com/api/webhooks/[0-9]{5,25}/[A-Za-z0-9_\-]{20,120}$`)
 )
 
 // Erros de digitação comuns em domínios de e-mail.
@@ -175,6 +221,10 @@ func ValidateSecret(key, v string) error {
 		}
 	case "modioEmail":
 		return ValidateEmail(v)
+	case "discordWebhook":
+		if !webhookRe.MatchString(v) {
+			return problems.Field(key, "validation.webhook")
+		}
 	default:
 		return problems.Field(key, "validation.unknownField")
 	}
@@ -244,6 +294,14 @@ func (p Profile) Validate() error {
 	if p.ConnectIP != "" && net.ParseIP(p.ConnectIP) == nil {
 		return problems.Field("connectIp", "validation.ip")
 	}
+	if p.BindIP != "" {
+		if ip := net.ParseIP(p.BindIP); ip == nil || ip.To4() == nil || ip.IsUnspecified() {
+			return problems.Field("bindIp", "validation.bindIp")
+		}
+	}
+	if err := validateLighting("startLighting", p.StartLighting); err != nil {
+		return err
+	}
 	for _, a := range p.Admins {
 		if !steamid.Valid(a.SteamID) {
 			return problems.Field("admins", "validation.steamId", "value", a.SteamID)
@@ -262,7 +320,19 @@ func (p Profile) Validate() error {
 			return problems.Field("modIds", "validation.modId", "value", strconv.Itoa(id))
 		}
 	}
-	return p.validateMessages()
+	if len(p.ModIDs) > 200 {
+		return problems.Field("modIds", "validation.modIdsMax", "max", "200")
+	}
+	if p.CmdModList && len(p.ModIDs) == 0 {
+		return problems.Field("modIds", "validation.modListEmpty")
+	}
+	if err := p.validateMessages(); err != nil {
+		return err
+	}
+	if err := p.validateAutomation(); err != nil {
+		return err
+	}
+	return p.validateRules()
 }
 
 func validHostname(h string) error {

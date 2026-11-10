@@ -2,6 +2,7 @@ package mapchange
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	"sandstorm-server-assist/desktop/internal/domain/problems"
@@ -73,7 +74,7 @@ func TestScenariosAndChange(t *testing.T) {
 		t.Fatalf("list = %+v", list)
 	}
 	// Mapa de mod do perfil: entra mesmo sem o servidor listar.
-	if err := s.Change("Scenario_Containment_Checkpoint_Security"); err != nil {
+	if err := s.Change("Scenario_Containment_Checkpoint_Security", ""); err != nil {
 		t.Fatal(err)
 	}
 	if last := e.sent[len(e.sent)-1]; last != "travelscenario Scenario_Containment_Checkpoint_Security" {
@@ -84,16 +85,34 @@ func TestScenariosAndChange(t *testing.T) {
 	}
 }
 
+func TestChangeWithLighting(t *testing.T) {
+	e := newEnv()
+	s := e.service()
+	if _, err := s.Scenarios(); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Change("Scenario_Containment_Checkpoint_Security", server.LightingNight); err != nil {
+		t.Fatal(err)
+	}
+	last := e.sent[len(e.sent)-1]
+	if !strings.HasPrefix(last, "travel Containment?Scenario=Scenario_Containment_Checkpoint_Security?Lighting=Night?MaxPlayers=") {
+		t.Fatalf("sent %q", last)
+	}
+	if err := s.Change("Scenario_Containment_Checkpoint_Security", "Dusk"); code(err) != problems.InvalidField {
+		t.Fatalf("bad lighting: %v", err)
+	}
+}
+
 func TestChangeNeedsListedScenario(t *testing.T) {
 	e := newEnv()
 	s := e.service()
-	if err := s.Change("Scenario_Gap_Push_Insurgents"); code(err) != problems.InvalidField {
+	if err := s.Change("Scenario_Gap_Push_Insurgents", ""); code(err) != problems.InvalidField {
 		t.Fatalf("without a list: %v", err)
 	}
 	if _, err := s.Scenarios(); err != nil {
 		t.Fatal(err)
 	}
-	if err := s.Change("Scenario_Tell_Checkpoint_Security"); code(err) != problems.InvalidField {
+	if err := s.Change("Scenario_Tell_Checkpoint_Security", ""); code(err) != problems.InvalidField {
 		t.Fatalf("not listed: %v", err)
 	}
 	if e.dials != 1 {
@@ -136,7 +155,7 @@ func TestChangeRefusedByServer(t *testing.T) {
 	if _, err := s.Scenarios(); err != nil {
 		t.Fatal(err)
 	}
-	if err := s.Change("Scenario_Gap_Push_Insurgents"); code(err) != problems.MapChangeFailed {
+	if err := s.Change("Scenario_Gap_Push_Insurgents", ""); code(err) != problems.MapChangeFailed {
 		t.Fatalf("refused: %v", err)
 	}
 }
