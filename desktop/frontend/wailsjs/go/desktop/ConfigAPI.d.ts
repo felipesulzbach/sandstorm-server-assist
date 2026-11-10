@@ -4,6 +4,7 @@ import {config} from '../models';
 import {server} from '../models';
 import {winsys} from '../models';
 import {desktop} from '../models';
+import {modio} from '../models';
 
 export function ApplyExisting(arg1:Array<string>):Promise<config.ApplyResult>;
 
@@ -24,6 +25,8 @@ export function LocalAddresses():Promise<Array<winsys.Address>>;
 export function MapCycleLines(arg1:Array<string>):Promise<Array<desktop.CycleLine>>;
 
 export function Maps():Promise<desktop.MapsInfo>;
+
+export function ModMutators():Promise<Array<modio.ModMutator>>;
 
 export function MoveRconToVault():Promise<void>;
 

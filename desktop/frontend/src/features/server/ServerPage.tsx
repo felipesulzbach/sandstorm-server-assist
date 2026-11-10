@@ -554,14 +554,14 @@ function MapsTab({
         </>
       )}
 
-      <Field
-        label={t('server.mutators')}
-        hint={t('server.mutatorsHint')}
-        error={err('mutators')}
-        wide
-      >
+      {/* Bloco, não <label>: a lista tem as próprias caixas de marcar. */}
+      <div className={`field field--wide ${err('mutators') ? 'has-error' : ''}`}>
+        <span className="field__label">{t('server.mutators')}</span>
         <MutatorPicker value={form.mutators ?? []} onChange={(v) => set('mutators', v)} />
-      </Field>
+        <span className={err('mutators') ? 'field__error' : 'field__hint'}>
+          {err('mutators') ?? t('server.mutatorsHint')}
+        </span>
+      </div>
       <Field
         label={t('server.mapCycle')}
         hint={t('server.mapCycleHint')}

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"sandstorm-server-assist/desktop/internal/adapters/fsx"
+	"sandstorm-server-assist/desktop/internal/adapters/modio"
 	"sandstorm-server-assist/desktop/internal/adapters/winsys"
 	"sandstorm-server-assist/desktop/internal/app/config"
 	"sandstorm-server-assist/desktop/internal/app/notify"
@@ -143,6 +144,9 @@ func (s *ServerAPI) TestDiscord() error { return s.a.notify.Test(s.a.runner.Stat
 
 // Mutators devolve os mutators do jogo.
 func (c *ConfigAPI) Mutators() []server.Mutator { return server.Mutators }
+
+// ModMutators devolve os mutators achados nos mods instalados (lidos dos .pak, ADR-023).
+func (c *ConfigAPI) ModMutators() []modio.ModMutator { return modio.Mutators(modio.RootDir()) }
 
 // RulesInfo é o catálogo da aba Regras.
 type RulesInfo struct {

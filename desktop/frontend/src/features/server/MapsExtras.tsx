@@ -1,10 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { useI18n } from '../../i18n';
-import { backend, type CycleLine, type Lighting, type Mutator } from '../../shared/backend';
+import {
+  backend,
+  type CycleLine,
+  type Lighting,
+  type ModMutator,
+  type Mutator,
+} from '../../shared/backend';
 
 /**
- * Mutators (ADR-022): os oficiais do jogo com a descrição, mais os de mods digitados pelo nome. A tela só monta a
+ * Mutators (ADR-022, ADR-023): os dos mods instalados (o Go lê os .pak) e os oficiais do jogo, numa lista com
+ * rolagem. Mutator do perfil que não está em nenhum mod instalado continua marcado, com aviso. A tela só monta a
  * lista de nomes; o Go valida.
  */
 export function MutatorPicker({
@@ -16,53 +23,60 @@ export function MutatorPicker({
 }) {
   const { t } = useI18n();
   const [list, setList] = useState<Mutator[]>([]);
+  const [mods, setMods] = useState<ModMutator[] | null>(null);
 
   useEffect(() => {
     backend
       .mutators()
       .then(setList)
       .catch(() => {});
+    backend
+      .modMutators()
+      .then(setMods)
+      .catch(() => setMods([]));
   }, []);
 
   const official = new Set(list.map((m) => m.id));
-  const custom = value.filter((m) => !official.has(m));
+  const fromMods = new Set((mods ?? []).map((m) => m.id));
+  // Marcados no perfil, mas sem mod instalado que traga (só depois de as listas chegarem).
+  const missing =
+    list.length > 0 && mods ? value.filter((m) => !official.has(m) && !fromMods.has(m)) : [];
   const toggle = (id: string, on: boolean) =>
     onChange(on ? [...value.filter((m) => m !== id), id] : value.filter((m) => m !== id));
 
+  const item = (id: string, label: string, hint: string, kind: 'mod' | 'game' | 'missing') => (
+    <label key={`${kind}-${id}`} className={`check mutators__item mutators__item--${kind}`}>
+      <input
+        type="checkbox"
+        checked={value.includes(id)}
+        onChange={(e) => toggle(id, e.target.checked)}
+      />
+      <span>
+        {label}
+        {kind !== 'game' && <span className="mutators__badge">{t('server.mutatorsBadge')}</span>}
+        <span className="field__hint">{hint}</span>
+      </span>
+    </label>
+  );
+
   return (
     <div className="mutators">
-      <div className="mutators__grid">
-        {list.map((m) => (
-          <label key={m.id} className="check mutators__item">
-            <input
-              type="checkbox"
-              checked={value.includes(m.id)}
-              onChange={(e) => toggle(m.id, e.target.checked)}
-            />
-            <span>
-              {m.label}
-              <span className="field__hint">{t(`mutators.${m.id}`)}</span>
-            </span>
-          </label>
-        ))}
+      <div className="mutators__scroll">
+        <p className="mutators__group">{t('server.mutatorsMods')}</p>
+        <div className="mutators__grid">
+          {(mods ?? []).map((m) =>
+            item(m.id, m.id, t('server.mutatorsFromMod', { name: m.modName }), 'mod'),
+          )}
+          {missing.map((id) => item(id, id, t('server.mutatorsMissing'), 'missing'))}
+        </div>
+        {mods && mods.length === 0 && missing.length === 0 && (
+          <p className="hint">{t('server.mutatorsNoMods')}</p>
+        )}
+        <p className="mutators__group">{t('server.mutatorsGame')}</p>
+        <div className="mutators__grid">
+          {list.map((m) => item(m.id, m.label, t(`mutators.${m.id}`), 'game'))}
+        </div>
       </div>
-      <label className="field">
-        <span className="field__label">{t('server.mutatorsCustom')}</span>
-        <input
-          className="input"
-          value={custom.join(', ')}
-          placeholder={t('server.mutatorsCustomHint')}
-          onChange={(e) =>
-            onChange([
-              ...value.filter((m) => official.has(m)),
-              ...e.target.value
-                .split(',')
-                .map((s) => s.trim())
-                .filter(Boolean),
-            ])
-          }
-        />
-      </label>
     </div>
   );
 }

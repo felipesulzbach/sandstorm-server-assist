@@ -345,3 +345,18 @@ Registro curto: contexto, decisão e consequência. Decisão nova entra no fim.
   - Aviso de dados: linha do Discord. A versão 2026-11-10 ainda não foi publicada, então não muda.
 - **Não confirmado ao vivo:** o efeito das opções no jogo, o travel com iluminação, `kick`/`banid` com jogadores, o
   `-CmdModList` com o mod.io atual, a regra do Firewall (pede administrador) e o webhook real.
+
+## ADR-023 · Mutators dos mods instalados
+
+- **Contexto:** a lista de mutators só mostrava os do jogo; os de mods eram digitados pelo nome. O usuário pediu
+  que o app achasse os mutators dos mods sozinho.
+- **Decisão:** um mutator de mod é um arquivo `<Plugin>/Content/Mutators/<Nome>.uasset` dentro do `.pak` do mod,
+  e `<Nome>` é o que vai em `-mutators=` (conferido no mod NoRestrictedArea). `domain/pak` lê o rodapé do
+  `.pak` (versão 10 e 11), o índice principal e o índice de pastas, com todo tamanho e posição conferidos (arquivo
+  de terceiros; teste com fuzz). `adapters/modio` lê só esses pedaços de cada `.pak` dos mods instalados
+  (`state.json`, pasta dentro de `mod.io/254/mods`). Se nenhum `.pak` do mod puder ser lido e o mod tem a tag
+  "Mutator" no mod.io, usa o `PluginName` do `metadata_blob`.
+- **Tela:** uma lista com rolagem: "Dos seus mods" (marca MOD e o nome do mod) e "Do jogo". Saiu o campo de texto;
+  mutator do perfil que nenhum mod instalado traz continua marcado, com aviso.
+- **Verificado:** nos 7 mods desta máquina (15 `.pak`, cerca de 11 GB) a leitura leva 0,01 s e acha só o
+  NoRestrictedArea; nenhum mod de mapa deu falso positivo.

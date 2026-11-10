@@ -42,6 +42,10 @@ export function Maps() {
   return window['go']['desktop']['ConfigAPI']['Maps']();
 }
 
+export function ModMutators() {
+  return window['go']['desktop']['ConfigAPI']['ModMutators']();
+}
+
 export function MoveRconToVault() {
   return window['go']['desktop']['ConfigAPI']['MoveRconToVault']();
 }

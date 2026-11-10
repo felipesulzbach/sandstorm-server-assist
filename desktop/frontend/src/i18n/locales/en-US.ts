@@ -203,13 +203,19 @@ export const enUS = {
     },
   },
   server: {
+    mutatorsHint: 'Mutators from your installed mods are found by the app and marked MOD.',
+    mutatorsMods: 'From your mods',
+    mutatorsGame: 'From the game',
+    mutatorsBadge: 'MOD',
+    mutatorsFromMod: 'Mod: {name}',
+    mutatorsMissing: 'No installed mod has this mutator: the server will not load it.',
+    mutatorsNoMods:
+      'No mutator in the installed mods. Subscribe to a mutator mod on mod.io and start the server once to download it.',
     modList: 'Send my mod list to the server (-CmdModList)',
     modListHint:
       'Advanced. Normally the server loads the mods subscribed by its mod.io account. Turn on only if you want to set the list here; recent game versions may ignore it.',
     modIds: 'Mod ids',
     modIdsHint: 'The numbers of the mods on mod.io, separated by commas.',
-    mutatorsCustom: 'Mutators from mods',
-    mutatorsCustomHint: 'Names separated by commas. Example: NoRestrictedArea',
     title: 'Server',
     subtitle: 'Name, maps, administrators and passwords. Used the next time the server starts.',
     tabs: {
@@ -241,7 +247,6 @@ export const enUS = {
     travelMap: 'Mod map name',
     travelScenario: 'Mod map scenario',
     mutators: 'Mutators',
-    mutatorsHint: 'Pick the game mutators. Mutators from mods go in the field below, by name.',
     mapCycle: 'Map rotation (MapCycle.txt)',
     mapCycleHint: 'One entry per line. Leave empty to keep the file the server already has.',
     admins: {

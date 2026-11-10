@@ -168,6 +168,11 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
   0.1.3 e o SHA-256 do instalador baixado confere; página, termos (2026-11-10) e privacidade no ar; game-in e
   `/midia/` seguiram respondendo 200.
 
+## Fase 20 · Mutators dos mods (10/11/2026, versão 0.1.4)
+
+- `domain/pak` (índice do .pak, teste com fuzz), `modio.Mutators`, `ConfigAPI.ModMutators`, lista com rolagem e
+  marca MOD, sem o campo de texto. ADR-023.
+
 ## Pendências
 
 - Feito depois da primeira rodada: ícone, zip portátil, testes de installer/config/logbuf e teste real do

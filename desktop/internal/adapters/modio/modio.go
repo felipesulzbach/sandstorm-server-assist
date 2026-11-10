@@ -40,9 +40,13 @@ type apiMod struct {
 	Name       string `json:"name"`
 	ProfileURL string `json:"profile_url"`
 	Modfile    struct {
-		Filesize             int64 `json:"filesize"`
-		FilesizeUncompressed int64 `json:"filesize_uncompressed"`
+		Filesize             int64  `json:"filesize"`
+		FilesizeUncompressed int64  `json:"filesize_uncompressed"`
+		MetadataBlob         string `json:"metadata_blob"`
 	} `json:"modfile"`
+	Tags []struct {
+		Name string `json:"name"`
+	} `json:"tags"`
 }
 
 func (m apiMod) toMod() Mod {
@@ -206,6 +210,9 @@ type Installed struct {
 	Path       string `json:"path"`
 	SizeOnDisk int64  `json:"sizeOnDisk"`
 	State      int    `json:"state"`
+	// Tags do mod no mod.io ("Mutator", "Checkpoint"...) e o metadata_blob do arquivo (PluginName:...).
+	Tags []string `json:"-"`
+	Blob string   `json:"-"`
 }
 
 // ReadInstalled lê o state.json da pasta de mods.
@@ -236,7 +243,11 @@ func ReadInstalled(root string) ([]Installed, error) {
 	for _, m := range st.Mods {
 		mod := m.Profile.toMod()
 		mod.ID = m.ID
-		out = append(out, Installed{Mod: mod, Path: m.PathOnDisk, SizeOnDisk: m.SizeOnDisk, State: m.State})
+		in := Installed{Mod: mod, Path: m.PathOnDisk, SizeOnDisk: m.SizeOnDisk, State: m.State, Blob: m.Profile.Modfile.MetadataBlob}
+		for _, t := range m.Profile.Tags {
+			in.Tags = append(in.Tags, t.Name)
+		}
+		out = append(out, in)
 	}
 	return out, nil
 }

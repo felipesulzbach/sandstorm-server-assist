@@ -204,13 +204,19 @@ export const ptPT: Messages = {
     },
   },
   server: {
+    mutatorsHint: 'Os mutators dos mods instalados são encontrados pelo app e marcados como MOD.',
+    mutatorsMods: 'Dos seus mods',
+    mutatorsGame: 'Do jogo',
+    mutatorsBadge: 'MOD',
+    mutatorsFromMod: 'Mod: {name}',
+    mutatorsMissing: 'Nenhum mod instalado tem este mutator: o servidor não o vai carregar.',
+    mutatorsNoMods:
+      'Nenhum mutator nos mods instalados. Subscreva um mod de mutator no mod.io e inicie o servidor uma vez para o baixar.',
     modList: 'Enviar a minha lista de mods ao servidor (-CmdModList)',
     modListHint:
       'Avançado. Normalmente o servidor carrega os mods subscritos pela conta dele no mod.io. Ligue só se quiser definir a lista aqui; versões recentes do jogo podem ignorá-la.',
     modIds: 'Ids dos mods',
     modIdsHint: 'Os números dos mods no mod.io, separados por vírgulas.',
-    mutatorsCustom: 'Mutators de mods',
-    mutatorsCustomHint: 'Nomes separados por vírgulas. Exemplo: NoRestrictedArea',
     title: 'Servidor',
     subtitle:
       'Nome, mapas, administradores e palavras-passe. Usados no próximo arranque do servidor.',
@@ -244,8 +250,6 @@ export const ptPT: Messages = {
     travelMap: 'Nome do mapa do mod',
     travelScenario: 'Cenário do mapa do mod',
     mutators: 'Mutators',
-    mutatorsHint:
-      'Escolha os mutators do jogo. Os mutators de mods vão no campo abaixo, pelo nome.',
     mapCycle: 'Rotação de mapas (MapCycle.txt)',
     mapCycleHint:
       'Uma entrada por linha. Deixe vazio para manter o ficheiro que o servidor já tem.',

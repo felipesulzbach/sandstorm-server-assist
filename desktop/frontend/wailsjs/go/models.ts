@@ -732,6 +732,22 @@ export namespace mapchange {
 
 export namespace modio {
 	
+	export class ModMutator {
+	    id: string;
+	    modId: number;
+	    modName: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ModMutator(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.modId = source["modId"];
+	        this.modName = source["modName"];
+	    }
+	}
 	export class Session {
 	    found: boolean;
 	    username: string;

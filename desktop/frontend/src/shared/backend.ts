@@ -21,6 +21,7 @@ import type {
   installer,
   logbuf,
   mapchange,
+  modio,
   netcheck,
   players,
   runner,
@@ -46,6 +47,7 @@ export type MapChange = mapchange.Info;
 export type Scenario = server.Scenario;
 export type PortCheck = netcheck.Result;
 export type Mutator = server.Mutator;
+export type ModMutator = modio.ModMutator;
 export type RuleDef = server.RuleDef;
 export type RulesInfo = desktop.RulesInfo;
 export type CycleLine = desktop.CycleLine;
@@ -110,6 +112,7 @@ export const backend = {
   rconInIni: () => Cfg.RconInIni(),
   moveRconToVault: () => Cfg.MoveRconToVault(),
   mutators: () => Cfg.Mutators(),
+  modMutators: () => Cfg.ModMutators(),
   rules: () => Cfg.Rules(),
   mapCycleLines: (lines: string[]) => Cfg.MapCycleLines(lines),
   setMapCycleLighting: (lines: string[], index: number, lighting: Lighting) =>
