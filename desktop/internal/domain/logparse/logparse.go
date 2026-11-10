@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"sandstorm-server-assist/desktop/internal/domain/problems"
 )
@@ -26,6 +27,10 @@ const (
 	MatchState     Kind = "match-state"
 	Problem        Kind = "problem"
 	GameStatsNoKey Kind = "gamestats-no-token"
+	// Jogadores (mensagens de entrada e saída, ADR-020).
+	PlayerLogin  Kind = "player-login"
+	PlayerJoined Kind = "player-joined"
+	PlayerLeft   Kind = "player-left"
 )
 
 // Event é o que uma linha do log significa.
@@ -44,6 +49,11 @@ type Event struct {
 	Port int    `json:"port,omitempty"`
 	// Problem é o código do catálogo quando a linha indica um erro conhecido.
 	Problem string `json:"problem,omitempty"`
+	// Player é o nome do jogador (PlayerLogin, PlayerJoined); PlayerID é o id da plataforma (PlayerLogin, PlayerLeft).
+	Player   string `json:"player,omitempty"`
+	PlayerID string `json:"playerId,omitempty"`
+	// Time é a hora da linha (UTC); zero se a linha não tiver.
+	Time time.Time `json:"-"`
 }
 
 var (
@@ -57,6 +67,13 @@ var (
 	reLoadMap     = regexp.MustCompile(`LogLoad: LoadMap: /?(?:[^?\s]*/)?([A-Za-z0-9_]+)(?:\?[^\s]*Scenario=([A-Za-z0-9_]+))?`)
 	reMatchState  = regexp.MustCompile(`Match State Changed from (\w+) to (\w+)`)
 	reGameStats   = regexp.MustCompile(`GameStatsServer INIT: No authentication provided`)
+
+	// Jogadores, como aparecem no log (10/11/2026): o pedido de entrada traz o nome completo e o id; a entrada
+	// confirmada traz o nome (às vezes cortado); a saída traz só o id, na conexão do jogo com um controle de jogador.
+	reLogin  = regexp.MustCompile(`LogNet: Login request: \S*?\?Name=(.+?) userId: ([A-Za-z]+:[0-9A-Za-z_-]{1,64}) platform:`)
+	reJoined = regexp.MustCompile(`LogNet: Join succeeded: (.+)$`)
+	reLeft   = regexp.MustCompile(`LogNet: UNetConnection::Close: .*Driver: GameNetDriver .*PC: INSPlayerController_\d+.*UniqueId: ([A-Za-z]+:[0-9A-Za-z_-]{1,64}),`)
+	reStamp  = regexp.MustCompile(`^\[(\d{4})\.(\d{2})\.(\d{2})-(\d{2})\.(\d{2})\.(\d{2}):(\d{3})\]`)
 
 	// Erros conhecidos (a ordem importa: o mais específico primeiro).
 	problemRules = []struct {
@@ -134,7 +151,29 @@ func Parse(line string) (Event, bool) {
 	if reGameStats.MatchString(line) {
 		return Event{Kind: GameStatsNoKey}, true
 	}
+	if m := reLogin.FindStringSubmatch(line); m != nil {
+		return Event{Kind: PlayerLogin, Player: strings.TrimSpace(m[1]), PlayerID: m[2], Time: Stamp(line)}, true
+	}
+	if m := reJoined.FindStringSubmatch(line); m != nil {
+		return Event{Kind: PlayerJoined, Player: strings.TrimSpace(m[1]), Time: Stamp(line)}, true
+	}
+	if m := reLeft.FindStringSubmatch(line); m != nil {
+		return Event{Kind: PlayerLeft, PlayerID: m[1], Time: Stamp(line)}, true
+	}
 	return Event{}, false
+}
+
+// Stamp lê a hora do começo da linha ([2026.11.10-02.20.43:923], em UTC). Zero se a linha não tiver.
+func Stamp(line string) time.Time {
+	m := reStamp.FindStringSubmatch(line)
+	if m == nil {
+		return time.Time{}
+	}
+	var n [7]int
+	for i := range n {
+		n[i], _ = strconv.Atoi(m[i+1])
+	}
+	return time.Date(n[0], time.Month(n[1]), n[2], n[3], n[4], n[5], n[6]*int(time.Millisecond), time.UTC)
 }
 
 // Level classifica a linha para o filtro da tela: "error", "warning" ou "info".

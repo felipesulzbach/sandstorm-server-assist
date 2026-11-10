@@ -2,6 +2,7 @@ package logparse
 
 import (
 	"testing"
+	"time"
 
 	"sandstorm-server-assist/desktop/internal/domain/problems"
 )
@@ -72,5 +73,35 @@ func TestModMapPackagingErrorsAreWarnings(t *testing.T) {
 	l := `[2026.11.09-22.56.20:123][ 5]LogStreaming: Error: Could not find outer LandscapeComponent_12 to create LandscapeHeightfieldCollisionComponent_3`
 	if Level(l) != "warning" {
 		t.Errorf("should be warning: %s", l)
+	}
+}
+
+// Entradas e saídas de jogadores, no formato do log real de 10/11/2026 (nomes e ids inventados).
+func TestParsePlayers(t *testing.T) {
+	at := time.Date(2026, 11, 10, 2, 20, 41, 435*int(time.Millisecond), time.UTC)
+	login := `[2026.11.10-02.20.41:435][337]LogNet: Login request: ?InitialConnectTimeout=30?ConnectionType=2?Name=[TAG] Alpha Bravo userId: SteamNWI:76561190000000001 platform: SteamNWI`
+	got, ok := Parse(login)
+	if !ok || got.Kind != PlayerLogin || got.Player != "[TAG] Alpha Bravo" || got.PlayerID != "SteamNWI:76561190000000001" || !got.Time.Equal(at) {
+		t.Fatalf("login = %+v %v", got, ok)
+	}
+	joined := `[2026.11.10-02.20.43:924][487]LogNet: Join succeeded: [TAG] Alpha `
+	if got, ok := Parse(joined); !ok || got.Kind != PlayerJoined || got.Player != "[TAG] Alpha" {
+		t.Fatalf("joined = %+v %v", got, ok)
+	}
+	left := `[2026.11.10-03.27.05:054][915]LogNet: UNetConnection::Close: [UNetConnection] RemoteAddr: 192.0.2.10:7777, Name: IpConnection_2147481362, Driver: GameNetDriver IpNetDriver_2147482533, IsServer: YES, PC: INSPlayerController_2147481358, Owner: INSPlayerController_2147481358, UniqueId: SteamNWI:76561190000000001, Channels: 229, Time: 2026.11.10-03.27.05`
+	if got, ok := Parse(left); !ok || got.Kind != PlayerLeft || got.PlayerID != "SteamNWI:76561190000000001" {
+		t.Fatalf("left = %+v %v", got, ok)
+	}
+	// Replay (DemoNetDriver) e conexão que caiu antes de entrar (PC: NULL) não são saída de jogador.
+	for _, l := range []string{
+		`[2026.11.10-02.22.55:100][459]LogNet: UNetConnection::Close: [UNetConnection] RemoteAddr: 192.0.2.10:7777, Name: DemoNetConnection_1, Driver: DemoNetDriver INSDemoNetDriver_2, IsServer: YES, PC: INSDemoSpectator_3, Owner: INSDemoSpectator_3, UniqueId: INVALID, Channels: 205, Time: 2026.11.10-02.22.55`,
+		`[2026.11.10-01.45.59:396][292]LogNet: UNetConnection::Close: [UNetConnection] RemoteAddr: 192.0.2.10:7777, Name: IpConnection_1, Driver: GameNetDriver IpNetDriver_2, IsServer: YES, PC: NULL, Owner: NULL, UniqueId: SteamNWI:76561190000000002, Channels: 2, Time: 2026.11.10-01.45.59`,
+	} {
+		if got, ok := Parse(l); ok && got.Kind == PlayerLeft {
+			t.Fatalf("not a player leaving: %q", l)
+		}
+	}
+	if !Stamp("no time here").IsZero() {
+		t.Fatal("line without time must give zero")
 	}
 }

@@ -118,6 +118,33 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
 - Conferido de fora: página, termos, privacidade, CSP, `Content-Disposition: attachment` nos downloads, SHA-256 do
   instalador baixado igual ao do `latest.json`, página no navegador sem erros no console.
 
+## Fase 16 · Trocar mapa com o servidor ligado (10/11/2026)
+
+- `domain/rcon` (pacotes), `adapters/rcon` (cliente em 127.0.0.1), `domain/server/scenarios.go` (`ParseScenarios`,
+  `SplitScenario`, `MapChoices`, `TravelCommand`, `TravelRefused`), `app/mapchange` (lista e troca, uma conexão
+  por ação), `ServerAPI.MapChange/Scenarios/ChangeMap`, cartão "Trocar mapa" no Painel, textos nos 5 idiomas.
+- Verificado: testes novos (pacotes, servidor RCON falso com senha certa/errada e resposta em pedaços, regras da
+  lista e da troca), npm test, lint, typecheck, audit:code. No servidor real, só leitura: RCON conectou, 278
+  cenários do jogo base, mais 6 mapas de mods da rotação; cartão conferido no modo dev. A troca em si não foi feita.
+
+## Fase 17 · Mensagens do servidor (10/11/2026, versão 0.1.3)
+
+- `domain/server/messages.go` (validação, `MotdFile`, `ParseMotd`, `ChatCommand`), `logparse` com
+  `PlayerLogin`/`PlayerJoined`/`PlayerLeft` e `Stamp`, `app/chat` (fila, conexão única, reconexão), runner
+  `OnPlayer`, `config.Prepare`/`Detect` com `Motd.txt`, campo "motd" no "Trazer do servidor", aba Mensagens.
+- Verificado: testes (linhas no formato do log real, nomes cortados, saída de quem não entrou, linhas antigas,
+  reconexão, `Motd.txt`), aba conferida no modo dev. O envio no chat não foi testado com jogadores.
+
+## Fase 18 · Rede neutra e teste de portas (10/11/2026, versão 0.1.3)
+
+- Radmin fora do app (textos, link, guia, exemplo de IP). Guias "portas no roteador" e "programa de VPN".
+- `checker/` (verificador, testes com servidor falso e um teste real opcional `SSA_A2S_TEST`), `domain/netcheck`,
+  `adapters/portcheck`, `ServerAPI.CheckPorts`, bloco "Testar portas pela internet" em Servidor › Rede, problemas
+  `port-check-*`. game-in: serviço `sandstorm-check` e rota `/sandstorm/api/` (falta subir no AWS).
+- Termos/aviso de dados 2026-11-10. `npm test`, `vet` e `audit:code` passam a incluir o `checker`.
+- Verificado: consulta A2S contra o servidor real desta máquina (só leitura: mapa e vagas lidos); no modo dev, o
+  teste mostra o erro esperado enquanto o verificador não está no AWS.
+
 ## Pendências
 
 - Feito depois da primeira rodada: ícone, zip portátil, testes de installer/config/logbuf e teste real do
@@ -128,6 +155,6 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
 ## Ideias de evolução
 
 - Detectar conflito de mods antes de iniciar (procurar caminhos repetidos nos `.pak`, como feito à mão).
-- RCON pelo app (jogadores, trocar mapa, mensagens).
-- Criar a regra do Firewall do Windows para a rede do Radmin (pede administrador).
+- RCON pelo app: jogadores e mensagens (trocar mapa feito na fase 16).
+- Criar a regra do Firewall do Windows para o InsurgencyServer.exe (pede administrador).
 - Repositório público no GitHub com CI (quando o usuário pedir).

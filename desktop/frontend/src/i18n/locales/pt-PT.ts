@@ -108,9 +108,29 @@ export const ptPT: Messages = {
     gameStatsMissing:
       'Sem token GameStats: o servidor funciona normalmente, mas os jogadores não ganham estatísticas/XP. Pode adicionar um em Servidor › Palavras-passe e tokens.',
     cmdLine: 'Linha de comandos (segredos ocultos)',
+    mapChange: {
+      title: 'Trocar mapa',
+      text: 'Troque o mapa com o servidor ligado. Os jogadores continuam ligados e vão para o novo mapa. Os mapas de mods vêm da sua rotação de mapas.',
+      needsRcon:
+        'Para trocar o mapa com o servidor ligado, ligue o RCON (com palavra-passe) em Servidor › Palavras-passe e tokens e reinicie o servidor.',
+      openServer: 'Abrir definições do servidor',
+      load: 'Ver mapas disponíveis',
+      reload: 'Pedir a lista ao servidor de novo',
+      empty: 'O servidor não listou nenhum mapa. Tente de novo daqui a alguns segundos.',
+      fromConfig: 'mapa de mod',
+      fromConfigHint:
+        'O servidor só lista os mapas do jogo base. Os mapas de mods vêm da rotação de mapas e do mapa de mod em Servidor › Mapas, e a troca funciona quando o mod está carregado. Para ver outro mapa de mod aqui, adicione-o à rotação de mapas.',
+      current: 'agora',
+      change: 'Trocar mapa',
+      confirm: 'Trocar para {map}? A partida atual termina e todos vão para o novo mapa.',
+      confirmYes: 'Trocar agora',
+      sent: 'A trocar para {map}… O estado acima mostra quando estiver pronto.',
+      waitReady: 'Disponível quando o servidor estiver pronto.',
+      restartNote: 'Quando o servidor reinicia, volta ao mapa definido em Servidor › Mapas.',
+    },
     connect: {
       title: 'Como os jogadores entram',
-      text: 'Os jogadores têm de estar na mesma rede que o servidor (por exemplo, a mesma rede do Radmin VPN).',
+      text: 'Os jogadores entram pela internet (com as portas do router abertas) ou por um programa de VPN que você e os jogadores partilham.',
       console: 'No jogo, abra a consola (tecla ~) e escreva:',
       noIp: 'Defina o IP que os jogadores usam em Servidor › Rede.',
     },
@@ -193,6 +213,7 @@ export const ptPT: Messages = {
       admins: 'Administradores',
       secrets: 'Palavras-passe e tokens',
       network: 'Rede',
+      messages: 'Mensagens',
     },
     reset: 'Repor predefinições',
     hostname: 'Nome do servidor',
@@ -239,7 +260,7 @@ export const ptPT: Messages = {
       rconPort: 'Porta RCON',
       gsltToken: 'Token de servidor de jogo Steam (GSLT)',
       gsltTokenHint:
-        'Opcional numa rede privada (Radmin). Necessário para aparecer na lista pública de servidores.',
+        'Opcional numa rede privada (VPN). Necessário para aparecer na lista pública de servidores.',
       gameStatsToken: 'Token GameStats',
       gameStatsTokenHint:
         'Opcional. Permite que os jogadores ganhem estatísticas e XP no seu servidor.',
@@ -249,9 +270,44 @@ export const ptPT: Messages = {
     },
     network: {
       connectIp: 'IP que os jogadores usam',
-      connectIpHint: 'Com o Radmin VPN, é o IP mostrado ao lado deste PC no Radmin (26.x.x.x).',
+      connectIpHint:
+        'Pela internet, é o seu IP público. Por um programa de VPN, é o IP que o programa mostra para este PC.',
       firewall:
-        'Se os amigos não conseguirem entrar, permita o InsurgencyServer.exe na Firewall do Windows. As redes do Radmin costumam ficar marcadas como "Pública".',
+        'Se os amigos não conseguirem entrar, permita o InsurgencyServer.exe na Firewall do Windows, no tipo de rede que usa (Privada ou Pública).',
+      ports:
+        'Portas a abrir no router (UDP): {port} (jogo) e {queryPort} (consulta). Não abra a porta do RCON ({rconPort}).',
+    },
+    messages: {
+      motd: 'Mensagem do dia',
+      motdHint:
+        'Aparece aos jogadores no ecrã de carregamento quando entram. Até 1000 caracteres; pode ter várias linhas. Vale no próximo arranque.',
+      join: 'Mensagem quando um jogador entra',
+      leave: 'Mensagem quando um jogador sai',
+      chatHint:
+        'Vai para o chat do jogo. {name} vira o nome do jogador. Até 150 caracteres. Vazio = desligado.',
+      joinExample: 'Bem-vindo, {name}! Bom jogo.',
+      leaveExample: '{name} saiu do servidor.',
+      howChat:
+        'O jogo não tem definição para estas mensagens: o app lê no registo do servidor quem entrou ou saiu e envia a mensagem pelo RCON, enquanto o app estiver aberto.',
+      needsRcon:
+        'As mensagens de entrada e saída são enviadas pelo RCON. Ligue o RCON (com palavra-passe) em Palavras-passe e tokens para usá-las.',
+    },
+    portCheck: {
+      button: 'Testar portas pela internet',
+      running: 'A testar… (até 15 s)',
+      hint: 'Com o servidor pronto, o verificador do projeto testa o seu IP público de fora. Só vão os números das portas; nada é guardado.',
+      queryOpen:
+        'Porta de consulta UDP {port}: aberta. O servidor respondeu pela internet ("{name}", mapa {map}).',
+      queryClosed: 'Porta de consulta UDP {port}: sem resposta pela internet.',
+      gamePort:
+        'Porta do jogo UDP {port}: não dá para testar de fora. Reencaminhe-a junto com a porta de consulta.',
+      rconExposed:
+        'Porta do RCON TCP {port}: ABERTA para a internet. Qualquer pessoa pode tentar a sua palavra-passe do RCON. Retire esta porta do router.',
+      rconClosed: 'Porta do RCON TCP {port}: fechada para a internet, como deve ser.',
+      publicIp: 'O seu IP público: {ip}',
+      useIp: 'Usar em "IP que os jogadores usam"',
+      closedHelp:
+        'Confira: o reencaminhamento no router aponta para este PC, a Firewall do Windows permite o InsurgencyServer.exe e o seu fornecedor não usa CGNAT. Com um programa de VPN, este teste não se aplica: os jogadores ligam-se pela VPN.',
     },
   },
   sync: {
@@ -287,6 +343,7 @@ export const ptPT: Messages = {
     rconInIni:
       'A palavra-passe RCON ainda está escrita no Game.ini. Vá a Servidor › Palavras-passe e tokens e use "Mover para o cofre".',
     fields: {
+      motd: 'Mensagem do dia',
       hostname: 'Nome do servidor',
       port: 'Porta do jogo',
       queryPort: 'Porta de consulta',
@@ -569,6 +626,7 @@ export const ptPT: Messages = {
           'Valve (Steam): download do SteamCMD e do servidor do jogo.',
           'mod.io: o e-mail da conta do servidor (para receber o código de acesso), o próprio código e a chave de API do servidor, para autorizar e baixar mods.',
           'Página de download do projeto: a procura de atualizações só pede a versão mais recente; como qualquer site, ela vê o seu endereço IP e a hora do pedido. Nenhum identificador seu é enviado.',
+          'Teste de portas (só quando clica em "Testar portas pela internet"): o verificador do projeto, no servidor da página de download, recebe o seu endereço IP e os números das portas, testa essas portas de fora uma vez e responde. Nada é guardado nem registado.',
           'Os links em que clica abrem no seu navegador, com as regras de cada site.',
         ],
       },
@@ -643,7 +701,6 @@ export const ptPT: Messages = {
     'modio-status': 'Estado do mod.io',
     'modio-admin-guide': 'Guia de administração do mod.io',
     'steamcmd-docs': 'Documentação do SteamCMD',
-    radmin: 'Radmin VPN',
     'server-guide': 'Guia de servidores da comunidade',
     'apache-license': 'Apache License 2.0',
     wails: 'Wails',
@@ -693,17 +750,32 @@ export const ptPT: Messages = {
         'A chave fica no cofre. Não faz parte do código da aplicação, porque o projeto é público.',
       ],
     },
-    radmin: {
-      title: 'Jogar através do Radmin VPN',
+    ports: {
+      title: 'Pela internet: abrir as portas do router',
       steps: [
-        'Instale o Radmin VPN no PC do servidor e no PC de cada jogador.',
+        'Abra a página de administração do router (normalmente 192.168.0.1 ou 192.168.1.1) e procure "Reencaminhamento de portas" (pode chamar-se "Servidor virtual" ou "NAT").',
+        'Reencaminhe UDP {port} e UDP {queryPort} para o IP deste PC na rede local (execute ipconfig e veja "Endereço IPv4").',
+        'Permita o InsurgencyServer.exe na Firewall do Windows.',
+        'Os jogadores usam o seu IP público (pesquise "qual é o meu IP"). Escreva-o em "IP que os jogadores usam".',
+        'Não reencaminhe a porta do RCON ({rconPort}): ela controla o servidor.',
+        'Se mesmo assim não funcionar, o seu fornecedor pode partilhar um IP público entre muitos clientes (CGNAT). Peça um IP público ao fornecedor ou use um programa de VPN.',
+      ],
+    },
+    vpn: {
+      title: 'Por um programa de VPN (rede virtual)',
+      steps: [
+        'Instale o mesmo programa de rede virtual no PC do servidor e no PC de cada jogador.',
         'Crie uma rede no PC do servidor e partilhe o nome e a palavra-passe com os jogadores.',
-        'O IP do servidor é o 26.x.x.x mostrado ao lado deste PC no Radmin. Escreva-o em "IP que os jogadores usam".',
-        'Os jogadores entram com o comando de consola mostrado no Painel. Não é preciso abrir portas no router.',
+        'O IP do servidor é o que o programa mostra para este PC. Escreva-o em "IP que os jogadores usam".',
+        'Não é preciso abrir portas no router.',
       ],
     },
   },
   validation: {
+    motd: 'A mensagem do dia tem até {max} caracteres e nenhum caractere especial.',
+    chatMessage: 'A mensagem tem até {max} caracteres, numa linha.',
+    chatNeedsRcon: 'Ligue o RCON em Palavras-passe e tokens: o app envia esta mensagem pelo RCON.',
+    scenarioUnknown: 'Este mapa não está na lista. Peça a lista ao servidor de novo.',
     logKeep: 'Os arranques a manter têm de estar entre {min} e {max}.',
     unknownField: 'Campo desconhecido.',
     password: 'Use de 4 a 64 caracteres: letras, números e ! @ # $ % * . _ + - (sem espaços).',
@@ -721,7 +793,7 @@ export const ptPT: Messages = {
     scenario: 'O cenário começa por Scenario_ (exemplo: Scenario_Farmhouse_Checkpoint_Security).',
     travelNeedsMods: 'O mapa do mod só funciona com os mods ligados.',
     mutator: 'Mutator inválido: {value}.',
-    ip: 'Escreva só o IP, por exemplo 26.10.20.30.',
+    ip: 'Escreva só o IP, por exemplo 203.0.113.10.',
     steamId: 'SteamID64 inválido: {value}. Tem 17 dígitos e começa por 7656119.',
     steamIdNotFound:
       'Nenhum SteamID64 encontrado. Cole o número de 17 dígitos ou uma ligação steamcommunity.com/profiles/….',
@@ -986,6 +1058,67 @@ export const ptPT: Messages = {
       solution: [
         'Feche os programas que possam ter o registo aberto e tente de novo.',
         'Ou abra a pasta de registos e apague-o à mão.',
+      ],
+    },
+    'rcon-off': {
+      title: 'O RCON está desligado',
+      what: 'O app troca o mapa pelo RCON, e ele não está ligado.',
+      cause: 'O RCON está desligado ou sem palavra-passe no app.',
+      solution: [
+        'Ligue o RCON e defina uma palavra-passe em Servidor › Palavras-passe e tokens.',
+        'Reinicie o servidor para ele abrir o RCON.',
+      ],
+    },
+    'rcon-failed': {
+      title: 'Não foi possível falar com o servidor',
+      what: 'O app não conseguiu ligar-se ao servidor pelo RCON.',
+      cause:
+        'O servidor foi iniciado antes de o RCON ser ligado, ainda está a carregar, ou outro programa está a usar a porta do RCON.',
+      solution: [
+        'Espere o servidor ficar pronto e tente de novo.',
+        'Se o RCON foi ligado agora, reinicie o servidor.',
+        'Confira a porta do RCON em Servidor › Palavras-passe e tokens.',
+      ],
+    },
+    'rcon-auth': {
+      title: 'Palavra-passe do RCON recusada',
+      what: 'O servidor não aceitou a palavra-passe do RCON guardada no app.',
+      cause:
+        'O servidor está a usar outra palavra-passe (por exemplo a do Game.ini, ou uma trocada depois de ele iniciar).',
+      solution: [
+        'Reinicie o servidor pelo app para ele usar a palavra-passe guardada.',
+        'Ou defina a mesma palavra-passe em Servidor › Palavras-passe e tokens.',
+      ],
+    },
+    'map-change-failed': {
+      title: 'O servidor não trocou o mapa',
+      what: 'O servidor recusou a troca de mapa.',
+      cause:
+        'O mapa não está carregado no servidor (por exemplo, um mapa de mod cujo mod não foi carregado).',
+      solution: [
+        'Peça a lista ao servidor de novo e escolha um mapa dela.',
+        'Para um mapa de mod, confira na página Mods se o mod está ativo.',
+      ],
+    },
+    'port-check-failed': {
+      title: 'Não foi possível testar as portas',
+      what: 'O app não recebeu resposta do verificador de portas.',
+      cause: 'Sem internet, ou o verificador da página de download está indisponível agora.',
+      solution: ['Confira a ligação à internet e tente de novo daqui a alguns minutos.'],
+    },
+    'port-check-limit': {
+      title: 'Muitos testes em pouco tempo',
+      what: 'O verificador de portas aceita poucos testes por minuto para cada IP.',
+      cause: 'Vários testes foram iniciados seguidos.',
+      solution: ['Espere um minuto e tente de novo.'],
+    },
+    'port-check-ipv6': {
+      title: 'O teste foi feito por IPv6',
+      what: 'A sua ligação chegou ao verificador por IPv6, e o servidor do jogo escuta por IPv4.',
+      cause: 'O seu fornecedor prefere IPv6 para este site.',
+      solution: [
+        'Peça a um amigo fora da sua rede para entrar com o seu endereço IPv4.',
+        'Ou teste de novo mais tarde.',
       ],
     },
   },

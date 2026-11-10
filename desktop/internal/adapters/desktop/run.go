@@ -4,6 +4,7 @@ package desktop
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -21,14 +22,18 @@ import (
 	"sandstorm-server-assist/desktop/internal/adapters/fsx"
 	"sandstorm-server-assist/desktop/internal/adapters/modio"
 	"sandstorm-server-assist/desktop/internal/adapters/proc"
+	"sandstorm-server-assist/desktop/internal/adapters/rcon"
 	upd "sandstorm-server-assist/desktop/internal/adapters/updater"
 	"sandstorm-server-assist/desktop/internal/adapters/vault"
+	"sandstorm-server-assist/desktop/internal/app/chat"
 	"sandstorm-server-assist/desktop/internal/app/config"
 	"sandstorm-server-assist/desktop/internal/app/installer"
 	"sandstorm-server-assist/desktop/internal/app/logbuf"
+	"sandstorm-server-assist/desktop/internal/app/mapchange"
 	"sandstorm-server-assist/desktop/internal/app/runner"
 	"sandstorm-server-assist/desktop/internal/app/updater"
 	"sandstorm-server-assist/desktop/internal/domain/legal"
+	"sandstorm-server-assist/desktop/internal/domain/logparse"
 	"sandstorm-server-assist/desktop/internal/domain/server"
 )
 
@@ -44,6 +49,8 @@ type app struct {
 	install *installer.Service
 	mods    *modCache
 	updates *updater.Service
+	maps    *mapchange.Service
+	chat    *chat.Service
 	// updatesOnce liga a procura de atualizações uma vez, só depois do aceite dos termos (ADR-015).
 	updatesOnce sync.Once
 }
@@ -71,7 +78,13 @@ func Run(assets fs.FS) error {
 		OnStartup: func(ctx context.Context) {
 			a.ctx = ctx
 			a.log.SetNotify(func(lines []logbuf.Line) { runtime.EventsEmit(ctx, "log:lines", lines) })
-			a.runner.SetNotify(func(st runner.Status) { runtime.EventsEmit(ctx, "server:status", st) })
+			a.runner.SetNotify(func(st runner.Status) {
+				// Servidor parou: a conexão das mensagens de chat fecha e a lista de jogadores recomeça.
+				if st.Phase == runner.Stopped || st.Phase == runner.Crashed {
+					a.chat.Reset()
+				}
+				runtime.EventsEmit(ctx, "server:status", st)
+			})
 			a.install.SetNotify(func(st installer.State) { runtime.EventsEmit(ctx, "install:state", st) })
 			a.updates.SetNotify(func(st updater.State) { runtime.EventsEmit(ctx, "update:state", st) })
 			if legal.Accepted(a.cfg.Settings().TermsAccepted) {
@@ -159,8 +172,35 @@ func newApp() *app {
 			}
 			return ids
 		},
-		Log: log,
+		OnPlayer: func(ev logparse.Event) { a.chat.Observe(ev) },
+		Log:      log,
 	})
+	a.maps = mapchange.New(mapchange.Deps{
+		Config: cfg.Current,
+		Ready:  func() bool { return a.runner.Status().Phase == runner.Ready },
+		Dial: func(port int, password string) (mapchange.Conn, error) {
+			c, err := rcon.Dial(port, password)
+			if errors.Is(err, rcon.ErrAuth) {
+				return nil, mapchange.ErrAuth
+			}
+			if err != nil {
+				return nil, err
+			}
+			return c, nil
+		},
+		Log: func(text, level string) { log.Add("app", text, level) },
+	})
+	a.chat = chat.New(chat.Deps{
+		Config: cfg.Current,
+		Dial: func(port int, password string) (chat.Conn, error) {
+			c, err := rcon.Dial(port, password)
+			if err != nil {
+				return nil, err
+			}
+			return c, nil
+		},
+		Log: func(text, level string) { log.Add("app", text, level) },
+	}, true)
 	return a
 }
 

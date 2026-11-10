@@ -19,6 +19,8 @@ function goValidationKeys(): string[] {
   const files = [
     'domain/server/profile.go',
     'domain/server/cmdline.go',
+    'domain/server/scenarios.go',
+    'domain/server/messages.go',
     'domain/backup/backup.go',
     'adapters/desktop/config_api.go',
     'adapters/desktop/server_api.go',

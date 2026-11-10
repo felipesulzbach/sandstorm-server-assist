@@ -105,7 +105,6 @@ export function AboutPage({ info, terms }: { info: AppInfo | null; terms: Terms 
           <LinkButton linkKey="server-guide" label={t('about.serverGuide')} />
           <LinkButton linkKey="modio-admin-guide" label={t('about.modioGuide')} />
           <LinkButton linkKey="steamcmd-docs" />
-          <LinkButton linkKey="radmin" />
           <LinkButton linkKey="wails" />
         </div>
       </section>

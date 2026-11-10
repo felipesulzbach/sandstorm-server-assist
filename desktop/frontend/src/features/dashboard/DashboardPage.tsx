@@ -6,6 +6,7 @@ import { backend, type Connect, type Status, type Step } from '../../shared/back
 import { CopyButton, ErrorCard, PageHead } from '../../shared/components';
 import { useAction } from '../../shared/hooks';
 import { useLogs } from '../logs/LogDrawer';
+import { MapChangeCard } from './MapChangeCard';
 
 // Ordem das fases para a linha do tempo.
 const ORDER = ['starting', 'modio', 'mods', 'traveling', 'ready'];
@@ -187,6 +188,7 @@ export function DashboardPage({ go, status }: { go: (p: PageId) => void; status:
         </section>
 
         <div className="stack">
+          {running && <MapChangeCard status={status} go={go} />}
           <section className="card">
             <h2 className="card__title">{t('dashboard.connect.title')}</h2>
             <p className="muted">{t('dashboard.connect.text')}</p>

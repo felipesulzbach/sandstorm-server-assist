@@ -27,7 +27,12 @@ export function ErrorCard({
         <AlertTriangle size={18} aria-hidden />
         <strong>{t(`${p}.title`)}</strong>
         {onClose && (
-          <button type="button" className="icon-btn" aria-label={t('common.close')} onClick={onClose}>
+          <button
+            type="button"
+            className="icon-btn"
+            aria-label={t('common.close')}
+            onClick={onClose}
+          >
             <X size={16} />
           </button>
         )}
@@ -73,7 +78,11 @@ export function ErrorCard({
 export function LinkButton({ linkKey, label }: { linkKey: string; label?: string }) {
   const { t } = useI18n();
   return (
-    <button type="button" className="btn btn--small btn--ghost" onClick={() => backend.openLink(linkKey)}>
+    <button
+      type="button"
+      className="btn btn--small btn--ghost"
+      onClick={() => backend.openLink(linkKey)}
+    >
       <ExternalLink size={14} aria-hidden />
       {label ?? t(`links.${linkKey}`)}
     </button>
@@ -81,21 +90,37 @@ export function LinkButton({ linkKey, label }: { linkKey: string; label?: string
 }
 
 /** Guia "Como conseguir?": passos e links, fechado por padrão. */
-export function Guide({ id, links }: { id: string; links?: string[] }) {
+/** Guia passo a passo (guides.<id>). label troca o "Como fazer?" quando há mais de um guia lado a lado. */
+export function Guide({
+  id,
+  links,
+  label,
+  params,
+}: {
+  id: string;
+  links?: string[];
+  label?: string;
+  params?: Record<string, string | number>;
+}) {
   const { t, tl } = useI18n();
   const [open, setOpen] = useState(false);
   return (
     <div className={`guide ${open ? 'is-open' : ''}`}>
-      <button type="button" className="guide__toggle" aria-expanded={open} onClick={() => setOpen(!open)}>
+      <button
+        type="button"
+        className="guide__toggle"
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+      >
         <HelpCircle size={15} aria-hidden />
-        {t('common.howTo')}
+        {label ?? t('common.howTo')}
         <ChevronDown size={15} className="guide__chev" aria-hidden />
       </button>
       {open && (
         <div className="guide__body">
           <strong>{t(`guides.${id}.title`)}</strong>
           <ol>
-            {tl(`guides.${id}.steps`).map((s) => (
+            {tl(`guides.${id}.steps`, params).map((s) => (
               <li key={s}>{s}</li>
             ))}
           </ol>
@@ -130,7 +155,11 @@ export function Field({
     <label className={`field ${wide ? 'field--wide' : ''} ${error ? 'has-error' : ''}`}>
       <span className="field__label">{label}</span>
       {children}
-      {error ? <span className="field__error">{error}</span> : hint ? <span className="field__hint">{hint}</span> : null}
+      {error ? (
+        <span className="field__error">{error}</span>
+      ) : hint ? (
+        <span className="field__hint">{hint}</span>
+      ) : null}
     </label>
   );
 }
@@ -243,14 +272,28 @@ export function SecretField({
           )}
         </div>
       )}
-      {err ? <span className="field__error">{err}</span> : hint ? <span className="field__hint">{hint}</span> : null}
+      {err ? (
+        <span className="field__error">{err}</span>
+      ) : hint ? (
+        <span className="field__hint">{hint}</span>
+      ) : null}
       {children}
     </div>
   );
 }
 
 /** Barra de progresso; sem total, fica indeterminada (animada). */
-export function ProgressBar({ done, total, value, label }: { done?: number; total?: number; value?: number; label?: string }) {
+export function ProgressBar({
+  done,
+  total,
+  value,
+  label,
+}: {
+  done?: number;
+  total?: number;
+  value?: number;
+  label?: string;
+}) {
   const pct = value ?? (total ? percent(done ?? 0, total) : undefined);
   return (
     <div
@@ -267,7 +310,15 @@ export function ProgressBar({ done, total, value, label }: { done?: number; tota
 }
 
 /** Cabeçalho de página: título e subtítulo, como no midia-multi-tools. */
-export function PageHead({ title, subtitle, children }: { title: string; subtitle?: string; children?: ReactNode }) {
+export function PageHead({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  children?: ReactNode;
+}) {
   return (
     <header className="page__head">
       <div>

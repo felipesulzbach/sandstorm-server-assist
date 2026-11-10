@@ -49,13 +49,19 @@ type Profile struct {
 	Rcon     bool `json:"rcon"`
 	RconPort int  `json:"rconPort"`
 
-	// ConnectIP é o IP que os jogadores usam (ex.: IP do Radmin VPN). Só para mostrar na tela.
+	// ConnectIP é o IP que os jogadores usam (IP público ou o IP de um programa de VPN). Só para mostrar na tela.
 	ConnectIP string `json:"connectIp"`
 
 	Admins   []Admin  `json:"admins"`
 	MapCycle []string `json:"mapCycle"`
 	// ModIDs são os mods esperados (informativo: quem decide é a inscrição da conta do servidor no mod.io).
 	ModIDs []int `json:"modIds"`
+
+	// Mensagens (ADR-020). Motd aparece na tela de carregamento (Motd.txt). JoinMessage e LeaveMessage vão para o
+	// chat pelo RCON quando um jogador entra ou sai; {name} vira o nome do jogador. Vazio = desligado.
+	Motd         string `json:"motd"`
+	JoinMessage  string `json:"joinMessage"`
+	LeaveMessage string `json:"leaveMessage"`
 }
 
 // Secrets ficam só no cofre DPAPI e no backup cifrado (ADR-002).
@@ -256,7 +262,7 @@ func (p Profile) Validate() error {
 			return problems.Field("modIds", "validation.modId", "value", strconv.Itoa(id))
 		}
 	}
-	return nil
+	return p.validateMessages()
 }
 
 func validHostname(h string) error {

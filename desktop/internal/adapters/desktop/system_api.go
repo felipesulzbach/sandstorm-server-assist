@@ -31,7 +31,6 @@ var links = map[string]string{
 	"modio-status":        "https://status.mod.io/",
 	"modio-admin-guide":   "https://mod.io/g/insurgencysandstorm/r/server-admin-guide",
 	"steamcmd-docs":       "https://developer.valvesoftware.com/wiki/SteamCMD",
-	"radmin":              "https://www.radmin-vpn.com/",
 	"server-guide":        "https://steamcommunity.com/sharedfiles/filedetails/?id=2102023759",
 	"apache-license":      "https://www.apache.org/licenses/LICENSE-2.0",
 	"wails":               "https://wails.io",

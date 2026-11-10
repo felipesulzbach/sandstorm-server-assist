@@ -69,6 +69,7 @@ const (
 	EngineIni   = `Insurgency\Saved\Config\WindowsServer\Engine.ini`
 	AdminsTxt   = `Insurgency\Config\Server\Admins.txt`
 	MapCycleTxt = `Insurgency\Config\Server\MapCycle.txt`
+	MotdTxt     = `Insurgency\Config\Server\Motd.txt`
 )
 
 // Open carrega o arquivo de configuração (ausente = padrões) e o cofre.
@@ -397,6 +398,11 @@ func (s *Service) Detect(apiKey string) (server.Detected, string, error) {
 		}
 		d.Profile.MapCycle, d.Found["mapCycle"] = lines, true
 	}
+	if b, err := fsx.ReadLimited(filepath.Join(dir, MotdTxt), 64<<10); err == nil {
+		if text, ok := server.ParseMotd(string(b)); ok {
+			d.Profile.Motd, d.Found["motd"] = text, true
+		}
+	}
 	if b, err := fsx.ReadLimited(filepath.Join(dir, GameIni), 1<<20); err == nil {
 		text := string(b)
 		if on, _ := ini.Get(text, "Rcon", "bEnabled"); strings.EqualFold(on, "true") {
@@ -541,8 +547,8 @@ func (s *Service) RconInIni() bool {
 	return ok && pw != ""
 }
 
-// Prepare grava Admins.txt e MapCycle.txt a partir do perfil antes de iniciar (cópia .bak na primeira vez).
-// Listas vazias não mexem nos arquivos.
+// Prepare grava Admins.txt, MapCycle.txt e Motd.txt a partir do perfil antes de iniciar (cópia .bak na primeira
+// vez). Listas e textos vazios não mexem nos arquivos.
 func Prepare(p server.Profile) error {
 	if len(p.Admins) > 0 {
 		if err := fsx.WriteAtomic(filepath.Join(p.ServerDir, AdminsTxt), []byte(server.AdminsFile(p.Admins)), true); err != nil {
@@ -551,6 +557,11 @@ func Prepare(p server.Profile) error {
 	}
 	if len(p.MapCycle) > 0 {
 		if err := fsx.WriteAtomic(filepath.Join(p.ServerDir, MapCycleTxt), []byte(server.MapCycleFile(p.MapCycle)), true); err != nil {
+			return err
+		}
+	}
+	if motd := server.MotdFile(p.Motd); motd != "" {
+		if err := fsx.WriteAtomic(filepath.Join(p.ServerDir, MotdTxt), []byte(motd), true); err != nil {
 			return err
 		}
 	}

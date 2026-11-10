@@ -69,3 +69,28 @@ e o manifesto.
   chave diferente da do app.
 - `SSA_SSH_KEY` muda a chave SSH (padrão `~/.ssh/game-in.pem`). `SSA_SITE_URL` muda o endereço conferido.
 - O endereço do servidor não fica no código porque o projeto será público.
+
+## Verificador de portas (ADR-021)
+
+O botão "Testar portas pela internet" do app chama `https://game-in.duckdns.org/sandstorm/api/check`. O serviço
+`sandstorm-check` (código em `checker/` deste repositório) é montado pelo compose do game-in direto do GitHub
+(`build: https://github.com/felipesulzbach/sandstorm-server-assist.git#main:checker`), e o Caddy encaminha
+`/sandstorm/api/*` para ele. O game-in já tem o serviço e a rota no `main`.
+
+Subir no servidor (uma vez, e de novo quando o `checker/` mudar):
+
+```bash
+cd ~/game-in && git pull
+cd deploy
+docker compose -f compose.prod.yaml build sandstorm-check
+docker compose -f compose.prod.yaml up -d sandstorm-check
+docker compose -f compose.prod.yaml up -d --no-deps caddy
+```
+
+Conferir de fora (de uma rede sem servidor do jogo, a resposta é a porta fechada; do PC do servidor, aberta):
+
+```bash
+curl -s -X POST https://game-in.duckdns.org/sandstorm/api/check -H "Content-Type: application/json" -d '{"queryPort":27131}'
+```
+
+O serviço não grava nada e não escreve IPs no log; o Caddy do game-in não tem log de acesso ligado.

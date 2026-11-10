@@ -21,7 +21,12 @@ with mod.io mods** — without editing `.bat` and `.ini` files by hand.
 - **mod.io**: requests the authorization code by e-mail, authorizes the server once and switches back to
   normal mode by itself, lists subscribed/installed mods and shows each mod's download.
 - **Start / stop** with live phases read from the server log: starting, mod.io connected, mods mounted,
-  loading map, ready. Shows the console command players use to join (e.g. over Radmin VPN).
+  loading map, ready. Shows the console command players use to join (over the internet with the router ports open, or over a VPN program).
+- **Change the map while the server runs**, including mod maps from your map rotation (RCON).
+- **Server messages**: message of the day on the loading screen, and chat messages when a player joins or
+  leaves (sent by the app through RCON; `{name}` becomes the player name).
+- **Port test from the internet**: one click checks, from outside, whether the query port answers and whether the
+  RCON port is wrongly exposed, and shows your public IP. Guides for router port forwarding or a VPN program.
 - **Errors explained**: every known error shows what happened, the likely cause and how to fix it.
 - **Logs** hidden by default, in a drawer that opens with one click, with filters and search. Passwords and
   tokens are masked.

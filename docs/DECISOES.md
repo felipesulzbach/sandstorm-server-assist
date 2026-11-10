@@ -250,3 +250,61 @@ Registro curto: contexto, decisão e consequência. Decisão nova entra no fim.
   - **Uma cópia só** (`SingleInstanceLock`): duas cópias abertas salvavam o `config.json` uma por cima da outra (o
     aceite dos termos sumiu assim) e acompanhariam o mesmo servidor em dobro. Abrir de novo traz a janela para a
     frente. A versão de desenvolvimento usa outro id.
+
+## ADR-019 · Trocar o mapa com o servidor ligado, pelo RCON
+
+- **Contexto:** o usuário pediu para trocar o mapa pelo app, inclusive para mapas de mods. O perfil já tinha o mapa
+  inicial e o mapa de mod, mas só valiam no próximo início.
+- **Decisão:**
+  - **RCON próprio** (protocolo Source RCON): `domain/rcon` monta e lê pacotes (tamanho limitado a 1 MB);
+    `adapters/rcon` conecta só em `127.0.0.1` (o app roda na máquina do servidor), com a senha do cofre.
+  - **Uma conexão por clique**, nunca em intervalos: o RCON do Sandstorm deixa uma thread presa no servidor a cada
+    conexão. Uma ação de cada vez (`busy`).
+  - **Lista:** comando `scenarios`. No servidor real (10/11/2026, com o Containment carregado) ele lista só os
+    mapas do jogo base (278 cenários). Os mapas de mods entram pela rotação de mapas (MapCycle), pelo mapa de mod e
+    pelo mapa inicial do perfil (`server.MapChoices`, origem "config"). A tela agrupa por mapa.
+  - **Troca:** `travelscenario <cenário>`, que mantém senha, vagas e mutators (`travel <url>` trocaria a URL
+    inteira). A tela manda só o id; o Go aceita só um id da última lista e recusa respostas de erro do servidor.
+  - Problemas novos: `rcon-off`, `rcon-failed`, `rcon-auth`, `map-change-failed`.
+  - A troca não muda o perfil: ao reiniciar, o servidor volta ao mapa de Servidor › Mapas.
+- **Pendente:** a troca para mapa de mod com `travelscenario` não foi testada no servidor real (precisa trocar o
+  mapa com jogadores possivelmente ligados). Se o servidor recusar, a tela mostra `map-change-failed`.
+
+## ADR-020 · Mensagem do dia e mensagens de entrada e saída
+
+- **Contexto:** o usuário pediu para configurar o texto que aparece quando um jogador entra ou sai.
+- **Decisão:**
+  - **Mensagem do dia:** o servidor lê `Insurgency/Config/Server/Motd.txt` ao iniciar e mostra na tela de
+    carregamento (guias de hospedagem; sem parâmetro de linha de comando). `config.Prepare` grava o arquivo quando
+    o texto não está vazio (até 1000 caracteres, várias linhas); "Trazer do servidor" lê um `Motd.txt` existente.
+  - **Entrada e saída:** o jogo não tem texto próprio para isso. O app lê no log (`logparse`):
+    `Login request: …?Name=<nome> userId: <id>`, depois `Join succeeded: <nome>` (às vezes cortado; casa pelo
+    começo do nome) e `UNetConnection::Close … GameNetDriver … PC: INSPlayerController … UniqueId: <id>` (saída,
+    só com o id). Manda `say <texto>` pelo RCON, com `{name}` trocado pelo nome (limpo de controles, até 40
+    caracteres; a mensagem até 150).
+  - **Uma conexão de RCON aberta** para as mensagens (`app/chat`), em fila, sem travar a leitura do log; cai →
+    reabre uma vez. Fecha quando o servidor para. Linhas com mais de 2 minutos não geram mensagem (o app pode ler
+    o log de uma partida já em andamento).
+  - Exige RCON ligado (validação `chatNeedsRcon`); só funciona com o app aberto (dito na tela).
+- **Consequência:** se uma atualização do jogo mudar essas linhas do log, as mensagens param e nada mais quebra.
+
+## ADR-021 · Rede neutra (sem Radmin) e teste de portas pela internet
+
+- **Contexto:** o app citava o Radmin VPN como o jeito de jogar. O usuário pediu para tirar: quem sobe o servidor
+  pode usar qualquer programa de VPN ou abrir as portas no roteador, e quer saber se as portas estão abertas.
+- **Decisão:**
+  - **Textos neutros:** dois guias em Servidor › Rede (portas no roteador, com as portas do perfil; ou programa de
+    VPN), a lista de portas UDP a abrir e o aviso para não abrir a do RCON. O link do Radmin saiu.
+  - **Verificador próprio** (`checker/`, Go só com a biblioteca padrão), no servidor da página de download, atrás
+    do Caddy em `/sandstorm/api/` (serviço `sandstorm-check` do compose do game-in, montado direto do GitHub).
+    Testa **só o IP de origem do pedido** (último valor do `X-Forwarded-For` posto pelo Caddy): consulta do Steam
+    (A2S_INFO, com desafio) na porta de consulta e conexão TCP na porta do RCON. Recusa IP privado e IPv6, campos a
+    mais e portas fora de 1024–65535; 6 testes por minuto por IP, 120 no total, um por vez por IP. Não grava nem
+    registra nada.
+  - A porta do jogo não dá para testar de fora sem o protocolo do Unreal: a tela diz para abri-la junto com a de
+    consulta. RCON aberto para a internet aparece como risco.
+  - O resultado traz o IP público, com botão para usá-lo em "IP que os jogadores usam".
+  - Aviso de dados atualizado (o verificador recebe o IP e as portas quando o usuário clica): `legal.Version` =
+    2026-11-10, o app pede o aceite de novo.
+- **Alternativas:** API do Steam (`GetServersAtAddress`) só diz que o Steam conhece o servidor, não que os
+  jogadores alcançam a porta; sites de terceiros testam TCP, e o jogo usa UDP.

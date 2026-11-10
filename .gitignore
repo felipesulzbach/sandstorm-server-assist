@@ -12,6 +12,6 @@ desktop/frontend/package.json.md5
 desktop/frontend/dist/
 desktop/build/windows/installer/tmp/
 desktop/build/dist/
-# Notas da configuração manual do servidor do usuário (IP do Radmin, e-mail): não vão para o repositório público.
+# Notas da configuração manual do servidor do usuário (IP da VPN, e-mail): não vão para o repositório público.
 /resumo_sessao.md
 .claude/launch.json

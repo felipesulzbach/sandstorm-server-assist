@@ -120,6 +120,19 @@ enviado a rota (`ff6f4f3`); aqui só foi corrigida a linha da tabela no `docs/PL
 `git pull`, `deploy/sandstorm/` e só o Caddy recriado; game-in e `/midia/` seguiram no ar. Neste PC o `known_hosts`
 conhece o servidor pelo IP, não pelo nome: o `SSA_SSH_HOST` usou o endereço já conhecido.
 
+**10/11 (~00:50) · fase 16:** trocar o mapa com o servidor ligado, pelo RCON (ADR-019), inclusive mapas de mods.
+O `scenarios` do servidor só lista o jogo base; mapas de mods vêm da rotação e do mapa de mod do perfil. Testado no
+servidor real só a leitura da lista (nenhum mapa foi trocado). Falta o usuário testar a troca para um mapa de mod.
+
+**10/11 (~01:00–02:00) · fases 17 e 18, versão 0.1.3:** pedidos do usuário durante a sessão: tirar o Radmin do
+app (rede neutra), testar as portas pela internet e mensagens de entrada/saída. Feitos: mensagem do dia
+(`Motd.txt`) e mensagens no chat pelo RCON (ADR-020); guias neutros e verificador de portas `checker/` com
+rota no game-in (ADR-021); termos 2026-11-10. O usuário saiu e pediu para seguir até o fim, aceitar as
+recomendações e fazer commit e push. O agendamento automático de retomada foi recusado pelo modo automático.
+
+**Falta (com o usuário):** subir o verificador no AWS (passos em `docs/PAGINA_DOWNLOAD.md`), publicar a 0.1.3,
+aceitar os termos novos, testar a troca para um mapa de mod e as mensagens no chat com jogadores.
+
 ## Validação humana (pendente com o usuário)
 
 1. Instalar com `desktop/build/dist/sandstorm-server-assist-0.1.0-windows-setup.exe`, abrir pelo atalho e aceitar

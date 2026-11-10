@@ -81,6 +81,7 @@ var syncFields = []syncField{
 	{"mapCycle", "list", func(p Profile) string { return strings.Join(p.MapCycle, "\n") }, func(d *Profile, s Profile) {
 		d.MapCycle = append([]string(nil), s.MapCycle...)
 	}},
+	{"motd", "list", func(p Profile) string { return p.Motd }, func(d *Profile, s Profile) { d.Motd = s.Motd }},
 }
 
 // syncSecrets são os segredos que um servidor existente pode ter (o e-mail do mod.io não aparece no servidor).

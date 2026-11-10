@@ -82,8 +82,10 @@ type Deps struct {
 	InstalledMods func() []int
 	// CleanLogs apaga os logs antigos antes de iniciar, se o usuário ligou a limpeza (ADR-018). Pode ser nil.
 	CleanLogs func(serverDir string)
-	Log       *logbuf.Buffer
-	Now       func() time.Time
+	// OnPlayer recebe as entradas e saídas de jogadores lidas no log (mensagens no chat, ADR-020). Pode ser nil.
+	OnPlayer func(logparse.Event)
+	Log      *logbuf.Buffer
+	Now      func() time.Time
 }
 
 // Service é o controle do servidor.
@@ -425,9 +427,17 @@ func (s *Service) readLog() {
 			s.log("server", line)
 			if ev, ok := logparse.Parse(line); ok {
 				s.apply(ev)
+				if isPlayer(ev.Kind) && s.d.OnPlayer != nil && s.Status().Phase != Stopping {
+					s.d.OnPlayer(ev)
+				}
 			}
 		}
 	}
+}
+
+// isPlayer diz se o evento é de entrada ou saída de jogador.
+func isPlayer(k logparse.Kind) bool {
+	return k == logparse.PlayerLogin || k == logparse.PlayerJoined || k == logparse.PlayerLeft
 }
 
 // readyStates são estados da partida que não são de carregamento.

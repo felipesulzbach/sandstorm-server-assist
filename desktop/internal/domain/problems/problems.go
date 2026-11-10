@@ -43,6 +43,13 @@ const (
 	UpdateFailed       = "update-failed"
 	ModsNotMounted     = "mods-not-mounted"
 	LogDelete          = "log-delete"
+	RconOff            = "rcon-off"
+	RconFailed         = "rcon-failed"
+	RconAuth           = "rcon-auth"
+	MapChangeFailed    = "map-change-failed"
+	PortCheckFailed    = "port-check-failed"
+	PortCheckLimit     = "port-check-limit"
+	PortCheckIPv6      = "port-check-ipv6"
 )
 
 // links de ajuda de cada problema (chaves de links conhecidos, abertos pelo Go).
@@ -53,7 +60,6 @@ var links = map[string][]string{
 	ModioNoAPIKey:      {"modio-api-access"},
 	SteamCMDDownload:   {"steamcmd-docs"},
 	SteamCMDFailed:     {"steamcmd-docs"},
-	PortInUse:          {"radmin"},
 	UpdateFailed:       {"download-page"},
 	ModsNotMounted:     {"modio-subscriptions"},
 }
@@ -65,6 +71,7 @@ var Codes = []string{
 	ModioRequestFailed, ModioEmailInvalid, ModioNoAPIKey, SteamCMDDownload, SteamCMDSignature, SteamCMDFailed,
 	DiskFull, NoInternet, InvalidField, VaultUnavailable, BackupPassword, BackupCorrupt, BackupWrite,
 	ConfigWrite, Busy, Canceled, UpdateFailed, ModsNotMounted, LogDelete,
+	RconOff, RconFailed, RconAuth, MapChangeFailed, PortCheckFailed, PortCheckLimit, PortCheckIPv6,
 }
 
 // Links devolve os links de ajuda de um código.

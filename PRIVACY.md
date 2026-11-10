@@ -1,6 +1,6 @@
 # Privacy Notice
 
-Version **2026-11-09**. It is accepted together with the [Terms of Use](TERMS.md) the first time you open the
+Version **2026-11-10**. It is accepted together with the [Terms of Use](TERMS.md) the first time you open the
 app.
 
 ## 1. In short
@@ -21,14 +21,15 @@ Everything you type stays on your PC, except what goes to the services you choos
 
 ## 3. What leaves your PC, and to whom
 
-| Destination                  | What and why                                                                                    |
-| ---------------------------- | ----------------------------------------------------------------------------------------------- |
-| Valve (Steam)                | Download of SteamCMD and of the game server.                                                    |
-| mod.io                       | Server account e-mail (to get the login code), the code and the server API key, for mods.       |
-| Project download page        | Update check: asks only for the latest version. Like any website, it sees your IP and the time. |
-| Sites of the links you click | They open in your browser, under each site's rules.                                             |
+| Destination                  | What and why                                                                                                                                          |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Valve (Steam)                | Download of SteamCMD and of the game server.                                                                                                          |
+| mod.io                       | Server account e-mail (to get the login code), the code and the server API key, for mods.                                                             |
+| Project download page        | Update check: asks only for the latest version. Like any website, it sees your IP and the time.                                                       |
+| Project port checker         | Only when you click "Test ports from the internet": your IP and the port numbers, to test those ports from outside once. Nothing is stored or logged. |
+| Sites of the links you click | They open in your browser, under each site's rules.                                                                                                   |
 
-The update check sends no identifier of yours. The app accepts only HTTPS connections, and only to these hosts.
+The update check and the port test send no identifier of yours. The app accepts only HTTPS connections, and only to these hosts.
 
 ## 4. Your game server
 

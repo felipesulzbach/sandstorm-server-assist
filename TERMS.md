@@ -1,6 +1,6 @@
 # Terms of Use
 
-Version **2026-11-09**. The app shows these terms in its own language (English, Portuguese, Spanish, Russian
+Version **2026-11-10**. The app shows these terms in its own language (English, Portuguese, Spanish, Russian
 and Ukrainian) and asks you to accept them before first use. When this version changes, it asks again.
 
 ## 1. What this app is

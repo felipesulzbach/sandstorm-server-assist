@@ -6,12 +6,24 @@ export function Authorize(arg1) {
   return window['go']['desktop']['ServerAPI']['Authorize'](arg1);
 }
 
+export function ChangeMap(arg1) {
+  return window['go']['desktop']['ServerAPI']['ChangeMap'](arg1);
+}
+
+export function CheckPorts() {
+  return window['go']['desktop']['ServerAPI']['CheckPorts']();
+}
+
 export function Connect() {
   return window['go']['desktop']['ServerAPI']['Connect']();
 }
 
 export function DetectAPIKey() {
   return window['go']['desktop']['ServerAPI']['DetectAPIKey']();
+}
+
+export function MapChange() {
+  return window['go']['desktop']['ServerAPI']['MapChange']();
 }
 
 export function Mods() {
@@ -28,6 +40,10 @@ export function RequestCode() {
 
 export function Restart() {
   return window['go']['desktop']['ServerAPI']['Restart']();
+}
+
+export function Scenarios() {
+  return window['go']['desktop']['ServerAPI']['Scenarios']();
 }
 
 export function Start() {

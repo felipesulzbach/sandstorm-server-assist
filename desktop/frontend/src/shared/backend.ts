@@ -19,6 +19,8 @@ import type {
   desktop,
   installer,
   logbuf,
+  mapchange,
+  netcheck,
   runner,
   server,
   updater,
@@ -37,6 +39,9 @@ export type ModRow = desktop.ModRow;
 export type Step = desktop.Step;
 export type Connect = desktop.Connect;
 export type MapsInfo = desktop.MapsInfo;
+export type MapChange = mapchange.Info;
+export type Scenario = server.Scenario;
+export type PortCheck = netcheck.Result;
 export type AppInfo = desktop.Info;
 export type Settings = config.Settings;
 export type ExistingScan = desktop.ExistingScan;
@@ -91,6 +96,10 @@ export const backend = {
   stop: () => Srv.Stop(),
   restart: () => Srv.Restart(),
   connect: () => Srv.Connect(),
+  mapChange: () => Srv.MapChange(),
+  scenarios: () => Srv.Scenarios(),
+  changeMap: (id: string) => Srv.ChangeMap(id),
+  checkPorts: () => Srv.CheckPorts(),
   mods: () => Srv.Mods(),
   refreshSubscriptions: () => Srv.RefreshSubscriptions(),
   requestCode: () => Srv.RequestCode(),

@@ -108,9 +108,29 @@ export const enUS = {
     gameStatsMissing:
       'No GameStats token: the server runs normally, but players do not earn stats/XP. You can add one in Server › Passwords & tokens.',
     cmdLine: 'Command line (secrets hidden)',
+    mapChange: {
+      title: 'Change map',
+      text: 'Change the map while the server is running. Players stay connected and go to the new map. Mod maps come from your map rotation.',
+      needsRcon:
+        'To change the map with the server running, turn on RCON (with a password) in Server › Passwords & tokens, then restart the server.',
+      openServer: 'Open server settings',
+      load: 'Show available maps',
+      reload: 'Ask the server for the list again',
+      empty: 'The server did not list any map. Try again in a few seconds.',
+      fromConfig: 'mod map',
+      fromConfigHint:
+        'The server lists only the base game maps. Mod maps come from your map rotation and the mod map in Server › Maps, and the change works when the mod is loaded. To see another mod map here, add it to the map rotation.',
+      current: 'now',
+      change: 'Change map',
+      confirm: 'Change to {map}? The current match ends and everyone goes to the new map.',
+      confirmYes: 'Change now',
+      sent: 'Changing to {map}… The status above shows when it is ready.',
+      waitReady: 'Available when the server is ready.',
+      restartNote: 'When the server restarts, it goes back to the map set in Server › Maps.',
+    },
     connect: {
       title: 'How players join',
-      text: 'Players must be on the same network as the server (for example the same Radmin VPN network).',
+      text: 'Players join over the internet (with the router ports open) or over a VPN program that you and the players share.',
       console: 'In the game, open the console (~ key) and type:',
       noIp: 'Set the IP players use in Server › Network.',
     },
@@ -191,6 +211,7 @@ export const enUS = {
       admins: 'Administrators',
       secrets: 'Passwords & tokens',
       network: 'Network',
+      messages: 'Messages',
     },
     reset: 'Restore defaults',
     hostname: 'Server name',
@@ -235,7 +256,7 @@ export const enUS = {
       rconPort: 'RCON port',
       gsltToken: 'Steam game server token (GSLT)',
       gsltTokenHint:
-        'Optional on a private network (Radmin). Needed to appear in the public server list.',
+        'Optional on a private network (VPN). Needed to appear in the public server list.',
       gameStatsToken: 'GameStats token',
       gameStatsTokenHint: 'Optional. Lets players earn stats and XP on your server.',
       rconInIni: 'The RCON password is saved in plain text in Game.ini.',
@@ -244,9 +265,44 @@ export const enUS = {
     },
     network: {
       connectIp: 'IP players use',
-      connectIpHint: 'With Radmin VPN, it is the IP shown next to this PC in Radmin (26.x.x.x).',
+      connectIpHint:
+        'Over the internet, it is your public IP. Over a VPN program, it is the IP the program shows for this PC.',
       firewall:
-        'If friends cannot join, allow InsurgencyServer.exe in Windows Firewall. Radmin networks are usually marked as "Public".',
+        'If friends cannot join, allow InsurgencyServer.exe in Windows Firewall, on the network type you use (Private or Public).',
+      ports:
+        'Ports to open on the router (UDP): {port} (game) and {queryPort} (query). Do not open the RCON port ({rconPort}).',
+    },
+    messages: {
+      motd: 'Message of the day',
+      motdHint:
+        'Shown to players on the loading screen when they join. Up to 1000 characters; it can have several lines. Applies on the next start.',
+      join: 'Message when a player joins',
+      leave: 'Message when a player leaves',
+      chatHint:
+        'Sent to the game chat. {name} becomes the player name. Up to 150 characters. Empty = off.',
+      joinExample: 'Welcome, {name}! Have fun.',
+      leaveExample: '{name} left the server.',
+      howChat:
+        'The game has no setting for these messages: the app reads in the server log who joined or left and sends the message through RCON, while the app is open.',
+      needsRcon:
+        'The join and leave messages are sent through RCON. Turn on RCON (with a password) in Passwords & tokens to use them.',
+    },
+    portCheck: {
+      button: 'Test ports from the internet',
+      running: 'Testing… (up to 15 s)',
+      hint: 'With the server ready, the project checker tests your public IP from outside. Only the port numbers are sent; nothing is stored.',
+      queryOpen:
+        'Query port UDP {port}: open. The server answered from the internet ("{name}", map {map}).',
+      queryClosed: 'Query port UDP {port}: no answer from the internet.',
+      gamePort:
+        'Game port UDP {port}: cannot be tested from outside. Forward it together with the query port.',
+      rconExposed:
+        'RCON port TCP {port}: OPEN to the internet. Anyone can try your RCON password. Remove this port from the router.',
+      rconClosed: 'RCON port TCP {port}: closed to the internet, as it should be.',
+      publicIp: 'Your public IP: {ip}',
+      useIp: 'Use as "IP players use"',
+      closedHelp:
+        'Check: the port forwarding in the router points to this PC, Windows Firewall allows InsurgencyServer.exe, and your provider does not use CGNAT. With a VPN program, this test does not apply: players connect through the VPN.',
     },
   },
   sync: {
@@ -284,6 +340,7 @@ export const enUS = {
     rconInIni:
       'The RCON password is still written in Game.ini. Go to Server › Passwords & tokens and use "Move to the vault".',
     fields: {
+      motd: 'Message of the day',
       hostname: 'Server name',
       port: 'Game port',
       queryPort: 'Query port',
@@ -565,6 +622,7 @@ export const enUS = {
           'Valve (Steam): download of SteamCMD and of the game server.',
           'mod.io: the server account e-mail (to receive the login code), the code itself and the server API key, to authorize and download mods.',
           'Project download page: the check for updates asks only for the latest version; like any website, it sees your IP address and the request time. No identifier of yours is sent.',
+          'Port test (only when you click "Test ports from the internet"): the project checker, on the download page server, receives your IP address and the port numbers, tests those ports from outside once and answers. Nothing is stored or logged.',
           'Links you click open in your browser, under the rules of each site.',
         ],
       },
@@ -639,7 +697,6 @@ export const enUS = {
     'modio-status': 'mod.io status',
     'modio-admin-guide': 'mod.io server admin guide',
     'steamcmd-docs': 'SteamCMD documentation',
-    radmin: 'Radmin VPN',
     'server-guide': 'Community server guide',
     'apache-license': 'Apache License 2.0',
     wails: 'Wails',
@@ -689,17 +746,32 @@ export const enUS = {
         'The key stays in the vault. It is not part of the app code because the project is public.',
       ],
     },
-    radmin: {
-      title: 'Playing over Radmin VPN',
+    ports: {
+      title: 'Over the internet: open the router ports',
       steps: [
-        'Install Radmin VPN on the server PC and on each player PC.',
-        'Create a network on the server PC and share the name and password with the players.',
-        'The server IP is the 26.x.x.x shown next to this PC in Radmin. Type it in "IP players use".',
-        'Players join with the console command shown on the Dashboard. No router port forwarding is needed.',
+        'Open the router admin page (usually 192.168.0.1 or 192.168.1.1) and find "Port forwarding" (it may be called "Virtual server" or "NAT").',
+        'Forward UDP {port} and UDP {queryPort} to the IP of this PC on your local network (run ipconfig and look at "IPv4 Address").',
+        'Allow InsurgencyServer.exe in Windows Firewall.',
+        'Players use your public IP (search for "what is my IP"). Type it in "IP players use".',
+        'Do not forward the RCON port ({rconPort}): it controls the server.',
+        'If it still does not work, your provider may share one public IP among many customers (CGNAT). Ask the provider for a public IP or use a VPN program.',
+      ],
+    },
+    vpn: {
+      title: 'Over a VPN program (virtual network)',
+      steps: [
+        'Install the same virtual network program on the server PC and on each player PC.',
+        'Create a network on the server PC and share its name and password with the players.',
+        'The server IP is the one the program shows for this PC. Type it in "IP players use".',
+        'No router port forwarding is needed.',
       ],
     },
   },
   validation: {
+    motd: 'The message of the day has up to {max} characters and no special characters.',
+    chatMessage: 'The message has up to {max} characters, in one line.',
+    chatNeedsRcon: 'Turn on RCON in Passwords & tokens: the app sends this message through RCON.',
+    scenarioUnknown: 'This map is not in the list. Ask the server for the list again.',
     logKeep: 'Runs to keep must be between {min} and {max}.',
     unknownField: 'Unknown field.',
     password: 'Use 4 to 64 characters: letters, numbers and ! @ # $ % * . _ + - (no spaces).',
@@ -718,7 +790,7 @@ export const enUS = {
       'The scenario starts with Scenario_ (example: Scenario_Farmhouse_Checkpoint_Security).',
     travelNeedsMods: 'The mod map only works with mods turned on.',
     mutator: 'Invalid mutator: {value}.',
-    ip: 'Type only the IP, for example 26.10.20.30.',
+    ip: 'Type only the IP, for example 203.0.113.10.',
     steamId: 'Invalid SteamID64: {value}. It has 17 digits and starts with 7656119.',
     steamIdNotFound:
       'No SteamID64 found. Paste the 17-digit number or a steamcommunity.com/profiles/… link.',
@@ -975,6 +1047,67 @@ export const enUS = {
       solution: [
         'Close programs that may have the log open and try again.',
         'Or open the log folder and delete it by hand.',
+      ],
+    },
+    'rcon-off': {
+      title: 'RCON is off',
+      what: 'The app changes the map through RCON, and it is not turned on.',
+      cause: 'RCON is off or has no password in the app.',
+      solution: [
+        'Turn on RCON and set a password in Server › Passwords & tokens.',
+        'Restart the server so it opens RCON.',
+      ],
+    },
+    'rcon-failed': {
+      title: 'Could not talk to the server',
+      what: 'The app could not connect to the server through RCON.',
+      cause:
+        'The server was started before RCON was turned on, it is still loading, or another program is using the RCON port.',
+      solution: [
+        'Wait until the server is ready and try again.',
+        'If RCON was turned on now, restart the server.',
+        'Check the RCON port in Server › Passwords & tokens.',
+      ],
+    },
+    'rcon-auth': {
+      title: 'RCON password refused',
+      what: 'The server did not accept the RCON password saved in the app.',
+      cause:
+        'The server is using another password (for example the one in Game.ini, or one changed after it started).',
+      solution: [
+        'Restart the server from the app so it uses the saved password.',
+        'Or set the same password in Server › Passwords & tokens.',
+      ],
+    },
+    'map-change-failed': {
+      title: 'The server did not change the map',
+      what: 'The server refused the map change.',
+      cause:
+        'The map is not loaded on the server (for example a mod map whose mod was not loaded).',
+      solution: [
+        'Ask the server for the list again and choose a map from it.',
+        'For a mod map, check on the Mods page that the mod is active.',
+      ],
+    },
+    'port-check-failed': {
+      title: 'Could not test the ports',
+      what: 'The app could not get an answer from the port checker.',
+      cause: 'No internet, or the checker of the download page is unavailable right now.',
+      solution: ['Check your internet connection and try again in a few minutes.'],
+    },
+    'port-check-limit': {
+      title: 'Too many tests in a short time',
+      what: 'The port checker accepts a few tests per minute for each IP.',
+      cause: 'Several tests were started in a row.',
+      solution: ['Wait one minute and try again.'],
+    },
+    'port-check-ipv6': {
+      title: 'The test went over IPv6',
+      what: 'Your connection reached the checker over IPv6, and the game server listens over IPv4.',
+      cause: 'Your provider prefers IPv6 for this site.',
+      solution: [
+        'Ask a friend outside your network to join with your IPv4 address.',
+        'Or test again later.',
       ],
     },
   },

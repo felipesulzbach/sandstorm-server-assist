@@ -555,6 +555,23 @@ export namespace logbuf {
 
 }
 
+export namespace mapchange {
+	
+	export class Info {
+	    rcon: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Info(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.rcon = source["rcon"];
+	    }
+	}
+
+}
+
 export namespace modio {
 	
 	export class Session {
@@ -593,6 +610,43 @@ export namespace modio {
 		    }
 		    return a;
 		}
+	}
+
+}
+
+export namespace netcheck {
+	
+	export class Result {
+	    publicIp: string;
+	    gamePort: number;
+	    queryPort: number;
+	    queryOpen: boolean;
+	    serverName: string;
+	    map: string;
+	    players: number;
+	    maxPlayers: number;
+	    rconPort: number;
+	    rconTested: boolean;
+	    rconExposed: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Result(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.publicIp = source["publicIp"];
+	        this.gamePort = source["gamePort"];
+	        this.queryPort = source["queryPort"];
+	        this.queryOpen = source["queryOpen"];
+	        this.serverName = source["serverName"];
+	        this.map = source["map"];
+	        this.players = source["players"];
+	        this.maxPlayers = source["maxPlayers"];
+	        this.rconPort = source["rconPort"];
+	        this.rconTested = source["rconTested"];
+	        this.rconExposed = source["rconExposed"];
+	    }
 	}
 
 }
@@ -791,6 +845,9 @@ export namespace server {
 	    admins: Admin[];
 	    mapCycle: string[];
 	    modIds: number[];
+	    motd: string;
+	    joinMessage: string;
+	    leaveMessage: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Profile(source);
@@ -816,6 +873,9 @@ export namespace server {
 	        this.admins = this.convertValues(source["admins"], Admin);
 	        this.mapCycle = source["mapCycle"];
 	        this.modIds = source["modIds"];
+	        this.motd = source["motd"];
+	        this.joinMessage = source["joinMessage"];
+	        this.leaveMessage = source["leaveMessage"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -835,6 +895,24 @@ export namespace server {
 		    }
 		    return a;
 		}
+	}
+	export class Scenario {
+	    id: string;
+	    map: string;
+	    mode: string;
+	    source: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Scenario(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.map = source["map"];
+	        this.mode = source["mode"];
+	        this.source = source["source"];
+	    }
 	}
 
 }

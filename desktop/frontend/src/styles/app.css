@@ -1560,3 +1560,46 @@ code {
   margin-top: 12px;
   align-items: center;
 }
+
+/* Troca de mapa (ADR-019) */
+.mapchange__pick {
+  align-items: center;
+  margin-top: 8px;
+}
+.mapchange__pick .select {
+  flex: 1;
+  min-width: 220px;
+}
+.mapchange__actions {
+  align-items: center;
+  margin-top: 10px;
+}
+
+/* Teste de portas pela internet (ADR-021) */
+.portcheck {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+.portcheck__list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.portcheck__list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.portcheck__list .is-ok svg {
+  color: var(--ok);
+}
+.portcheck__list .is-bad svg {
+  color: var(--danger);
+}
+.portcheck__list .is-info svg {
+  color: var(--muted);
+}

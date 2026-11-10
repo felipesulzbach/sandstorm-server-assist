@@ -6,9 +6,10 @@ import { ErrorCard, Field, Guide, PageHead, SecretField } from '../../shared/com
 import { useAction } from '../../shared/hooks';
 import { fieldError, toAppError } from '../../shared/problem';
 import { useExistingSync } from '../sync/ExistingSync';
+import { PortCheck } from './PortCheck';
 
-type Tab = 'general' | 'maps' | 'admins' | 'secrets' | 'network';
-const TABS: Tab[] = ['general', 'maps', 'admins', 'secrets', 'network'];
+type Tab = 'general' | 'maps' | 'admins' | 'secrets' | 'network' | 'messages';
+const TABS: Tab[] = ['general', 'maps', 'admins', 'secrets', 'network', 'messages'];
 
 export function ServerPage() {
   const { t } = useI18n();
@@ -30,14 +31,18 @@ export function ServerPage() {
       setSaved(p);
       setForm(p);
     });
-    backend.maps().then(setMaps).catch(() => {});
+    backend
+      .maps()
+      .then(setMaps)
+      .catch(() => {});
   }, []);
 
   const dirty = useMemo(() => JSON.stringify(saved) !== JSON.stringify(form), [saved, form]);
   if (!form) return null;
 
   const patch = (p: Partial<Profile>) => setForm((f) => ({ ...f!, ...p }) as Profile);
-  const set = <K extends keyof Profile>(k: K, v: Profile[K]) => patch({ [k]: v } as Partial<Profile>);
+  const set = <K extends keyof Profile>(k: K, v: Profile[K]) =>
+    patch({ [k]: v } as Partial<Profile>);
   const err = (f: string) => {
     const e = fieldError(action.error, f);
     return e?.msg ? t(e.msg, e.params) : null;
@@ -61,9 +66,22 @@ export function ServerPage() {
 
   const generalError = action.error && !action.error.field ? action.error : null;
   const fieldTab: Record<string, Tab> = {
-    hostname: 'general', port: 'general', queryPort: 'general', maxPlayers: 'general', rconPort: 'secrets',
-    startMap: 'maps', startScenario: 'maps', travelMap: 'maps', travelScenario: 'maps', mutators: 'maps',
-    mapCycle: 'maps', admins: 'admins', connectIp: 'network',
+    hostname: 'general',
+    port: 'general',
+    queryPort: 'general',
+    maxPlayers: 'general',
+    rconPort: 'secrets',
+    startMap: 'maps',
+    startScenario: 'maps',
+    travelMap: 'maps',
+    travelScenario: 'maps',
+    mutators: 'maps',
+    mapCycle: 'maps',
+    admins: 'admins',
+    connectIp: 'network',
+    motd: 'messages',
+    joinMessage: 'messages',
+    leaveMessage: 'messages',
   };
   const errTab = action.error?.field ? fieldTab[action.error.field] : undefined;
 
@@ -71,7 +89,9 @@ export function ServerPage() {
     <div className="page">
       <PageHead title={t('server.title')} subtitle={t('server.subtitle')}>
         {dirty && <span className="pill pill--warn">{t('common.unsaved')}</span>}
-        {!dirty && Date.now() - okAt < 4000 && <span className="pill pill--ok">{t('common.saved')}</span>}
+        {!dirty && Date.now() - okAt < 4000 && (
+          <span className="pill pill--ok">{t('common.saved')}</span>
+        )}
         <button
           type="button"
           className="btn btn--ghost"
@@ -82,14 +102,32 @@ export function ServerPage() {
           <ServerCog size={16} aria-hidden />
           {t('sync.button')}
         </button>
-        <button type="button" className="btn btn--ghost" onClick={async () => {
-          const d = await backend.defaultProfile();
-          setForm({ ...d, serverDir: form.serverDir, steamcmdDir: form.steamcmdDir, admins: form.admins, mapCycle: form.mapCycle } as Profile);
-        }}>
+        <button
+          type="button"
+          className="btn btn--ghost"
+          onClick={async () => {
+            const d = await backend.defaultProfile();
+            setForm({
+              ...d,
+              serverDir: form.serverDir,
+              steamcmdDir: form.steamcmdDir,
+              admins: form.admins,
+              mapCycle: form.mapCycle,
+              motd: form.motd,
+              joinMessage: form.joinMessage,
+              leaveMessage: form.leaveMessage,
+            } as Profile);
+          }}
+        >
           <RotateCcw size={16} aria-hidden />
           {t('server.reset')}
         </button>
-        <button type="button" className="btn btn--primary" disabled={!dirty || action.busy} onClick={save}>
+        <button
+          type="button"
+          className="btn btn--primary"
+          disabled={!dirty || action.busy}
+          onClick={save}
+        >
           <Save size={16} aria-hidden />
           {t('common.save')}
         </button>
@@ -108,7 +146,14 @@ export function ServerPage() {
 
       <div className="tabs" role="tablist">
         {TABS.map((id) => (
-          <button key={id} type="button" role="tab" aria-selected={tab === id} className={`tabs__tab ${tab === id ? 'is-active' : ''}`} onClick={() => setTab(id)}>
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={tab === id}
+            className={`tabs__tab ${tab === id ? 'is-active' : ''}`}
+            onClick={() => setTab(id)}
+          >
             {t(`server.tabs.${id}`)}
           </button>
         ))}
@@ -117,20 +162,59 @@ export function ServerPage() {
       <section className="card">
         {tab === 'general' && (
           <div className="form">
-            <Field label={t('server.hostname')} hint={t('server.hostnameHint')} error={err('hostname')} wide>
-              <input className="input" value={form.hostname} maxLength={64} onChange={(e) => set('hostname', e.target.value)} />
+            <Field
+              label={t('server.hostname')}
+              hint={t('server.hostnameHint')}
+              error={err('hostname')}
+              wide
+            >
+              <input
+                className="input"
+                value={form.hostname}
+                maxLength={64}
+                onChange={(e) => set('hostname', e.target.value)}
+              />
             </Field>
             <Field label={t('server.maxPlayers')} error={err('maxPlayers')}>
-              <input className="input" type="number" min={1} max={64} value={form.maxPlayers} onChange={(e) => set('maxPlayers', Number(e.target.value))} />
+              <input
+                className="input"
+                type="number"
+                min={1}
+                max={64}
+                value={form.maxPlayers}
+                onChange={(e) => set('maxPlayers', Number(e.target.value))}
+              />
             </Field>
             <Field label={t('server.port')} error={err('port')}>
-              <input className="input" type="number" min={1024} max={65535} value={form.port} onChange={(e) => set('port', Number(e.target.value))} />
+              <input
+                className="input"
+                type="number"
+                min={1024}
+                max={65535}
+                value={form.port}
+                onChange={(e) => set('port', Number(e.target.value))}
+              />
             </Field>
-            <Field label={t('server.queryPort')} hint={t('server.portsHint')} error={err('queryPort')}>
-              <input className="input" type="number" min={1024} max={65535} value={form.queryPort} onChange={(e) => set('queryPort', Number(e.target.value))} />
+            <Field
+              label={t('server.queryPort')}
+              hint={t('server.portsHint')}
+              error={err('queryPort')}
+            >
+              <input
+                className="input"
+                type="number"
+                min={1024}
+                max={65535}
+                value={form.queryPort}
+                onChange={(e) => set('queryPort', Number(e.target.value))}
+              />
             </Field>
             <label className="check check--block field--wide">
-              <input type="checkbox" checked={form.useMods} onChange={(e) => set('useMods', e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={form.useMods}
+                onChange={(e) => set('useMods', e.target.checked)}
+              />
               <span>
                 {t('server.useMods')}
                 <span className="field__hint">{t('server.useModsHint')}</span>
@@ -145,13 +229,85 @@ export function ServerPage() {
 
         {tab === 'network' && (
           <div className="form">
-            <Field label={t('server.network.connectIp')} hint={t('server.network.connectIpHint')} error={err('connectIp')} wide>
-              <input className="input" value={form.connectIp} placeholder="26.10.20.30" onChange={(e) => set('connectIp', e.target.value.trim())} />
+            <Field
+              label={t('server.network.connectIp')}
+              hint={t('server.network.connectIpHint')}
+              error={err('connectIp')}
+              wide
+            >
+              <input
+                className="input"
+                value={form.connectIp}
+                placeholder="203.0.113.10"
+                onChange={(e) => set('connectIp', e.target.value.trim())}
+              />
             </Field>
             <div className="field--wide">
-              <Guide id="radmin" links={['radmin']} />
+              <p>
+                {t('server.network.ports', {
+                  port: form.port,
+                  queryPort: form.queryPort,
+                  rconPort: form.rconPort,
+                })}
+              </p>
+              <Guide
+                id="ports"
+                label={t('guides.ports.title')}
+                params={{ port: form.port, queryPort: form.queryPort, rconPort: form.rconPort }}
+              />
+              <Guide id="vpn" label={t('guides.vpn.title')} />
               <p className="hint">{t('server.network.firewall')}</p>
+              <PortCheck connectIp={form.connectIp} onUseIp={(ip) => set('connectIp', ip)} />
             </div>
+          </div>
+        )}
+        {tab === 'messages' && (
+          <div className="form">
+            <Field
+              label={t('server.messages.motd')}
+              hint={t('server.messages.motdHint')}
+              error={err('motd')}
+              wide
+            >
+              <textarea
+                className="input textarea"
+                rows={5}
+                maxLength={1000}
+                value={form.motd ?? ''}
+                onChange={(e) => set('motd', e.target.value)}
+              />
+            </Field>
+            <Field
+              label={t('server.messages.join')}
+              hint={t('server.messages.chatHint')}
+              error={err('joinMessage')}
+              wide
+            >
+              <input
+                className="input"
+                maxLength={150}
+                value={form.joinMessage ?? ''}
+                placeholder={t('server.messages.joinExample')}
+                onChange={(e) => set('joinMessage', e.target.value)}
+              />
+            </Field>
+            <Field
+              label={t('server.messages.leave')}
+              hint={t('server.messages.chatHint')}
+              error={err('leaveMessage')}
+              wide
+            >
+              <input
+                className="input"
+                maxLength={150}
+                value={form.leaveMessage ?? ''}
+                placeholder={t('server.messages.leaveExample')}
+                onChange={(e) => set('leaveMessage', e.target.value)}
+              />
+            </Field>
+            <p className={`field--wide ${form.rcon ? 'hint' : 'banner banner--info'}`}>
+              {t(form.rcon ? 'server.messages.howChat' : 'server.messages.needsRcon')}
+            </p>
           </div>
         )}
       </section>
@@ -163,7 +319,19 @@ export function ServerPage() {
 type SetFn = <K extends keyof Profile>(k: K, v: Profile[K]) => void;
 type ErrFn = (field: string) => string | null;
 
-function MapsTab({ form, set, patch, maps, err }: { form: Profile; set: SetFn; patch: (p: Partial<Profile>) => void; maps: MapsInfo | null; err: ErrFn }) {
+function MapsTab({
+  form,
+  set,
+  patch,
+  maps,
+  err,
+}: {
+  form: Profile;
+  set: SetFn;
+  patch: (p: Partial<Profile>) => void;
+  maps: MapsInfo | null;
+  err: ErrFn;
+}) {
   const { t } = useI18n();
   const known = maps?.maps.find((m) => m.map === form.startMap);
   const modeId = known ? form.startScenario.replace(`Scenario_${known.scenario}_`, '') : '';
@@ -197,7 +365,8 @@ function MapsTab({ form, set, patch, maps, err }: { form: Profile; set: SetFn; p
           className="select"
           value={knownMode ? modeId : 'custom'}
           onChange={(e) => {
-            if (known && e.target.value !== 'custom') set('startScenario', `Scenario_${known.scenario}_${e.target.value}`);
+            if (known && e.target.value !== 'custom')
+              set('startScenario', `Scenario_${known.scenario}_${e.target.value}`);
           }}
         >
           {(maps?.modes ?? []).map((m) => (
@@ -210,7 +379,11 @@ function MapsTab({ form, set, patch, maps, err }: { form: Profile; set: SetFn; p
       </Field>
       {!knownMode && (
         <Field label={t('server.customScenario')} error={err('startScenario')} wide>
-          <input className="input" value={form.startScenario} onChange={(e) => set('startScenario', e.target.value.trim())} />
+          <input
+            className="input"
+            value={form.startScenario}
+            onChange={(e) => set('startScenario', e.target.value.trim())}
+          />
         </Field>
       )}
 
@@ -221,7 +394,10 @@ function MapsTab({ form, set, patch, maps, err }: { form: Profile; set: SetFn; p
           disabled={!form.useMods}
           onChange={(e) =>
             e.target.checked
-              ? patch({ travelMap: 'Containment', travelScenario: 'Scenario_Containment_Checkpoint_Security' })
+              ? patch({
+                  travelMap: 'Containment',
+                  travelScenario: 'Scenario_Containment_Checkpoint_Security',
+                })
               : patch({ travelMap: '', travelScenario: '' })
           }
         />
@@ -233,15 +409,28 @@ function MapsTab({ form, set, patch, maps, err }: { form: Profile; set: SetFn; p
       {travelOn && (
         <>
           <Field label={t('server.travelMap')} error={err('travelMap')}>
-            <input className="input" value={form.travelMap} onChange={(e) => set('travelMap', e.target.value.trim())} />
+            <input
+              className="input"
+              value={form.travelMap}
+              onChange={(e) => set('travelMap', e.target.value.trim())}
+            />
           </Field>
           <Field label={t('server.travelScenario')} error={err('travelScenario')}>
-            <input className="input" value={form.travelScenario} onChange={(e) => set('travelScenario', e.target.value.trim())} />
+            <input
+              className="input"
+              value={form.travelScenario}
+              onChange={(e) => set('travelScenario', e.target.value.trim())}
+            />
           </Field>
         </>
       )}
 
-      <Field label={t('server.mutators')} hint={t('server.mutatorsHint')} error={err('mutators')} wide>
+      <Field
+        label={t('server.mutators')}
+        hint={t('server.mutatorsHint')}
+        error={err('mutators')}
+        wide
+      >
         <input
           className="input"
           value={(form.mutators ?? []).join(', ')}
@@ -256,13 +445,26 @@ function MapsTab({ form, set, patch, maps, err }: { form: Profile; set: SetFn; p
           }
         />
       </Field>
-      <Field label={t('server.mapCycle')} hint={t('server.mapCycleHint')} error={err('mapCycle')} wide>
+      <Field
+        label={t('server.mapCycle')}
+        hint={t('server.mapCycleHint')}
+        error={err('mapCycle')}
+        wide
+      >
         <textarea
           className="input textarea"
           rows={8}
           spellCheck={false}
           value={(form.mapCycle ?? []).join('\n')}
-          onChange={(e) => set('mapCycle', e.target.value.split('\n').map((s) => s.trim()).filter(Boolean))}
+          onChange={(e) =>
+            set(
+              'mapCycle',
+              e.target.value
+                .split('\n')
+                .map((s) => s.trim())
+                .filter(Boolean),
+            )
+          }
         />
       </Field>
     </div>
@@ -282,7 +484,8 @@ function AdminsTab({ form, set, err }: { form: Profile; set: SetFn; err: ErrFn }
     setMsg(null);
     try {
       const id = await backend.extractSteamId(text);
-      if (!admins.some((a) => a.steamId === id)) set('admins', [...admins, { steamId: id, name: name.trim() }]);
+      if (!admins.some((a) => a.steamId === id))
+        set('admins', [...admins, { steamId: id, name: name.trim() }]);
       setMsg(t('server.admins.found', { id }));
       setText('');
       setName('');
@@ -295,12 +498,28 @@ function AdminsTab({ form, set, err }: { form: Profile; set: SetFn; err: ErrFn }
   return (
     <div className="form">
       <p className="muted field--wide">{t('server.admins.text')}</p>
-      <Field label={t('server.admins.steamId')} error={bad ?? err('admins')} hint={msg ?? undefined}>
-        <input className="input" value={text} spellCheck={false} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && add()} />
+      <Field
+        label={t('server.admins.steamId')}
+        error={bad ?? err('admins')}
+        hint={msg ?? undefined}
+      >
+        <input
+          className="input"
+          value={text}
+          spellCheck={false}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && add()}
+        />
       </Field>
       <Field label={t('server.admins.name')}>
         <div className="row">
-          <input className="input" value={name} maxLength={40} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && add()} />
+          <input
+            className="input"
+            value={name}
+            maxLength={40}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && add()}
+          />
           <button type="button" className="btn btn--primary" disabled={!text.trim()} onClick={add}>
             <Plus size={16} aria-hidden />
             {t('common.add')}
@@ -321,7 +540,12 @@ function AdminsTab({ form, set, err }: { form: Profile; set: SetFn; err: ErrFn }
               className="icon-btn"
               aria-label={t('common.remove')}
               title={t('common.remove')}
-              onClick={() => set('admins', admins.filter((x) => x.steamId !== a.steamId))}
+              onClick={() =>
+                set(
+                  'admins',
+                  admins.filter((x) => x.steamId !== a.steamId),
+                )
+              }
             >
               <Trash2 size={16} />
             </button>
@@ -340,8 +564,14 @@ function SecretsTab({ form, set, err }: { form: Profile; set: SetFn; err: ErrFn 
   const action = useAction();
 
   useEffect(() => {
-    backend.secretsState().then(setState).catch(() => {});
-    backend.rconInIni().then(setRconInIni).catch(() => {});
+    backend
+      .secretsState()
+      .then(setState)
+      .catch(() => {});
+    backend
+      .rconInIni()
+      .then(setRconInIni)
+      .catch(() => {});
   }, []);
   if (!state) return null;
 
@@ -373,25 +603,59 @@ function SecretsTab({ form, set, err }: { form: Profile; set: SetFn; err: ErrFn 
       )}
       {moved && <p className="banner banner--ok">{t('server.secrets.moved')}</p>}
 
-      <SecretField name="serverPassword" label={t('server.secrets.serverPassword')} hint={t('server.secrets.serverPasswordHint')} isSet={state.serverPassword} onChanged={setState} />
+      <SecretField
+        name="serverPassword"
+        label={t('server.secrets.serverPassword')}
+        hint={t('server.secrets.serverPasswordHint')}
+        isSet={state.serverPassword}
+        onChanged={setState}
+      />
 
       <label className="check check--block">
-        <input type="checkbox" checked={form.rcon} onChange={(e) => set('rcon', e.target.checked)} />
+        <input
+          type="checkbox"
+          checked={form.rcon}
+          onChange={(e) => set('rcon', e.target.checked)}
+        />
         <span>{t('server.secrets.rcon')}</span>
       </label>
       {form.rcon && (
         <>
-          <SecretField name="rconPassword" label={t('server.secrets.rconPassword')} isSet={state.rconPassword} onChanged={setState} />
+          <SecretField
+            name="rconPassword"
+            label={t('server.secrets.rconPassword')}
+            isSet={state.rconPassword}
+            onChanged={setState}
+          />
           <Field label={t('server.secrets.rconPort')} error={err('rconPort')}>
-            <input className="input input--short" type="number" min={1024} max={65535} value={form.rconPort} onChange={(e) => set('rconPort', Number(e.target.value))} />
+            <input
+              className="input input--short"
+              type="number"
+              min={1024}
+              max={65535}
+              value={form.rconPort}
+              onChange={(e) => set('rconPort', Number(e.target.value))}
+            />
           </Field>
         </>
       )}
 
-      <SecretField name="gsltToken" label={t('server.secrets.gsltToken')} hint={t('server.secrets.gsltTokenHint')} isSet={state.gsltToken} onChanged={setState}>
+      <SecretField
+        name="gsltToken"
+        label={t('server.secrets.gsltToken')}
+        hint={t('server.secrets.gsltTokenHint')}
+        isSet={state.gsltToken}
+        onChanged={setState}
+      >
         <Guide id="gslt" links={['steam-gslt']} />
       </SecretField>
-      <SecretField name="gameStatsToken" label={t('server.secrets.gameStatsToken')} hint={t('server.secrets.gameStatsTokenHint')} isSet={state.gameStatsToken} onChanged={setState}>
+      <SecretField
+        name="gameStatsToken"
+        label={t('server.secrets.gameStatsToken')}
+        hint={t('server.secrets.gameStatsTokenHint')}
+        isSet={state.gameStatsToken}
+        onChanged={setState}
+      >
         <Guide id="gameStats" links={['gamestats']} />
       </SecretField>
     </div>

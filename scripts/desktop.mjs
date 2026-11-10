@@ -6,6 +6,7 @@ import { join, resolve } from 'node:path';
 
 const ROOT = resolve(import.meta.dirname, '..');
 const DESKTOP = join(ROOT, 'desktop');
+const CHECKER = join(ROOT, 'checker');
 const APP = 'sandstorm-server-assist';
 const exe = (n) => (process.platform === 'win32' ? `${n}.exe` : n);
 
@@ -116,10 +117,13 @@ switch (process.argv[2]) {
   case 'vet':
     ensureDist();
     run('go', ['vet', './...']);
+    // Verificador de portas (módulo separado, roda no servidor da página de download; ADR-021).
+    run('go', ['vet', './...'], { cwd: CHECKER });
     break;
   case 'test':
     ensureDist();
     run('go', ['test', '-count=1', './...']);
+    run('go', ['test', '-count=1', './...'], { cwd: CHECKER });
     break;
   default:
     console.error(

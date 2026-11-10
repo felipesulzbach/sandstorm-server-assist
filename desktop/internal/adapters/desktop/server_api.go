@@ -10,9 +10,13 @@ import (
 
 	"sandstorm-server-assist/desktop/internal/adapters/fsx"
 	"sandstorm-server-assist/desktop/internal/adapters/modio"
+	"sandstorm-server-assist/desktop/internal/adapters/portcheck"
 	"sandstorm-server-assist/desktop/internal/app/config"
+	"sandstorm-server-assist/desktop/internal/app/mapchange"
 	"sandstorm-server-assist/desktop/internal/app/runner"
+	"sandstorm-server-assist/desktop/internal/domain/netcheck"
 	"sandstorm-server-assist/desktop/internal/domain/problems"
+	"sandstorm-server-assist/desktop/internal/domain/server"
 )
 
 // ServerAPI: iniciar, parar, autorizar no mod.io e lista de mods (evento "server:status").
@@ -61,6 +65,33 @@ func (s *ServerAPI) Connect() Connect {
 		c.Command = fmt.Sprintf("open %s:%d", p.ConnectIP, p.Port)
 	}
 	return c
+}
+
+// ---- troca de mapa (RCON, ADR-019) ----
+
+// MapChange diz se dá para trocar o mapa pelo app (RCON ligado e com senha).
+func (s *ServerAPI) MapChange() mapchange.Info { return s.a.maps.Info() }
+
+// Scenarios pede ao servidor ligado a lista de mapas (inclui os mapas dos mods montados) e junta com os do perfil.
+func (s *ServerAPI) Scenarios() ([]server.Scenario, error) { return s.a.maps.Scenarios() }
+
+// ChangeMap troca para um cenário da lista (a tela manda só o id).
+func (s *ServerAPI) ChangeMap(id string) error { return s.a.maps.Change(id) }
+
+// ---- teste de portas pela internet (ADR-021) ----
+
+// CheckPorts pede ao verificador do projeto o teste das portas deste servidor pela internet. O servidor precisa
+// estar pronto (a porta de consulta só responde com ele ligado). Vão só os números das portas.
+func (s *ServerAPI) CheckPorts() (netcheck.Result, error) {
+	if s.a.runner.Status().Phase != runner.Ready {
+		return netcheck.Result{}, problems.New(problems.ServerNotRunning, "")
+	}
+	p := s.a.cfg.Profile()
+	req := netcheck.Request{QueryPort: p.QueryPort}
+	if p.Rcon {
+		req.RconPort = p.RconPort
+	}
+	return portcheck.Check(s.a.ctx, req, p.Port)
 }
 
 // ---- mod.io ----

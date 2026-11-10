@@ -4,7 +4,7 @@
 package legal
 
 // Version é a versão dos termos de uso e do aviso de dados (data em que passaram a valer).
-const Version = "2026-11-09"
+const Version = "2026-11-10"
 
 // Accepted diz se a versão aceita é a que está em vigor.
 func Accepted(version string) bool { return version == Version }
