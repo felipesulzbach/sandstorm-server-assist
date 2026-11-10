@@ -42,7 +42,11 @@ referência.
    }
    ```
 
-3. No servidor: criar `game-in/deploy/sandstorm/` e recriar o Caddy (`docker compose ... up -d caddy`).
+3. No servidor: criar `game-in/deploy/sandstorm/` e recriar o Caddy
+   (`docker compose -f compose.prod.yaml up -d --no-deps --force-recreate caddy`).
+
+Sempre que o Caddyfile mudar, use `--force-recreate`: o `git pull` grava um arquivo novo e o contêiner, montado no
+antigo, continuaria com a configuração velha (o compose não vê mudança e só diz "Running").
 
 ## Publicar uma versão
 
@@ -84,8 +88,10 @@ cd ~/game-in && git pull
 cd deploy
 docker compose -f compose.prod.yaml build sandstorm-check
 docker compose -f compose.prod.yaml up -d sandstorm-check
-docker compose -f compose.prod.yaml up -d --no-deps caddy
+docker compose -f compose.prod.yaml up -d --no-deps --force-recreate caddy
 ```
+
+No ar desde 10/11/2026.
 
 Conferir de fora (de uma rede sem servidor do jogo, a resposta é a porta fechada; do PC do servidor, aberta):
 

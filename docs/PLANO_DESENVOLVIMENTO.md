@@ -1,6 +1,6 @@
 # Plano de desenvolvimento
 
-> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-09, por volta de 21:00 (página publicada).
+> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-10, por volta de 13:30 (0.1.3 e verificador no ar).
 > Base: [RESUMO_PROJETO.md](RESUMO_PROJETO.md) · Decisões: [DECISOES.md](DECISOES.md)
 
 ## Situação
@@ -156,6 +156,17 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
   leitura), `listplayers`/`listbans`/`help` lidos do servidor real (formato e sintaxe), telas no modo dev
   (abas, catálogo, mutators, rotação com dia/noite, validação, rede, firewall, definições).
 - Não testado ao vivo: ver ADR-022.
+
+## Versão 0.1.3 e verificador de portas publicados (10/11/2026, ~13:30)
+
+- **Verificador** (`sandstorm-check`, ADR-021) no servidor: `git pull` do game-in (`35e366a`), `build` e `up -d` do
+  serviço (saudável) e Caddy recriado com `--force-recreate` (sem isso o contêiner continua com o Caddyfile antigo:
+  o `git pull` troca o arquivo e a montagem segue no antigo). Conferido de fora: `/sandstorm/api/healthz` 200;
+  `check` responde "fechada" sem servidor do jogo, recusa porta inválida e ignora `X-Forwarded-For` falso.
+- **0.1.3** publicada no PC de publicação: testes Go (com o `checker`) e front, lint, typecheck, `audit`,
+  `audit:go`, `audit:code` limpos; `build:installer`, `package`, `site:publish`. O `latest.json` aponta para a
+  0.1.3 e o SHA-256 do instalador baixado confere; página, termos (2026-11-10) e privacidade no ar; game-in e
+  `/midia/` seguiram respondendo 200.
 
 ## Pendências
 
