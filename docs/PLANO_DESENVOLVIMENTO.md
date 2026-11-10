@@ -1,6 +1,6 @@
 # Plano de desenvolvimento
 
-> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-10, à tarde (0.1.4 publicada).
+> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-10, à noite (0.1.5 publicada).
 > Base: [RESUMO_PROJETO.md](RESUMO_PROJETO.md) · Decisões: [DECISOES.md](DECISOES.md)
 
 ## Situação
@@ -180,6 +180,9 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
 
 - `domain/server/markup.go`, `ConfigAPI.MarkupPreview`, editor com barra e prévia (mensagem do dia, entrada, saída
   e programadas), `pak.Scan` com mapas e cenários, `modio.Scenarios`, seletores do mapa de mod. ADR-024.
+- **Publicada** no PC de publicação: testes, lint, typecheck, `audit`, `audit:go` e `audit:code` limpos;
+  `build:installer`, `package`, `site:publish`. `latest.json` na 0.1.5, SHA-256 do instalador baixado confere,
+  página mostra 0.1.5; verificador, game-in e `/midia/` seguiram respondendo 200. Sem mudança no servidor.
 
 ## Pendências
 

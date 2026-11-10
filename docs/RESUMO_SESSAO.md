@@ -145,9 +145,10 @@ passam a ver a atualização). Achado: depois de mudar o Caddyfile, recriar o Ca
 
 **10/11 (noite) · fase 21, versão 0.1.5:** formatação nas mensagens (tags lidas dos arquivos do jogo: Bold,
 Header1, Header2 e imagem na mensagem do dia; só Bold no chat, a confirmar) com editor e prévia; mapa e cenário do
-mapa de mod escolhidos em listas lidas dos mods instalados (ADR-024).
+mapa de mod escolhidos em listas lidas dos mods instalados (ADR-024). Publicada na página no mesmo dia
+(`latest.json` na 0.1.5).
 
-**Falta (com o usuário):** atualizar o app instalado para a 0.1.4, aceitar os termos novos, testar o botão
+**Falta (com o usuário):** atualizar o app instalado para a 0.1.5, aceitar os termos novos, testar o botão
 "Testar portas pela internet" com o servidor ligado, testar a troca para um mapa de mod e as mensagens no chat com jogadores. Da fase 19:
 testar com jogadores o painel (expulsar/banir), a troca com dia/noite, as regras no jogo, o webhook do Discord, a
 regra do Firewall (pede administrador) e o reinício diário. Da fase 21: ver no jogo a mensagem do dia formatada e se
