@@ -412,3 +412,15 @@ Registro curto: contexto, decisão e consequência. Decisão nova entra no fim.
     iniciou, é controlado normalmente e só não é reiniciado sozinho para carregar mods novos.
 - **Limite:** a autorização do mod.io com código (ADR-003) não é retomada; se o app fechar no meio dela, o servidor
   continua com o código até ser reiniciado.
+
+## ADR-027 · A espera pelo mapa de mod acaba na primeira viagem
+
+- **Contexto:** na inicialização, o servidor abre num mapa oficial e viaja para o mapa de mod
+  (`-ModDownloadTravelTo`). O app não marcava "pronto" enquanto o mapa não fosse o de mod, mas mantinha essa espera
+  para sempre: depois de uma troca de mapa (pelo app, pela rotação ou por um admin), o painel ficava preso em
+  "a carregar o mapa" e bloqueava as ações que pedem o servidor pronto (visto na 0.1.7, troca para Border).
+- **Decisão:** a espera vale só até a primeira viagem do servidor; depois dela qualquer mapa fica pronto. Servidor
+  aberto fora do app não espera viagem nenhuma (pode ter aberto sem `-ModDownloadTravelTo`); o que o app iniciou e
+  reconheceu ao reabrir (ADR-026) espera, como antes.
+- **Verificado:** teste com as linhas reais do log (inicialização no Containment e troca para Border), que falhava
+  no código antigo.

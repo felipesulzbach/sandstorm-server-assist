@@ -420,7 +420,12 @@ func (s *Service) Tick() {
 		s.ownStart = own
 		s.added = map[int]bool{}
 		s.remountCheck = false
-		s.travelMap = p.TravelMap
+		// A espera pela viagem ao mapa de mod só vale para a linha de comando do app (-ModDownloadTravelTo). Um
+		// servidor de fora pode ter aberto sem ela, e o app ficaria preso em "a iniciar".
+		s.travelMap = ""
+		if own {
+			s.travelMap = p.TravelMap
+		}
 		s.tail = Tail{Path: logPath(p.ServerDir)}
 		s.tailInfo, _ = os.Stat(s.tail.Path)
 	case !running && s.st.Phase != Stopped && s.st.Phase != NotInstalled && s.st.Phase != Crashed:
@@ -553,6 +558,9 @@ func (s *Service) apply(ev logparse.Event) {
 	case logparse.Travel:
 		s.st.Phase = Traveling
 		s.st.Map, s.st.Scenario = ev.Map, ev.Scenario
+		// A viagem da inicialização aconteceu: a partir daqui qualquer mapa vale (troca de mapa pelo app, pela
+		// rotação ou por um admin). Sem isso o app ficava preso em "a carregar o mapa" depois de uma troca.
+		s.travelMap = ""
 		// Com mods novos nesta partida, o servidor monta só os que baixou e viaja sem os já instalados.
 		if len(s.added) > 0 {
 			s.remountCheck = true

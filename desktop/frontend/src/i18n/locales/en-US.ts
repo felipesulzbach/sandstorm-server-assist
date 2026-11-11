@@ -686,6 +686,7 @@ export const enUS = {
   logs: {
     button: 'Logs',
     errors: '{n} errors',
+    oneError: '1 error',
     title: 'Logs',
     filter: {
       all: 'All',
@@ -711,6 +712,7 @@ export const enUS = {
     runLast: 'Last run, {time} ({size})',
     runStarted: 'Server started at {time}',
     savedRun: 'Saved run, read from the server log file. {n} errors.',
+    savedRunOneError: 'Saved run, read from the server log file. 1 error.',
     backToLive: 'Back to the current run',
     loading: 'Loading…',
     masked: 'Passwords and tokens appear as •••.',

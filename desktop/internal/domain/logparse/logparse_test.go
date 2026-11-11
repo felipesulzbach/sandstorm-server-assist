@@ -57,6 +57,7 @@ func TestHarmlessErrorsCountAsWarnings(t *testing.T) {
 		`[x][ 9]LogStreaming: Error: Couldn't find file for package /Game/Game/Actors/Weapons/Upgrades/Underbarrel/BP_UG_Foregrip_Flashlight requested by async loading code.`,
 		`[x][ 9]LogDemo: Error: UDemoNetDriver::TickFlush: ReplayStreamer ERROR: ServiceUnavailable`,
 		`[x][ 9]LogRedstoneSocket: Error: [network/stun] Integrity check failed`,
+		`[2026.11.11-02.23.16:423][874]LogWorldSettings: Error: No "Max Raycast Distance" defined, falling back to 1km (100000 units).`,
 	}
 	for _, l := range harmlessLines {
 		if Level(l) != "warning" {

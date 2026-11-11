@@ -403,3 +403,52 @@ func TestRunRecordOnlyMatchesItsOwnStart(t *testing.T) {
 		}
 	}
 }
+
+// Linhas reais (10/11/2026): depois de pronto no mapa de mod, troca para Border. O app ficava preso em "a carregar
+// o mapa", esperando o mapa da inicialização (Containment), e bloqueava as ações.
+func TestMapChangeAfterStartBecomesReady(t *testing.T) {
+	s, _, dir := setup(t)
+	if err := s.Start(); err != nil {
+		t.Fatal(err)
+	}
+	steps := []struct {
+		line string
+		want Phase
+	}{
+		{"[t][  0]LogLoad: LoadMap: /Game/Maps/Farmhouse/Farmhouse?Name=Player?Scenario=Scenario_Farmhouse_Checkpoint_Security?MaxPlayers=10?Lighting=Day", Starting},
+		{"[t][  0]LogGameMode: ProcessServerTravel: Containment?Scenario=Scenario_Containment_Checkpoint_Security", Traveling},
+		{"[t][ 56]LogGameState: Match State Changed from EnteringMap to LoadingAssets", Traveling},
+		{"[t][ 60]LogGameState: Match State Changed from LoadingAssets to WaitingToStart", Ready},
+		{"[t][684]LogGameState: Match State Changed from RoundActive to LeavingMap", Ready},
+		{"[t][684]LogGameMode: ProcessServerTravel: Border?Scenario=Scenario_Border_Checkpoint_Insurgents?Lighting=Day?MaxPlayers=10", Traveling},
+		{"[t][859]LogGameState: Match State Changed from EnteringMap to LoadingAssets", Traveling},
+		{"[t][874]LogGameState: Match State Changed from LoadingAssets to WaitingToStart", Ready},
+	}
+	for _, st := range steps {
+		appendLog(t, dir, st.line)
+		s.Tick()
+		if got := s.Status().Phase; got != st.want {
+			t.Fatalf("after %q: phase %s, want %s", st.line, got, st.want)
+		}
+	}
+	if st := s.Status(); st.Map != "Border" || st.Scenario != "Scenario_Border_Checkpoint_Insurgents" {
+		t.Errorf("mapa: %s %s", st.Map, st.Scenario)
+	}
+}
+
+// Servidor aberto fora do app, sem viagem para o mapa de mod: fica pronto no mapa em que abriu.
+func TestExternalServerWithoutTravelBecomesReady(t *testing.T) {
+	s, f, dir := setup(t)
+	appendLog(t, dir,
+		"[t][  0]LogLoad: LoadMap: /Game/Maps/Farmhouse/Farmhouse?Name=Player?Scenario=Scenario_Farmhouse_Checkpoint_Security?MaxPlayers=10",
+		"[t][  0]LogGameState: Match State Changed from EnteringMap to LoadingAssets",
+		"[t][  4]LogGameState: Match State Changed from LoadingAssets to WaitingToStart",
+	)
+	f.mu.Lock()
+	f.running, f.started = true, time.Now().Add(-time.Minute)
+	f.mu.Unlock()
+	s.Tick()
+	if st := s.Status(); st.Phase != Ready || !st.External || st.Map != "Farmhouse" {
+		t.Errorf("%+v", st)
+	}
+}

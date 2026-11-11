@@ -200,6 +200,12 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
   `build:installer`, `package`, `site:publish`. `latest.json` na 0.1.7, SHA-256 do instalador baixado confere,
   página mostra 0.1.7; verificador, game-in e `/midia/` seguiram respondendo 200. Sem mudança no servidor.
 
+## Fase 24 · Painel preso em "a carregar o mapa" depois de trocar de mapa (10/11/2026, versão 0.1.8)
+
+- A espera pelo mapa de mod da inicialização acaba na primeira viagem; servidor de fora não espera. ADR-027.
+- `LogWorldSettings: Error: No "Max Raycast Distance" defined` (Border) conta como aviso, não como erro; o
+  contador dos Registos usa o singular com 1 erro.
+
 ## Pendências
 
 - Feito depois da primeira rodada: ícone, zip portátil, testes de installer/config/logbuf e teste real do

@@ -689,6 +689,7 @@ export const ru: Messages = {
   logs: {
     button: 'Журналы',
     errors: 'Ошибок: {n}',
+    oneError: 'Ошибок: 1',
     title: 'Журналы',
     filter: {
       all: 'Все',
@@ -714,6 +715,7 @@ export const ru: Messages = {
     runLast: 'Последний запуск, {time} ({size})',
     runStarted: 'Сервер запущен в {time}',
     savedRun: 'Сохранённый запуск, прочитан из файла лога сервера. Ошибок: {n}.',
+    savedRunOneError: 'Сохранённый запуск, прочитан из файла лога сервера. Ошибок: 1.',
     backToLive: 'Вернуться к текущему запуску',
     loading: 'Загрузка…',
     masked: 'Пароли и токены показаны как •••.',

@@ -690,6 +690,7 @@ export const ptPT: Messages = {
   logs: {
     button: 'Registos',
     errors: '{n} erros',
+    oneError: '1 erro',
     title: 'Registos',
     filter: {
       all: 'Tudo',
@@ -715,6 +716,7 @@ export const ptPT: Messages = {
     runLast: 'Último arranque, {time} ({size})',
     runStarted: 'Servidor iniciado às {time}',
     savedRun: 'Arranque guardado, lido do ficheiro de registo do servidor. {n} erros.',
+    savedRunOneError: 'Arranque guardado, lido do ficheiro de registo do servidor. 1 erro.',
     backToLive: 'Voltar ao arranque atual',
     loading: 'A carregar…',
     masked: 'Palavras-passe e tokens aparecem como •••.',

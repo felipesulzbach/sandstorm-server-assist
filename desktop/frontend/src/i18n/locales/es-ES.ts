@@ -696,6 +696,7 @@ export const esES: Messages = {
   logs: {
     button: 'Registros',
     errors: '{n} errores',
+    oneError: '1 error',
     title: 'Registros',
     filter: {
       all: 'Todo',
@@ -721,6 +722,7 @@ export const esES: Messages = {
     runLast: 'Último inicio, {time} ({size})',
     runStarted: 'Servidor iniciado a las {time}',
     savedRun: 'Inicio guardado, leído del archivo de registro del servidor. {n} errores.',
+    savedRunOneError: 'Inicio guardado, leído del archivo de registro del servidor. 1 error.',
     backToLive: 'Volver al inicio actual',
     loading: 'Cargando…',
     masked: 'Las contraseñas y los tokens aparecen como •••.',

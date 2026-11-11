@@ -158,7 +158,12 @@ como dele; o aviso ficou só para servidor de fora, com texto mais claro (ADR-02
 iniciada pela 0.1.7 (a que já está rodando continua como de fora). Publicada na página no mesmo dia
 (`latest.json` na 0.1.7).
 
-**Falta (com o usuário):** atualizar o app instalado para a 0.1.7, aceitar os termos novos, testar o botão
+**10/11 (noite) · fase 24, versão 0.1.8:** o usuário trocou para Border com a 0.1.7; a troca funcionou, mas o
+painel ficou em "a carregar o mapa" e bloqueou as ações. Causa: o app seguia esperando o mapa de mod da
+inicialização. Corrigido (ADR-027). O erro inofensivo de raycast do Border passou a aviso e "1 erros" virou
+"1 erro".
+
+**Falta (com o usuário):** atualizar o app instalado para a 0.1.8, aceitar os termos novos, testar o botão
 "Testar portas pela internet" com o servidor ligado, testar a troca para um mapa de mod e as mensagens no chat com jogadores. Da fase 19:
 testar com jogadores o painel (expulsar/banir), a troca com dia/noite, as regras no jogo, o webhook do Discord, a
 regra do Firewall (pede administrador) e o reinício diário. Da fase 21: ver no jogo a mensagem do dia formatada e se

@@ -182,7 +182,9 @@ function LogDrawer({
           <ScrollText size={15} aria-hidden />
           {t('logs.button')}
           {errors > 0 && (
-            <span className="pill pill--danger">{t('logs.errors', { n: errors })}</span>
+            <span className="pill pill--danger">
+              {t(errors === 1 ? 'logs.oneError' : 'logs.errors', { n: errors })}
+            </span>
           )}
           {open ? <ChevronDown size={15} aria-hidden /> : <ChevronUp size={15} aria-hidden />}
         </button>
@@ -272,7 +274,11 @@ function LogDrawer({
         <div className="logdrawer__list" ref={listRef}>
           {view !== LIVE && (
             <p className="logdrawer__saved">
-              {loading ? t('logs.loading') : t('logs.savedRun', { n: shownErrors })}{' '}
+              {loading
+                ? t('logs.loading')
+                : t(shownErrors === 1 ? 'logs.savedRunOneError' : 'logs.savedRun', {
+                    n: shownErrors,
+                  })}{' '}
               <button type="button" className="link" onClick={() => choose(LIVE)}>
                 {t('logs.backToLive')}
               </button>

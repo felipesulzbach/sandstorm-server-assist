@@ -688,6 +688,7 @@ export const uk: Messages = {
   logs: {
     button: 'Журнали',
     errors: 'Помилок: {n}',
+    oneError: 'Помилок: 1',
     title: 'Журнали',
     filter: {
       all: 'Усі',
@@ -713,6 +714,7 @@ export const uk: Messages = {
     runLast: 'Останній запуск, {time} ({size})',
     runStarted: 'Сервер запущено о {time}',
     savedRun: 'Збережений запуск, прочитаний з файлу логу сервера. Помилок: {n}.',
+    savedRunOneError: 'Збережений запуск, прочитаний з файлу логу сервера. Помилок: 1.',
     backToLive: 'Повернутися до поточного запуску',
     loading: 'Завантаження…',
     masked: 'Паролі й токени показано як •••.',

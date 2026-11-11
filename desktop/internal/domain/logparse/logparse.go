@@ -103,7 +103,9 @@ var (
 		`LogAssetRegistry: Error: AddAssetData called with ObjectPath .* which already exists|` +
 		// Mapas de mod empacotados sem alguns objetos internos (paisagem, partículas). O mapa carrega normal: na
 		// Containment são centenas destas linhas por partida.
-		`LogStreaming: Error: Could not find outer \S+ to create`)
+		`LogStreaming: Error: Could not find outer \S+ to create|` +
+		// Mapa sem a distância máxima de raycast definida: o jogo usa 1 km e segue normal (Border, 11/11/2026).
+		`LogWorldSettings: Error: No "Max Raycast Distance" defined`)
 )
 
 // Parse devolve o evento de uma linha, se ela significar algo para o app.
