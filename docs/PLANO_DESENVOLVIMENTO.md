@@ -230,8 +230,9 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
 - **Publicada** em 11/11/2026 no PC de publicação, já com o Go 1.27.4: testes, lint, typecheck, `audit`, `audit:go`
   e `audit:code` limpos; `build:installer`, `package`, `site:publish`. `latest.json` na 0.1.10, SHA-256 do
   instalador baixado confere, página mostra 0.1.10; a limpeza das versões antigas manteve 0.1.8, 0.1.9 e 0.1.10.
-- **Falta:** recompilar o verificador no servidor com o Go 1.27.4 (passos em `docs/PAGINA_DOWNLOAD.md`), com
-  autorização do usuário. Até lá, ele roda a imagem antiga, compilada com o Go 1.27.2.
+- **Verificador recompilado** no servidor (11/11/2026, autorizado pelo usuário): `build` e `up -d` do
+  `sandstorm-check`; o binário em produção é do Go 1.27.4. O `git pull` do game-in só trouxe docs, então o Caddy
+  não foi reiniciado. `/sandstorm/api/check` responde (porta fechada sem servidor do jogo; porta inválida recusada).
 
 ## Pendências
 
