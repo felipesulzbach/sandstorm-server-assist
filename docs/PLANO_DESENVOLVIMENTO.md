@@ -1,6 +1,6 @@
 # Plano de desenvolvimento
 
-> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-10, à noite (0.1.7 publicada).
+> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-11 (0.1.8 publicada).
 > Base: [RESUMO_PROJETO.md](RESUMO_PROJETO.md) · Decisões: [DECISOES.md](DECISOES.md)
 
 ## Situação
@@ -205,6 +205,9 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
 - A espera pelo mapa de mod da inicialização acaba na primeira viagem; servidor de fora não espera. ADR-027.
 - `LogWorldSettings: Error: No "Max Raycast Distance" defined` (Border) conta como aviso, não como erro; o
   contador dos Registos usa o singular com 1 erro.
+- **Publicada** em 11/11/2026 no PC de publicação: testes, lint, typecheck, `audit`, `audit:go` e `audit:code`
+  limpos; `build:installer`, `package`, `site:publish`. `latest.json` na 0.1.8, SHA-256 do instalador baixado
+  confere, página mostra 0.1.8; verificador, game-in e `/midia/` seguiram respondendo 200. Sem mudança no servidor.
 
 ## Pendências
 
