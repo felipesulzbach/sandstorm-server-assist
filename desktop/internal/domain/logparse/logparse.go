@@ -63,10 +63,12 @@ var (
 	reActivated   = regexp.MustCompile(`OnModActivatedFromCloud: (.+)\[(\d+)\] bFromGameServer`)
 	reModEvent    = regexp.MustCompile(`ModManager Event received\. ModId: (\d+), ModEvent: (\w+)`)
 	rePending     = regexp.MustCompile(`Mod added, id: (\d+) to PendingChanges with state (\w+)`)
-	reTravel      = regexp.MustCompile(`ProcessServerTravel: ([A-Za-z0-9_]+)(?:\?Scenario=([A-Za-z0-9_]+))?`)
-	reLoadMap     = regexp.MustCompile(`LogLoad: LoadMap: /?(?:[^?\s]*/)?([A-Za-z0-9_]+)(?:\?[^\s]*Scenario=([A-Za-z0-9_]+))?`)
-	reMatchState  = regexp.MustCompile(`Match State Changed from (\w+) to (\w+)`)
-	reGameStats   = regexp.MustCompile(`GameStatsServer INIT: No authentication provided`)
+	// Mapa oficial vem pelo nome ("Border?Scenario=..."); mapa de mod pelo caminho ("/Estates/Maps/Estates?Scenario=...",
+	// visto em 11/11/2026 com travelscenario). O cenário pode vir depois de outras opções.
+	reTravel     = regexp.MustCompile(`ProcessServerTravel: /?(?:[^?\s]*/)?([A-Za-z0-9_]+)(?:\?[^\s]*?Scenario=([A-Za-z0-9_]+))?`)
+	reLoadMap    = regexp.MustCompile(`LogLoad: LoadMap: /?(?:[^?\s]*/)?([A-Za-z0-9_]+)(?:\?[^\s]*Scenario=([A-Za-z0-9_]+))?`)
+	reMatchState = regexp.MustCompile(`Match State Changed from (\w+) to (\w+)`)
+	reGameStats  = regexp.MustCompile(`GameStatsServer INIT: No authentication provided`)
 
 	// Jogadores, como aparecem no log (10/11/2026): o pedido de entrada traz o nome completo e o id; a entrada
 	// confirmada traz o nome (às vezes cortado); a saída traz só o id, na conexão do jogo com um controle de jogador.

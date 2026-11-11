@@ -21,6 +21,10 @@ func TestParseRealLines(t *testing.T) {
 		{`[2026.11.09-04.39.27:622][ 44]LogModioGame: ModSubsystem: ModManager Event received. ModId: 1134624, ModEvent: BeginUninstall, Message: ok`, Event{Kind: ModEvent, ModID: 1134624, Action: "BeginUninstall"}},
 		{`[2026.11.09-04.36.32:282][  0]LogModioGame: ModSubsystem: Mod added, id: 2853082 to PendingChanges with state Removed`, Event{Kind: ModPending, ModID: 2853082, Action: "Removed"}},
 		{`[2026.11.09-04.39.26:483][  1]LogGameMode: ProcessServerTravel: Containment?Scenario=Scenario_Containment_Checkpoint_Security`, Event{Kind: Travel, Map: "Containment", Scenario: "Scenario_Containment_Checkpoint_Security"}},
+		// Troca para mapa de mod pelo travelscenario: o servidor grava o caminho do mapa.
+		{`[2026.11.11-03.19.53:609][324]LogGameMode: ProcessServerTravel: /Estates/Maps/Estates?Scenario=Scenario_Estates_Checkpoint_Insurgency`, Event{Kind: Travel, Map: "Estates", Scenario: "Scenario_Estates_Checkpoint_Insurgency"}},
+		{`[2026.11.11-02.23.10:917][684]LogGameMode: ProcessServerTravel: Border?Scenario=Scenario_Border_Checkpoint_Insurgents?Lighting=Day?MaxPlayers=10`, Event{Kind: Travel, Map: "Border", Scenario: "Scenario_Border_Checkpoint_Insurgents"}},
+		{`[t][  1]LogGameMode: ProcessServerTravel: Farmhouse?Lighting=Night?Scenario=Scenario_Farmhouse_Checkpoint_Security`, Event{Kind: Travel, Map: "Farmhouse", Scenario: "Scenario_Farmhouse_Checkpoint_Security"}},
 		{`[2026.11.09-04.39.24:437][  0]LogLoad: LoadMap: /Game/Maps/Farmhouse/Farmhouse?Name=Player?Scenario=Scenario_Farmhouse_Checkpoint_Security`, Event{Kind: LoadMap, Map: "Farmhouse", Scenario: "Scenario_Farmhouse_Checkpoint_Security"}},
 		{`[2026.11.09-04.39.26:411][  0]LogGameState: Match State Changed from EnteringMap to LoadingAssets`, Event{Kind: MatchState, From: "EnteringMap", To: "LoadingAssets"}},
 		{`[2026.11.09-04.36.46:759][ 21]LogWindows: Error: StaticMesh /Game/Environment/SM_MetalWindow_01d: Serial size mismatch. Got 1, Expected 2`, Event{Kind: Problem, Problem: problems.ModConflict}},

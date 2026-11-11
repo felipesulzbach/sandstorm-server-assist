@@ -423,6 +423,11 @@ func TestMapChangeAfterStartBecomesReady(t *testing.T) {
 		{"[t][684]LogGameMode: ProcessServerTravel: Border?Scenario=Scenario_Border_Checkpoint_Insurgents?Lighting=Day?MaxPlayers=10", Traveling},
 		{"[t][859]LogGameState: Match State Changed from EnteringMap to LoadingAssets", Traveling},
 		{"[t][874]LogGameState: Match State Changed from LoadingAssets to WaitingToStart", Ready},
+		// Linhas reais (11/11/2026): troca para o mapa de mod Estates; o painel seguia mostrando Border.
+		{"[t][324]LogGameState: Match State Changed from RoundActive to LeavingMap", Ready},
+		{"[t][324]LogGameMode: ProcessServerTravel: /Estates/Maps/Estates?Scenario=Scenario_Estates_Checkpoint_Insurgency", Traveling},
+		{"[t][390]LogGameState: Match State Changed from EnteringMap to LoadingAssets", Traveling},
+		{"[t][402]LogGameState: Match State Changed from LoadingAssets to WaitingToStart", Ready},
 	}
 	for _, st := range steps {
 		appendLog(t, dir, st.line)
@@ -431,7 +436,7 @@ func TestMapChangeAfterStartBecomesReady(t *testing.T) {
 			t.Fatalf("after %q: phase %s, want %s", st.line, got, st.want)
 		}
 	}
-	if st := s.Status(); st.Map != "Border" || st.Scenario != "Scenario_Border_Checkpoint_Insurgents" {
+	if st := s.Status(); st.Map != "Estates" || st.Scenario != "Scenario_Estates_Checkpoint_Insurgency" {
 		t.Errorf("mapa: %s %s", st.Map, st.Scenario)
 	}
 }

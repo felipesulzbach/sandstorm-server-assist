@@ -209,6 +209,10 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
   limpos; `build:installer`, `package`, `site:publish`. `latest.json` na 0.1.8, SHA-256 do instalador baixado
   confere, página mostra 0.1.8; verificador, game-in e `/midia/` seguiram respondendo 200. Sem mudança no servidor.
 
+## Fase 25 · Painel mostrava o mapa anterior depois de trocar para um mapa de mod (11/11/2026, versão 0.1.9)
+
+- A viagem para mapa de mod vem com o caminho do mapa no log; o app passou a lê-la. ADR-028.
+
 ## Pendências
 
 - Feito depois da primeira rodada: ícone, zip portátil, testes de installer/config/logbuf e teste real do

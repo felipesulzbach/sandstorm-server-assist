@@ -424,3 +424,12 @@ Registro curto: contexto, decisão e consequência. Decisão nova entra no fim.
   reconheceu ao reabrir (ADR-026) espera, como antes.
 - **Verificado:** teste com as linhas reais do log (inicialização no Containment e troca para Border), que falhava
   no código antigo.
+
+## ADR-028 · Troca para mapa de mod lida pelo caminho do mapa
+
+- **Contexto:** na 0.1.8, a troca para o mapa de mod Estates funcionou, mas o painel seguiu mostrando Border. Com
+  `travelscenario` para um mapa de mod, o servidor grava o caminho (`ProcessServerTravel: /Estates/Maps/Estates?Scenario=...`);
+  para mapa oficial grava só o nome (`Border?Scenario=...`). O app só lia o nome.
+- **Decisão:** a leitura da viagem aceita o caminho (usa a última parte, como já fazia no `LoadMap`) e o cenário
+  em qualquer posição das opções.
+- **Verificado:** testes com as linhas reais (Estates, Border e a inicialização), que falhavam no código antigo.

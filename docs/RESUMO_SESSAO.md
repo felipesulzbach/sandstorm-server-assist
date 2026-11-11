@@ -163,7 +163,10 @@ painel ficou em "a carregar o mapa" e bloqueou as ações. Causa: o app seguia e
 inicialização. Corrigido (ADR-027). O erro inofensivo de raycast do Border passou a aviso e "1 erros" virou
 "1 erro". Publicada na página em 11/11 (`latest.json` na 0.1.8).
 
-**Falta (com o usuário):** atualizar o app instalado para a 0.1.8, aceitar os termos novos, testar o botão
+**11/11 · fase 25, versão 0.1.9:** com a 0.1.8, a troca para o mapa de mod Estates funcionou, mas o painel seguiu
+mostrando Border: a linha da viagem vem com o caminho do mapa e o app não a reconhecia. Corrigido (ADR-028).
+
+**Falta (com o usuário):** atualizar o app instalado para a 0.1.9, aceitar os termos novos, testar o botão
 "Testar portas pela internet" com o servidor ligado, testar a troca para um mapa de mod e as mensagens no chat com jogadores. Da fase 19:
 testar com jogadores o painel (expulsar/banir), a troca com dia/noite, as regras no jogo, o webhook do Discord, a
 regra do Firewall (pede administrador) e o reinício diário. Da fase 21: ver no jogo a mensagem do dia formatada e se
