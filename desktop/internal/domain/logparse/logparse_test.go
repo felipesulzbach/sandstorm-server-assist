@@ -27,7 +27,7 @@ func TestParseRealLines(t *testing.T) {
 		{`[t][  1]LogGameMode: ProcessServerTravel: Farmhouse?Lighting=Night?Scenario=Scenario_Farmhouse_Checkpoint_Security`, Event{Kind: Travel, Map: "Farmhouse", Scenario: "Scenario_Farmhouse_Checkpoint_Security"}},
 		{`[2026.11.09-04.39.24:437][  0]LogLoad: LoadMap: /Game/Maps/Farmhouse/Farmhouse?Name=Player?Scenario=Scenario_Farmhouse_Checkpoint_Security`, Event{Kind: LoadMap, Map: "Farmhouse", Scenario: "Scenario_Farmhouse_Checkpoint_Security"}},
 		{`[2026.11.09-04.39.26:411][  0]LogGameState: Match State Changed from EnteringMap to LoadingAssets`, Event{Kind: MatchState, From: "EnteringMap", To: "LoadingAssets"}},
-		{`[2026.11.09-04.36.46:759][ 21]LogWindows: Error: StaticMesh /Game/Environment/SM_MetalWindow_01d: Serial size mismatch. Got 1, Expected 2`, Event{Kind: Problem, Problem: problems.ModConflict}},
+		{`[2026.11.09-04.36.46:759][ 21]LogWindows: Error: StaticMesh /Game/Environment/SM_MetalWindow_01d: Serial size mismatch. Got 1, Expected 2`, Event{Kind: Problem, Problem: problems.ModConflict, Object: "/Game/Environment/SM_MetalWindow_01d"}},
 		{`[2026.11.09-04.36.46:759][ 21]LogWindows: Error: Fatal error: [File:Unknown] [Line: 3237]`, Event{Kind: Problem, Problem: problems.ServerCrashed}},
 		{`LogModio: [Error][Http] 401 Invalid security code`, Event{Kind: Problem, Problem: problems.ModioCodeInvalid}},
 		{`[2026.11.09-04.39.21:792][  0]LogGameStatsServer: Display: GameStatsServer INIT: No authentication provided, -GameStatsToken= required for statistics collection.`, Event{Kind: GameStatsNoKey}},

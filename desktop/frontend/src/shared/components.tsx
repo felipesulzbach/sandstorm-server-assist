@@ -38,6 +38,11 @@ export function ErrorCard({
         )}
       </div>
       {fieldMsg && <p className="errorcard__field">{fieldMsg}</p>}
+      {!fieldMsg && error.params?.object && (
+        <p className="errorcard__field">
+          {t(error.params.mods ? 'error.modOwners' : 'error.modFile', error.params)}
+        </p>
+      )}
       {!fieldMsg && (
         <dl className="errorcard__body">
           <dt>{t('error.what')}</dt>

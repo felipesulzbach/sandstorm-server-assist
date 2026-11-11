@@ -496,6 +496,36 @@ export const ptPT: Messages = {
       authorizeHint:
         'O servidor arranca uma vez com o código e depois reinicia sozinho em modo normal (SecurityCode=none).',
     },
+    health: {
+      title: 'Mods com problemas',
+      text: 'A app compara os ficheiros dos mods instalados. Dois mods que trazem o mesmo ficheiro do jogo em versões diferentes podem fazer o jogo ou o servidor fechar com "Serial size mismatch" ao carregar um mapa.',
+      recheck: 'Verificar de novo',
+      none: 'Nenhum conflito entre os seus {n} mods instalados.',
+      found: '{n} par(es) de mods trazem os mesmos ficheiros do jogo em versões diferentes:',
+      and: 'e',
+      pair: '{n} ficheiro(s) em versões diferentes',
+      example: 'ex.: {file}',
+      advice:
+        'Se o jogo ou o servidor fechar ao carregar um mapa, mantenha só um mod do par: cancele a subscrição do outro no mod.io (conta do servidor). Cópias idênticas de um ficheiro não aparecem: não causam problemas.',
+      unreadable:
+        'Não foi possível ler os ficheiros de: {names}. Conflitos com estes mods podem não aparecer aqui.',
+    },
+    crash: {
+      title: 'O jogo de um jogador (ou o servidor) fechou? Encontre o mod',
+      text: 'Cole a mensagem do erro (por exemplo a que tem "Serial size mismatch"). A app encontra o mod instalado que traz o ficheiro indicado. O texto não é guardado nem enviado.',
+      placeholder: 'StaticMesh /Game/…: Serial size mismatch: Got …, Expected …',
+      find: 'Encontrar o mod',
+      noObject:
+        'Não foi encontrado nenhum ficheiro do jogo nesta mensagem. Cole a linha que indica o ficheiro (começa por /Game/ ou pelo nome do mod).',
+      inMods: 'está em {names}',
+      inNoMod: 'nenhum mod instalado tem este ficheiro',
+      adviceMismatch:
+        '"Serial size mismatch" quer dizer que este mod tem uma cópia do ficheiro feita para outra versão do jogo. Cancele a subscrição do mod no mod.io (conta do servidor) até o autor o atualizar. Se acha que o download ficou estragado, use o botão de apagar na linha do mod para o transferir de novo.',
+      advice:
+        'Experimente tirar este mod: cancele a subscrição no mod.io (conta do servidor), ou apague-o na linha dele para o transferir de novo.',
+      adviceNone:
+        'O ficheiro não está nos mods do servidor. Pode vir do próprio jogo ou de um mod que o jogador tem e o servidor não: o jogador pode verificar os ficheiros do jogo na Steam (Propriedades › Ficheiros instalados) e apagar a pasta do mod em C:\\Users\\Public\\mod.io\\254\\mods para o transferir de novo.',
+    },
     list: {
       title: 'Mods',
       refresh: 'Ler subscrições do mod.io',
@@ -862,6 +892,8 @@ export const ptPT: Messages = {
     masked: 'Palavras-passe e tokens aparecem como •••.',
   },
   error: {
+    modFile: 'Ficheiro indicado no erro: {object}. Nenhum mod instalado o tem.',
+    modOwners: 'Ficheiro indicado no erro: {object}. Está em: {mods}.',
     screenTitle: 'Este ecrã teve um erro',
     screenText:
       'O resto da aplicação continua a funcionar. Tente de novo ou volte ao Painel. O detalhe fica nos Registos.',
@@ -1500,8 +1532,8 @@ export const ptPT: Messages = {
       cause:
         'Dois mods trazem o mesmo ficheiro do jogo em versões diferentes, e um sobrepõe o outro. Já visto: Containment com Old World ou Containment Storm.',
       solution: [
-        'Procure nos registos o ficheiro indicado no erro.',
-        'Cancele a subscrição de um dos mods de mapa no mod.io (conta do servidor) e inicie de novo.',
+        'Veja acima o ficheiro indicado no erro e o mod que o tem, ou use Mods › Mods com problemas.',
+        'Cancele a subscrição desse mod no mod.io (conta do servidor) e inicie de novo.',
       ],
     },
     'modio-code-invalid': {

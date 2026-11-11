@@ -138,15 +138,37 @@ func scanDir(dir string) (all pak.Contents, readable bool) {
 	return all, readable
 }
 
+// scanPak lê o que interessa de um .pak: no formato novo (versões 10 e 11), pelo índice de pastas; no antigo (8 e
+// 9), pela lista de arquivos.
 func scanPak(path string) (pak.Contents, error) {
-	f, err := os.Open(path) // #nosec G304 -- .pak dentro da pasta de mods do mod.io
+	f, err := os.Open(path) // #nosec G304 -- .pak dentro da pasta de mods do mod.io ou do servidor
 	if err != nil {
 		return pak.Contents{}, err
 	}
 	defer f.Close()
-	info, err := f.Stat()
+	p, err := openPak(f)
 	if err != nil {
 		return pak.Contents{}, err
+	}
+	if p.legacy != nil {
+		return pak.ContentsOf(p.legacy), nil
+	}
+	return pak.Scan(p.dirIndex)
+}
+
+// pakIndex são os índices lidos de um .pak: dirIndex e primary no formato novo, legacy (a lista de arquivos) no
+// antigo.
+type pakIndex struct {
+	primary  []byte
+	dirIndex []byte
+	legacy   []pak.File
+}
+
+// openPak lê só o rodapé e os índices (nunca o arquivo inteiro).
+func openPak(f *os.File) (pakIndex, error) {
+	info, err := f.Stat()
+	if err != nil {
+		return pakIndex{}, err
 	}
 	size := info.Size()
 	read := func(off, n int64) ([]byte, error) {
@@ -160,25 +182,46 @@ func scanPak(path string) (pak.Contents, error) {
 	tailLen := min(int64(pak.TailSize), size)
 	tail, err := read(size-tailLen, tailLen)
 	if err != nil {
-		return pak.Contents{}, err
+		return pakIndex{}, err
 	}
-	ft, err := pak.ParseFooter(tail, size)
+	ft, err := pak.FooterAny(tail, size)
 	if err != nil {
-		return pak.Contents{}, err
+		return pakIndex{}, err
 	}
 	primary, err := read(ft.IndexOffset, ft.IndexSize)
 	if err != nil {
-		return pak.Contents{}, err
+		return pakIndex{}, err
+	}
+	if ft.Version < 10 {
+		files, err := pak.LegacyFiles(primary)
+		return pakIndex{legacy: files}, err
 	}
 	off, n, err := pak.DirIndex(primary, size)
 	if err != nil {
-		return pak.Contents{}, err
+		return pakIndex{}, err
 	}
 	dirIndex, err := read(off, n)
 	if err != nil {
-		return pak.Contents{}, err
+		return pakIndex{}, err
 	}
-	return pak.Scan(dirIndex)
+	return pakIndex{primary: primary, dirIndex: dirIndex}, nil
+}
+
+// pakFiles lista os arquivos de um .pak com o tamanho de cada um.
+func pakFiles(path string) ([]pak.File, error) {
+	f, err := os.Open(path) // #nosec G304 -- .pak dentro da pasta de mods do mod.io
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	p, err := openPak(f)
+	if err != nil {
+		return nil, err
+	}
+	if p.legacy != nil {
+		return p.legacy, nil
+	}
+	return pak.ModernFiles(p.primary, p.dirIndex)
 }
 
 // BaseScenarios lista os cenários do jogo base, lidos dos .pak do servidor (pasta Insurgency/Content/Paks, só os

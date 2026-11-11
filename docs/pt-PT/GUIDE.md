@@ -130,6 +130,9 @@ palavra-passe e escolha a pasta do servidor. Sem a palavra-passe a cópia não a
 
 - Cada erro conhecido mostra **o que aconteceu**, a **possível causa** e **como resolver**.
 - Abra a gaveta **Registos** para ver o que o servidor está a fazer.
+- **Mods › Mods com problemas** mostra mods que trazem os mesmos ficheiros do jogo em versões diferentes e encontra
+  o mod de uma mensagem de erro: cole o erro que um jogador recebeu (por exemplo "Serial size mismatch") e a app
+  indica o mod.
 
 ![Feedback](../images/feedback.png)
 

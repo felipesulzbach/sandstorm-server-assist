@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"sandstorm-server-assist/desktop/internal/domain/modcheck"
 	"sandstorm-server-assist/desktop/internal/domain/problems"
 )
 
@@ -49,6 +50,8 @@ type Event struct {
 	Port int    `json:"port,omitempty"`
 	// Problem é o código do catálogo quando a linha indica um erro conhecido.
 	Problem string `json:"problem,omitempty"`
+	// Object é o objeto do jogo citado num erro de mod ("/Game/..."), para achar o mod que o traz (ADR-039).
+	Object string `json:"object,omitempty"`
 	// Player é o nome do jogador (PlayerLogin, PlayerJoined); PlayerID é o id da plataforma (PlayerLogin, PlayerLeft).
 	Player   string `json:"player,omitempty"`
 	PlayerID string `json:"playerId,omitempty"`
@@ -118,7 +121,13 @@ func Parse(line string) (Event, bool) {
 	}
 	for _, r := range problemRules {
 		if r.re.MatchString(line) {
-			return Event{Kind: Problem, Problem: r.code}, true
+			ev := Event{Kind: Problem, Problem: r.code}
+			if r.code == problems.ModConflict {
+				if objs := modcheck.Assets(line); len(objs) > 0 {
+					ev.Object = objs[0]
+				}
+			}
+			return ev, true
 		}
 	}
 	if reModioReady.MatchString(line) {

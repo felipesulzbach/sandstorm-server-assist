@@ -489,6 +489,36 @@ export const enUS = {
       authorizeHint:
         'The server starts once with the code and then restarts by itself in normal mode (SecurityCode=none).',
     },
+    health: {
+      title: 'Mods with problems',
+      text: 'The app compares the files of your installed mods. Two mods that ship the same game file in different versions can crash the game or the server with "Serial size mismatch" when a map loads.',
+      recheck: 'Check again',
+      none: 'No conflicts found between your {n} installed mods.',
+      found: '{n} pair(s) of mods ship the same game files in different versions:',
+      and: 'and',
+      pair: '{n} file(s) in different versions',
+      example: 'e.g. {file}',
+      advice:
+        'If the game or the server crashes when loading a map, keep only one mod of the pair: unsubscribe the other one on mod.io (server account). Identical copies of a file are not listed: they do not cause problems.',
+      unreadable:
+        'Could not read the files of: {names}. Conflicts with these mods may not show here.',
+    },
+    crash: {
+      title: "A player's game (or the server) crashed? Find the mod",
+      text: 'Paste the crash message (for example the one with "Serial size mismatch"). The app finds which installed mod ships the file named in it. The text is not saved or sent.',
+      placeholder: 'StaticMesh /Game/…: Serial size mismatch: Got …, Expected …',
+      find: 'Find the mod',
+      noObject:
+        'No game file was found in this message. Paste the line that names the file (it starts with /Game/ or the mod name).',
+      inMods: 'shipped by {names}',
+      inNoMod: 'no installed mod has this file',
+      adviceMismatch:
+        '"Serial size mismatch" means this mod has a copy of the file made for another version of the game. Unsubscribe the mod on mod.io (server account) until its author updates it. If you think the download is damaged, use the delete button on the mod\'s row to download it again.',
+      advice:
+        'Try removing this mod: unsubscribe it on mod.io (server account), or delete it on its row to download it again.',
+      adviceNone:
+        "The file is not in the server's mods. It may come from the game itself or from a mod the player has but the server does not: the player can verify the game files in Steam (Properties › Installed files) and delete the mod folder in C:\\Users\\Public\\mod.io\\254\\mods to download it again.",
+    },
     list: {
       title: 'Mods',
       refresh: 'Read subscriptions from mod.io',
@@ -854,6 +884,8 @@ export const enUS = {
     masked: 'Passwords and tokens appear as •••.',
   },
   error: {
+    modFile: 'File named in the error: {object}. No installed mod has it.',
+    modOwners: 'File named in the error: {object}. It is in: {mods}.',
     screenTitle: 'This screen had an error',
     screenText:
       'The rest of the app keeps working. Try again or go back to the Dashboard. The detail is in Logs.',
@@ -1489,8 +1521,8 @@ export const enUS = {
       cause:
         'Two mods ship the same game file in different versions, and one overwrites the other. Seen before: Containment with Old World or Containment Storm.',
       solution: [
-        'Look in the logs for the file named in the error.',
-        'Unsubscribe one of the map mods on mod.io (server account) and start again.',
+        'Look above for the file named in the error and the mod that has it, or use Mods › Mods with problems.',
+        'Unsubscribe that mod on mod.io (server account) and start again.',
       ],
     },
     'modio-code-invalid': {

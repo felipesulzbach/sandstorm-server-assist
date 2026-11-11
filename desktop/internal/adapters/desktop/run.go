@@ -174,6 +174,9 @@ func newApp() *app {
 			return s.Expires
 		},
 		ModInfo: mods.info,
+		ModOwners: func(object string) []string {
+			return modOwnerNames(object)
+		},
 		CleanLogs: func(dir string) {
 			st := cfg.Settings()
 			if !st.LogCleanup {

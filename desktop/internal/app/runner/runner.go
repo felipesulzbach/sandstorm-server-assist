@@ -107,6 +107,9 @@ type Deps struct {
 	SessionExpiry func() time.Time
 	// ModInfo devolve nome e tamanho final de um mod (state.json) e o tamanho atual da pasta.
 	ModInfo func(id int) (name string, total, done int64)
+	// ModOwners devolve os mods instalados (nome e id) que trazem um objeto do jogo, para o erro de mods em
+	// conflito dizer qual mod tirar (ADR-039). Pode ser nil.
+	ModOwners func(object string) []string
 	// InstalledMods devolve os ids dos mods instalados (state.json do mod.io).
 	InstalledMods func() []int
 	// CleanLogs apaga os logs antigos antes de iniciar, se o usuário ligou a limpeza (ADR-018). Pode ser nil.
@@ -575,7 +578,16 @@ func (s *Service) apply(ev logparse.Event) {
 			s.st.Remount = false
 		}
 	case logparse.Problem:
-		s.st.Problem = problems.New(ev.Problem, "")
+		e := problems.New(ev.Problem, "")
+		if ev.Object != "" {
+			e.Params = map[string]string{"object": ev.Object}
+			if s.d.ModOwners != nil {
+				if owners := s.d.ModOwners(ev.Object); len(owners) > 0 {
+					e.Params["mods"] = strings.Join(owners, ", ")
+				}
+			}
+		}
+		s.st.Problem = e
 	case logparse.GameStatsNoKey:
 		s.st.GameStatsMissing = true
 	}

@@ -15,6 +15,10 @@ export function Ban(arg1:string,arg2:number,arg3:string):Promise<void>;
 
 export function ChangeMap(arg1:string,arg2:string):Promise<void>;
 
+export function CheckCrash(arg1:string):Promise<desktop.CrashCheck>;
+
+export function CheckMods():Promise<desktop.ModCheck>;
+
 export function CheckPorts():Promise<netcheck.Result>;
 
 export function Connect():Promise<desktop.Connect>;

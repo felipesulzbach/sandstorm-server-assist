@@ -20,6 +20,7 @@ import {
 import { bytes, percent } from '../../shared/format';
 import { useAction } from '../../shared/hooks';
 import { useLogs } from '../logs/LogDrawer';
+import { ModHealth } from './ModHealth';
 
 export function ModsPage({ status }: { status: Status | null }) {
   const { t, date } = useI18n();
@@ -227,6 +228,7 @@ export function ModsPage({ status }: { status: Status | null }) {
         )}
         <p className="hint">{t('mods.list.conflict')}</p>
       </section>
+      <ModHealth refreshKey={(view?.mods ?? []).length} />
     </div>
   );
 }

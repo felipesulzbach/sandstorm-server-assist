@@ -128,6 +128,9 @@ contraseña y elige la carpeta del servidor. Sin la contraseña la copia no se p
 
 - Cada error conocido muestra **qué pasó**, la **posible causa** y **cómo arreglarlo**.
 - Abre el cajón **Registros** para ver qué está haciendo el servidor.
+- **Mods › Mods con problemas** muestra los mods que traen los mismos archivos del juego en versiones distintas y
+  encuentra el mod de un mensaje de error: pega el error que recibió un jugador (por ejemplo "Serial size mismatch")
+  y la app indica el mod.
 
 ![Comentarios](../images/feedback.png)
 

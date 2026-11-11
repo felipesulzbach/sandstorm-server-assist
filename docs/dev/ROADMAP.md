@@ -29,6 +29,7 @@
 | 28. Installation feedback (0.2.1)    | Progress, result and errors next to the button; task shown as soon as it starts; Check SteamCMD (ADR-036)  | ✅ Done |
 | 29. Delete a mod (0.2.1)             | Delete a downloaded mod so the server downloads it again, now or on the next start (ADR-037)               | ✅ Done |
 | 30. Download new mods now (0.2.1)    | Subscribed mods not on disk: start or restart the server to download them (ADR-038)                        | ✅ Done |
+| 31. Mods with problems (0.2.1)       | Conflicts between mods, mod of a crash message, server error names the mod (ADR-039)                       | ✅ Done |
 
 Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](../../CHANGELOG.md).
 
@@ -74,6 +75,19 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
 - `modfiles.DownloadNew` (start, or stop and start), `ServerAPI.DownloadNewMods`; `PendingMods` above the Mods table
   with the confirmation for a running server. ADR-038.
 - Verified: use case and front-end tests; not run on the real server.
+
+## Phase 31 · Mods with problems (0.2.1)
+
+- `domain/pak`: `ModernFiles` (all files with their size, from the encoded entries), `LegacyFiles` (formats 8 and 9,
+  with the UE 4.22 variant), `FooterAny`, `ContentsOf`; fuzz tests. `adapters/modio`: `openPak`, `pakFiles`,
+  `InstalledFiles`; old mods also get mutators and maps.
+- `domain/modcheck`: `Conflicts` (same asset, different sizes), `Assets` (objects named in a message), `Owners`,
+  `Check`. `logparse` keeps the object of a "Serial size mismatch" line; the runner adds the file and the mod to the
+  `mod-conflict` problem (`ModOwners`). `ServerAPI.CheckMods` and `CheckCrash`.
+- Mods screen: **Mods with problems** card (pairs in conflict, unreadable mods) and **Find the mod** for a pasted crash
+  message. ADR-039.
+- Verified: unit and fuzz tests; real check on the maintainer's PC (10 installed mods read in about 10 ms, 5 pairs in
+  conflict, and the crash of the maintainer's game traced to the Daybreak mod).
 
 ## Bridge from the old download server
 

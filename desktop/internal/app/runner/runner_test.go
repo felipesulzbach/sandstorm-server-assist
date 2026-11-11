@@ -10,6 +10,8 @@ import (
 
 	"sandstorm-server-assist/desktop/internal/adapters/proc"
 	"sandstorm-server-assist/desktop/internal/app/logbuf"
+	"sandstorm-server-assist/desktop/internal/domain/logparse"
+	"sandstorm-server-assist/desktop/internal/domain/problems"
 	"sandstorm-server-assist/desktop/internal/domain/server"
 )
 
@@ -455,5 +457,25 @@ func TestExternalServerWithoutTravelBecomesReady(t *testing.T) {
 	s.Tick()
 	if st := s.Status(); st.Phase != Ready || !st.External || st.Map != "Farmhouse" {
 		t.Errorf("%+v", st)
+	}
+}
+
+// O erro de mods em conflito leva o objeto e o mod que o traz (ADR-039).
+func TestModConflictNamesTheMod(t *testing.T) {
+	s := &Service{d: Deps{ModOwners: func(obj string) []string {
+		if obj == "/Game/Env/SM_X" {
+			return []string{"Daybreak (#5748299)"}
+		}
+		return nil
+	}}}
+	s.apply(logparse.Event{Kind: logparse.Problem, Problem: problems.ModConflict, Object: "/Game/Env/SM_X"})
+	p := s.st.Problem
+	if p == nil || p.Code != problems.ModConflict || p.Params["object"] != "/Game/Env/SM_X" ||
+		p.Params["mods"] != "Daybreak (#5748299)" {
+		t.Fatalf("problem %+v", p)
+	}
+	s.apply(logparse.Event{Kind: logparse.Problem, Problem: problems.ModConflict, Object: "/Game/Other"})
+	if _, ok := s.st.Problem.Params["mods"]; ok {
+		t.Fatal("mods for an object no mod has")
 	}
 }

@@ -233,6 +233,40 @@ export namespace desktop {
 	        this.command = source["command"];
 	    }
 	}
+	export class CrashCheck {
+	    mods: number;
+	    sizeMismatch: boolean;
+	    findings: modcheck.Finding[];
+	
+	    static createFrom(source: any = {}) {
+	        return new CrashCheck(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.mods = source["mods"];
+	        this.sizeMismatch = source["sizeMismatch"];
+	        this.findings = this.convertValues(source["findings"], modcheck.Finding);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class CreateResult {
 	    saved: boolean;
 	    file: string;
@@ -447,6 +481,40 @@ export namespace desktop {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.maps = this.convertValues(source["maps"], server.Map);
 	        this.modes = this.convertValues(source["modes"], server.Mode);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class ModCheck {
+	    mods: number;
+	    conflicts: modcheck.Conflict[];
+	    unreadable: modcheck.ModRef[];
+	
+	    static createFrom(source: any = {}) {
+	        return new ModCheck(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.mods = source["mods"];
+	        this.conflicts = this.convertValues(source["conflicts"], modcheck.Conflict);
+	        this.unreadable = this.convertValues(source["unreadable"], modcheck.ModRef);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -782,6 +850,93 @@ export namespace mapchange {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.rcon = source["rcon"];
 	    }
+	}
+
+}
+
+export namespace modcheck {
+	
+	export class ModRef {
+	    id: number;
+	    name: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ModRef(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	    }
+	}
+	export class Conflict {
+	    a: ModRef;
+	    b: ModRef;
+	    count: number;
+	    example: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Conflict(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.a = this.convertValues(source["a"], ModRef);
+	        this.b = this.convertValues(source["b"], ModRef);
+	        this.count = source["count"];
+	        this.example = source["example"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class Finding {
+	    object: string;
+	    mods: ModRef[];
+	
+	    static createFrom(source: any = {}) {
+	        return new Finding(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.object = source["object"];
+	        this.mods = this.convertValues(source["mods"], ModRef);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 }

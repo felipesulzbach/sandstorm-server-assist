@@ -480,3 +480,25 @@ one, the older one says so.
   download, the restart of ADR-017 loads every mod. The progress shows on each mod's row.
 - **Not chosen:** downloading the mods with the app. It would copy the plugin's private files (`state.json`, the mod
   folders), which can change between game versions and which the server rewrites.
+
+## ADR-039 · Find mods with problems from their files
+
+- **Context:** the maintainer's game crashed on maps that used to work, with "Serial size mismatch" on a `/Game/...`
+  object. This error comes from mod content: two mods ship the same game file in different versions, or a mod ships
+  a copy made for another game version. The app only said "Mods in conflict", without naming a mod, and only after
+  the server crashed.
+- **Decision:**
+  - `domain/pak` lists every file of a `.pak` with its uncompressed size: formats 10 and 11 from the encoded entries,
+    formats 8 and 9 from the full index (with the UE 4.22 variant of the compression field). Only the footer and the
+    indexes are read; every size and offset is checked (third-party files, fuzz tested).
+  - `domain/modcheck.Conflicts`: the same object (path without extension) in two mods with any file of a different
+    size is a conflict. Identical copies, common between map mods, do not count. The new pak entries have no hash, so
+    size is the signal; a different file with the same size is not detected.
+  - `modcheck.Check` reads the objects named in a crash message (`/Game/...`, `/Engine/...`, `/<Plugin>/...`) and finds
+    the installed mods that ship them. The Mods screen has **Find the mod** for a pasted message; the text is not
+    saved, logged or sent.
+  - When the server log has "Serial size mismatch", `logparse` keeps the object and the runner adds it, with the mods
+    that ship it, to the `mod-conflict` problem; the error card shows them.
+- **Limit:** a mod whose copy does not match the current game version, with no other mod having the file, is found
+  only through the crash message. The app never changes mod files; the fix is to unsubscribe the mod, or delete and
+  download it again (ADR-037).

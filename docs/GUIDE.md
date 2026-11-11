@@ -123,6 +123,8 @@ Without the password the backup cannot be opened.
 
 - Every known error shows **what happened**, the **possible cause** and **how to fix it**.
 - Open the **Logs** drawer to see what the server is doing.
+- **Mods › Mods with problems** lists mods that ship the same game files in different versions, and finds the mod
+  of a crash message: paste the error a player got (for example "Serial size mismatch") and the app names the mod.
 
 ![Feedback](images/feedback.png)
 

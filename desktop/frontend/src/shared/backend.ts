@@ -22,6 +22,7 @@ import type {
   installer,
   logbuf,
   mapchange,
+  modcheck,
   modio,
   netcheck,
   players,
@@ -41,6 +42,9 @@ export type LogRun = desktop.LogRun;
 export type LogCleanup = desktop.LogCleanup;
 export type ModsView = desktop.ModsView;
 export type ModRow = desktop.ModRow;
+export type ModCheck = desktop.ModCheck;
+export type CrashCheck = desktop.CrashCheck;
+export type ModRef = modcheck.ModRef;
 export type Step = desktop.Step;
 export type Connect = desktop.Connect;
 export type MapsInfo = desktop.MapsInfo;
@@ -156,6 +160,8 @@ export const backend = {
   refreshSubscriptions: () => Srv.RefreshSubscriptions(),
   deleteMod: (id: number, redownload: boolean) => Srv.DeleteMod(id, redownload),
   downloadNewMods: () => Srv.DownloadNewMods(),
+  checkMods: () => Srv.CheckMods(),
+  checkCrash: (text: string) => Srv.CheckCrash(text),
   requestCode: () => Srv.RequestCode(),
   authorize: (code: string) => Srv.Authorize(code),
   detectApiKey: () => Srv.DetectAPIKey(),

@@ -498,6 +498,36 @@ export const esES: Messages = {
       authorizeHint:
         'El servidor se inicia una vez con el código y después se reinicia solo en modo normal (SecurityCode=none).',
     },
+    health: {
+      title: 'Mods con problemas',
+      text: 'La app compara los archivos de tus mods instalados. Dos mods que traen el mismo archivo del juego en versiones distintas pueden hacer que el juego o el servidor se cierren con "Serial size mismatch" al cargar un mapa.',
+      recheck: 'Comprobar de nuevo',
+      none: 'No hay conflictos entre tus {n} mods instalados.',
+      found: '{n} par(es) de mods traen los mismos archivos del juego en versiones distintas:',
+      and: 'y',
+      pair: '{n} archivo(s) en versiones distintas',
+      example: 'p. ej. {file}',
+      advice:
+        'Si el juego o el servidor se cierra al cargar un mapa, deja solo un mod del par: cancela la suscripción del otro en mod.io (cuenta del servidor). Las copias idénticas de un archivo no aparecen: no causan problemas.',
+      unreadable:
+        'No se pudieron leer los archivos de: {names}. Los conflictos con estos mods pueden no aparecer aquí.',
+    },
+    crash: {
+      title: '¿Se cerró el juego de un jugador (o el servidor)? Encuentra el mod',
+      text: 'Pega el mensaje del error (por ejemplo el que tiene "Serial size mismatch"). La app encuentra qué mod instalado trae el archivo que se nombra. El texto no se guarda ni se envía.',
+      placeholder: 'StaticMesh /Game/…: Serial size mismatch: Got …, Expected …',
+      find: 'Encontrar el mod',
+      noObject:
+        'No se encontró ningún archivo del juego en este mensaje. Pega la línea que nombra el archivo (empieza por /Game/ o por el nombre del mod).',
+      inMods: 'está en {names}',
+      inNoMod: 'ningún mod instalado tiene este archivo',
+      adviceMismatch:
+        '"Serial size mismatch" significa que este mod tiene una copia del archivo hecha para otra versión del juego. Cancela la suscripción del mod en mod.io (cuenta del servidor) hasta que su autor lo actualice. Si crees que la descarga está dañada, usa el botón de borrar en la fila del mod para descargarlo de nuevo.',
+      advice:
+        'Prueba a quitar este mod: cancela la suscripción en mod.io (cuenta del servidor), o bórralo en su fila para descargarlo de nuevo.',
+      adviceNone:
+        'El archivo no está en los mods del servidor. Puede venir del propio juego o de un mod que el jugador tiene y el servidor no: el jugador puede verificar los archivos del juego en Steam (Propiedades › Archivos instalados) y borrar la carpeta del mod en C:\\Users\\Public\\mod.io\\254\\mods para descargarlo de nuevo.',
+    },
     list: {
       title: 'Mods',
       refresh: 'Leer suscripciones de mod.io',
@@ -865,6 +895,8 @@ export const esES: Messages = {
     masked: 'Las contraseñas y los tokens aparecen como •••.',
   },
   error: {
+    modFile: 'Archivo nombrado en el error: {object}. Ningún mod instalado lo tiene.',
+    modOwners: 'Archivo nombrado en el error: {object}. Está en: {mods}.',
     screenTitle: 'Esta pantalla tuvo un error',
     screenText:
       'El resto de la app sigue funcionando. Vuelve a intentarlo o regresa al Panel. El detalle queda en Registros.',
@@ -1506,8 +1538,8 @@ export const esES: Messages = {
       cause:
         'Dos mods traen el mismo archivo del juego en versiones distintas, y uno sobrescribe al otro. Ya visto: Containment con Old World o Containment Storm.',
       solution: [
-        'Busca en los registros el archivo nombrado en el error.',
-        'Cancela la suscripción de uno de los mods de mapa en mod.io (cuenta del servidor) y vuelve a iniciar.',
+        'Mira arriba el archivo nombrado en el error y el mod que lo tiene, o usa Mods › Mods con problemas.',
+        'Cancela la suscripción de ese mod en mod.io (cuenta del servidor) y vuelve a iniciar.',
       ],
     },
     'modio-code-invalid': {

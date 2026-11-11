@@ -18,6 +18,14 @@ export function ChangeMap(arg1, arg2) {
   return window['go']['desktop']['ServerAPI']['ChangeMap'](arg1, arg2);
 }
 
+export function CheckCrash(arg1) {
+  return window['go']['desktop']['ServerAPI']['CheckCrash'](arg1);
+}
+
+export function CheckMods() {
+  return window['go']['desktop']['ServerAPI']['CheckMods']();
+}
+
 export function CheckPorts() {
   return window['go']['desktop']['ServerAPI']['CheckPorts']();
 }

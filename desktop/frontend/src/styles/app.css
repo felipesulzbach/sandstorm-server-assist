@@ -1887,3 +1887,38 @@ code {
 .screen-error__full .screen-error {
   max-width: 640px;
 }
+
+/* Mods com problema (ADR-039) */
+.modhealth__ok {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.modhealth__ok svg {
+  color: var(--ok);
+}
+.modhealth__list {
+  margin: 6px 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 4px;
+}
+.modhealth__example {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  word-break: break-all;
+}
+.modhealth__crash {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+.modhealth__crash summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.modhealth__crash code {
+  word-break: break-all;
+}

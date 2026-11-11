@@ -7,6 +7,14 @@ each version come from its section here (`npm run release:publish`).
 
 ### Added
 
+- **Mods with problems** on the Mods screen: the app compares the files of the installed mods and lists pairs that
+  ship the same game file in different versions, which can crash the game or the server with "Serial size mismatch"
+  when a map loads. Identical copies are not listed.
+- **Find the mod of a crash:** paste the crash message a player got (or the server's) and the app names the
+  installed mod that ships the file in it. When the server itself closes with "Serial size mismatch", the error card
+  now names the file and the mod.
+- Mods made for older versions of the game (older `.pak` format) are now read too: their mutators and maps show up,
+  and they take part in the checks above.
 - **Delete a downloaded mod** on the Mods screen, so the server downloads it again: **Delete and download again**
   (stops and starts the server if needed) or **Only delete** (the server downloads it on its next start, if you are
   still subscribed). Useful for a broken mod or to force a fresh copy.

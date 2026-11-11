@@ -83,6 +83,18 @@ Short notes of each development session, newest last. They help a new session pi
 - Also in 0.2.1: new subscriptions showed as "will be downloaded" with no way to download them. The Mods screen now
   offers to start the server (or restart it, with a confirmation) so mod.io downloads them (ADR-038).
 
+## 2026-11-11 · 0.2.1 (mods with problems)
+
+- The maintainer's game crashed on maps that used to work: "Serial size mismatch" on a `/Game/...` static mesh.
+  Reading the index of every installed mod showed that only the Daybreak mod ships that file, with a copy made for
+  another game version; the app was not involved. The maintainer asked whether the app can find this kind of
+  problem, ideally before starting the server (it had happened before when loading two map mods).
+- Done (ADR-039): the Mods screen compares the mods' files (same game file in different sizes = conflict), finds the
+  mod of a pasted crash message, the server's "Serial size mismatch" error names the file and the mod, and mods
+  with the older `.pak` format are read too.
+- Limit: a mod whose file does not match the game version (like Daybreak here) does not show as a conflict, because
+  no other mod has the file; it shows when the crash message is checked.
+
 ## Cautions for future sessions
 
 - The maintainer's real server folder has secrets in plain text (`Game.ini`, notes next to the `.bat`) and the mod.io
