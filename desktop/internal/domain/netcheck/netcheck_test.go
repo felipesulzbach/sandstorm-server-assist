@@ -1,52 +1,117 @@
 package netcheck
 
-import (
-	"testing"
+import "testing"
 
-	"sandstorm-server-assist/desktop/internal/domain/problems"
-)
+func mapped(client string, port int) Mapping {
+	return Mapping{Known: true, Exists: true, Enabled: true, Client: client, InternalPort: port}
+}
 
-func TestParseOK(t *testing.T) {
-	req := Request{QueryPort: 27131, RconPort: 27015}
-	body := `{"ip":"203.0.113.7","query":{"port":27131,"open":true,"info":{"name":"My Server","map":"Farmhouse","players":2,"maxPlayers":8}},"rcon":{"port":27015,"tested":true,"exposed":true}}`
-	res, err := Parse(200, []byte(body), req, 27102)
-	if err != nil {
-		t.Fatal(err)
-	}
-	want := Result{PublicIP: "203.0.113.7", GamePort: 27102, QueryPort: 27131, QueryOpen: true, ServerName: "My Server",
-		Map: "Farmhouse", Players: 2, MaxPlayers: 8, RconPort: 27015, RconTested: true, RconExposed: true}
-	if res != want {
-		t.Fatalf("got %+v", res)
+func base() Facts {
+	return Facts{
+		GamePort: 27102, QueryPort: 27131, RconPort: 27015,
+		ServerRunning: true, LocalAnswer: true,
+		PublicIP: "203.0.113.7", LocalIPs: []string{"192.168.0.10"},
+		Router: Router{
+			Found: true, ExternalIP: "203.0.113.7",
+			Game: mapped("192.168.0.10", 27102), Query: mapped("192.168.0.10", 27131),
+			Rcon: Mapping{Known: true},
+		},
+		Firewall: Yes,
 	}
 }
 
-func TestParseClosed(t *testing.T) {
-	body := `{"ip":"203.0.113.7","query":{"port":27131,"open":false},"rcon":{"port":0,"tested":false,"exposed":false}}`
-	res, err := Parse(200, []byte(body), Request{QueryPort: 27131}, 27102)
-	if err != nil || res.QueryOpen || res.RconTested || res.ServerName != "" {
-		t.Fatalf("got %+v %v", res, err)
+func keys(r Result) map[string]string {
+	out := map[string]string{}
+	for _, it := range r.Items {
+		out[it.Key] = it.Status
+	}
+	return out
+}
+
+func TestAllGoodButNoLoopbackIsLikely(t *testing.T) {
+	r := Evaluate(base())
+	if r.Verdict != VerdictLikely {
+		t.Fatalf("verdict %s, items %v", r.Verdict, r.Items)
+	}
+	k := keys(r)
+	if k["routerMapped"] != OK || k["publicOk"] != OK || k["loopbackNo"] != Info || k["localOk"] != OK {
+		t.Fatalf("items %v", r.Items)
 	}
 }
 
-func TestParseErrors(t *testing.T) {
-	req := Request{QueryPort: 27131}
-	for _, c := range []struct {
-		status int
-		body   string
-		code   string
-	}{
-		{429, `{"error":"rate-limited"}`, problems.PortCheckLimit},
-		{429, `{"error":"busy"}`, problems.PortCheckLimit},
-		{400, `{"error":"ipv6"}`, problems.PortCheckIPv6},
-		{400, `{"error":"private-ip"}`, problems.PortCheckFailed},
-		{502, `<html>Bad gateway</html>`, problems.PortCheckFailed},
-		// Resposta de outro pedido ou com IP inválido não vale.
-		{200, `{"ip":"203.0.113.7","query":{"port":9999,"open":true}}`, problems.PortCheckFailed},
-		{200, `{"ip":"not-an-ip","query":{"port":27131,"open":true}}`, problems.PortCheckFailed},
-	} {
-		_, err := Parse(c.status, []byte(c.body), req, 27102)
-		if problems.CodeOf(err) != c.code {
-			t.Fatalf("%d %s: %v", c.status, c.body, err)
-		}
+func TestLoopbackAnswerIsOpen(t *testing.T) {
+	f := base()
+	f.Loopback, f.Steam = true, Yes
+	if r := Evaluate(f); r.Verdict != VerdictOpen || keys(r)["steamListed"] != OK {
+		t.Fatalf("got %+v", r)
+	}
+}
+
+func TestCGNATIsAProblem(t *testing.T) {
+	f := base()
+	f.Router.ExternalIP = "100.72.1.9"
+	f.Loopback = true
+	r := Evaluate(f)
+	if r.Verdict != VerdictProblem || keys(r)["cgnat"] != Bad {
+		t.Fatalf("got %+v", r)
+	}
+}
+
+func TestDifferentPublicIPWarns(t *testing.T) {
+	f := base()
+	f.PublicIP = "198.51.100.4"
+	r := Evaluate(f)
+	if keys(r)["ipMismatch"] != Warn || r.Verdict != VerdictUnsure {
+		t.Fatalf("got %+v", r)
+	}
+}
+
+func TestMappingToOtherPCAndWrongPort(t *testing.T) {
+	f := base()
+	f.Router.Game = mapped("192.168.0.99", 27102)
+	f.Router.Query = mapped("192.168.0.10", 27000)
+	r := Evaluate(f)
+	k := keys(r)
+	if k["routerOtherPc"] != Bad || k["routerWrongPort"] != Bad || r.Verdict != VerdictProblem {
+		t.Fatalf("got %+v", r)
+	}
+}
+
+func TestRconForwardedIsAProblem(t *testing.T) {
+	f := base()
+	f.Rcon = true
+	f.Router.Rcon = mapped("192.168.0.10", 27015)
+	if r := Evaluate(f); keys(r)["rconForwarded"] != Bad || r.Verdict != VerdictProblem {
+		t.Fatalf("got %+v", r)
+	}
+}
+
+func TestNoRouterNoServer(t *testing.T) {
+	r := Evaluate(Facts{GamePort: 1, QueryPort: 2})
+	k := keys(r)
+	if k["serverOff"] != Info || k["routerUnknown"] != Info || k["publicUnknown"] != Info || r.Verdict != VerdictUnsure {
+		t.Fatalf("got %+v", r)
+	}
+	if _, ok := k["loopbackNo"]; ok {
+		t.Fatal("loopback item without a running server")
+	}
+}
+
+func TestLocalNoAnswerAndMissingMapWarn(t *testing.T) {
+	f := base()
+	f.LocalAnswer = false
+	f.Router.Query = Mapping{Known: true}
+	r := Evaluate(f)
+	k := keys(r)
+	if k["localNo"] != Bad || k["routerNoMap"] != Warn {
+		t.Fatalf("got %+v", r)
+	}
+}
+
+func TestPublicIPMustBeIPv4(t *testing.T) {
+	f := base()
+	f.PublicIP = "not-an-ip"
+	if r := Evaluate(f); r.PublicIP != "" {
+		t.Fatalf("public ip %q", r.PublicIP)
 	}
 }

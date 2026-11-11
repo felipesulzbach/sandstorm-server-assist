@@ -1,6 +1,6 @@
 # Privacy Notice
 
-Version **2026-11-10**. It is accepted together with the [Terms of Use](TERMS.md) the first time you open the
+Version **2026-11-11**. It is accepted together with the [Terms of Use](TERMS.md) the first time you open the
 app.
 
 ## 1. In short
@@ -21,16 +21,23 @@ Everything you type stays on your PC, except what goes to the services you choos
 
 ## 3. What leaves your PC, and to whom
 
-| Destination                  | What and why                                                                                                                                          |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Valve (Steam)                | Download of SteamCMD and of the game server.                                                                                                          |
-| mod.io                       | Server account e-mail (to get the login code), the code and the server API key, for mods.                                                             |
-| Project download page        | Update check: asks only for the latest version. Like any website, it sees your IP and the time.                                                       |
-| Project port checker         | Only when you click "Test ports from the internet": your IP and the port numbers, to test those ports from outside once. Nothing is stored or logged. |
-| Discord (your webhook)       | Only if you set a webhook: the notice texts you wrote, with the server name, the map and the names of players who join or leave.                      |
-| Sites of the links you click | They open in your browser, under each site's rules.                                                                                                   |
+| Destination                  | What and why                                                                                                                     |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Valve (Steam)                | Download of SteamCMD and of the game server.                                                                                     |
+| mod.io                       | Server account e-mail (to get the login code), the code and the server API key, for mods.                                        |
+| GitHub (project page)        | Update check and download of new versions. Like any website, it sees your IP and the time.                                       |
+| Cloudflare and Google (STUN) | Only when you click "Diagnose ports": they answer with your public IP address.                                                   |
+| Steam Web API (Valve)        | Only when you click "Diagnose ports": your public IP, to ask whether Steam lists your server.                                    |
+| Your router (UPnP)           | Only when you click "Diagnose ports": asks for its internet IP and port forwards. It stays inside your network.                  |
+| Discord (your webhook)       | Only if you set a webhook: the notice texts you wrote, with the server name, the map and the names of players who join or leave. |
+| Sites of the links you click | They open in your browser, under each site's rules.                                                                              |
 
-The update check and the port test send no identifier of yours. Discord notices go only to the channel you chose. The app accepts only HTTPS connections, and only to these hosts.
+The update check and the port diagnosis send no identifier of yours. Discord notices go only to the channel you chose.
+Web connections use only HTTPS, and only to these hosts.
+
+**Feedback** (report a problem or suggest an improvement): the app sends nothing. It saves a `.zip` file on your PC
+(your text, the app log with passwords, tokens, IP addresses and SteamIDs masked, and an optional screenshot) and
+opens the GitHub form in your browser. You choose what to post; GitHub issues are public.
 
 ## 4. Your game server
 

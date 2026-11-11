@@ -19,8 +19,12 @@ import (
 // AllowedHosts são os únicos endereços que o app acessa (ADR-007, ADR-010).
 var AllowedHosts = map[string]bool{
 	"steamcdn-a.akamaihd.net": true, // SteamCMD (Valve)
+	"api.steampowered.com":    true, // diagnóstico de portas: a Steam lista o servidor neste IP? (ADR-033)
 	"g-254.modapi.io":         true, // API do mod.io do Insurgency: Sandstorm
-	"game-in.duckdns.org":     true, // página de download e atualização automática do app (ADR-014)
+	// Atualização automática pelas Releases do GitHub (ADR-032): github.com redireciona para o servidor de arquivos.
+	"github.com":                           true,
+	"release-assets.githubusercontent.com": true,
+	"objects.githubusercontent.com":        true,
 	// Webhook do Discord, só se o usuário configurar (ADR-022).
 	"discord.com":        true,
 	"discordapp.com":     true,

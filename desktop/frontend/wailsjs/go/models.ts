@@ -335,6 +335,20 @@ export namespace desktop {
 	        this.rules = source["rules"];
 	    }
 	}
+	export class ImageInfo {
+	    name: string;
+	    size: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new ImageInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.size = source["size"];
+	    }
+	}
 	export class Info {
 	    appVersion: string;
 	    goVersion: string;
@@ -519,6 +533,38 @@ export namespace desktop {
 		    }
 		    return a;
 		}
+	}
+	export class ReportRequest {
+	    kind: string;
+	    title: string;
+	    description: string;
+	    includeLog: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new ReportRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.kind = source["kind"];
+	        this.title = source["title"];
+	        this.description = source["description"];
+	        this.includeLog = source["includeLog"];
+	    }
+	}
+	export class ReportResult {
+	    file: string;
+	    size: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new ReportResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.file = source["file"];
+	        this.size = source["size"];
+	    }
 	}
 	export class RulesInfo {
 	    groups: string[];
@@ -810,18 +856,28 @@ export namespace modio {
 
 export namespace netcheck {
 	
+	export class Item {
+	    key: string;
+	    status: string;
+	    params?: Record<string, string>;
+	
+	    static createFrom(source: any = {}) {
+	        return new Item(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.key = source["key"];
+	        this.status = source["status"];
+	        this.params = source["params"];
+	    }
+	}
 	export class Result {
 	    publicIp: string;
 	    gamePort: number;
 	    queryPort: number;
-	    queryOpen: boolean;
-	    serverName: string;
-	    map: string;
-	    players: number;
-	    maxPlayers: number;
-	    rconPort: number;
-	    rconTested: boolean;
-	    rconExposed: boolean;
+	    verdict: string;
+	    items: Item[];
 	
 	    static createFrom(source: any = {}) {
 	        return new Result(source);
@@ -832,15 +888,27 @@ export namespace netcheck {
 	        this.publicIp = source["publicIp"];
 	        this.gamePort = source["gamePort"];
 	        this.queryPort = source["queryPort"];
-	        this.queryOpen = source["queryOpen"];
-	        this.serverName = source["serverName"];
-	        this.map = source["map"];
-	        this.players = source["players"];
-	        this.maxPlayers = source["maxPlayers"];
-	        this.rconPort = source["rconPort"];
-	        this.rconTested = source["rconTested"];
-	        this.rconExposed = source["rconExposed"];
+	        this.verdict = source["verdict"];
+	        this.items = this.convertValues(source["items"], Item);
 	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 }

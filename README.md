@@ -1,95 +1,108 @@
 # Sandstorm Server Assist
 
-A Windows desktop app that helps you **install, configure and run an Insurgency: Sandstorm dedicated server
-with mod.io mods** — without editing `.bat` and `.ini` files by hand.
+**English** · [Português](README.pt-PT.md) · [Español](README.es-ES.md) · [Русский](README.ru.md) · [Українська](README.uk.md)
+
+[![Latest release](https://img.shields.io/github/v/release/felipesulzbach/sandstorm-server-assist)](https://github.com/felipesulzbach/sandstorm-server-assist/releases/latest)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
+
+A free Windows app that helps you **install, configure and run an Insurgency: Sandstorm dedicated server with
+mod.io mods**, without editing `.bat` and `.ini` files by hand.
 
 > Unofficial community tool. Not affiliated with New World Interactive, Focus Entertainment, Valve or mod.io.
 > See [DISCLAIMER.md](DISCLAIMER.md).
 
+![Dashboard with the server running](docs/images/dashboard.png)
+
+## Download
+
+Get the latest version from the **[Releases page](https://github.com/felipesulzbach/sandstorm-server-assist/releases/latest)**:
+
+- **Installer** (`…-windows-setup.exe`, recommended): installs for your Windows user, no administrator needed, and
+  updates itself.
+- **Portable** (`…-windows-portable.zip`): unzip and run; it only tells you when a new version exists.
+
+Windows 10 or 11 is required. Windows may show a SmartScreen warning because the app is not code-signed: click
+**More info** › **Run anyway**. Each release lists the SHA-256 of its files.
+
 ## Features
 
-- **First steps checklist** on the dashboard: what is ready and what is missing.
-- **Installation with progress**: downloads SteamCMD (Valve's digital signature is checked before running it)
-  and installs or updates the server, with progress bar, speed and time left.
-- **Server settings**: name, ports, players, start map, mod map (`-ModDownloadTravelTo`), mutators, map
-  rotation, administrators (SteamID64), join password, RCON, GSLT and GameStats tokens. Everything you must
-  get somewhere else has a **"How do I get this?"** guide with links.
-- **Use a server you already have**: pick its folder and the app reads the last launch command line from the
-  server log plus `Game.ini`, `Admins.txt` and `MapCycle.txt` (server running or stopped). Empty or default
-  fields are filled in; when you already typed something different, the app asks whether to keep your value or
-  use the server's.
-- **mod.io**: requests the authorization code by e-mail, authorizes the server once and switches back to
-  normal mode by itself, lists subscribed/installed mods and shows each mod's download.
-- **Start / stop** with live phases read from the server log: starting, mod.io connected, mods mounted,
-  loading map, ready. Shows the console command players use to join (over the internet with the router ports open, or over a VPN program).
-- **Change the map while the server runs**, including mod maps from your map rotation (RCON).
-- **Server messages**: message of the day on the loading screen, and chat messages when a player joins or
-  leaves (sent by the app through RCON; `{name}` becomes the player name).
-- **Port test from the internet**: one click checks, from outside, whether the query port answers and whether the
-  RCON port is wrongly exposed, and shows your public IP. Guides for router port forwarding or a VPN program.
-- **Game rules**: bots and difficulty, checkpoint timers, friendly fire, team kills, kill feed, chat and voice,
-  map vote, vote kick, supply points, tick rate and more, written to Game.ini and Engine.ini (60 options). Mutators
-  with descriptions, day or night per map.
-- **Players**: list, kick, ban (minutes or permanent), remove bans and message everyone (RCON).
-- **Automation**: scheduled chat messages, daily restart with chat warning and SteamCMD update, restart when the
-  server closes by itself, Discord notices (webhook), open with Windows and start the server.
-- **Windows and network**: firewall rule for the server (with administrator confirmation), network card choice
-  (-MultiHome). Several profiles (for example Coop and Versus).
-- **Errors explained**: every known error shows what happened, the likely cause and how to fix it.
-- **Logs** hidden by default, in a drawer that opens with one click, with filters and search. Passwords and
-  tokens are masked.
-- **Security**: secrets are encrypted with Windows DPAPI, never written to `.ini`/`.bat` files.
-- **Portable backup**: one password-protected file (Argon2id + AES-256-GCM) with everything needed to set up
-  the server on another PC.
-- **5 languages**: English (US), Português (Portugal), Español (España), Русский, Українська.
-- **Appearance**: 5 color themes and 4 layouts.
-- **Installer and automatic updates**: a per-user Windows installer (no administrator). The installed app
-  checks for new versions, downloads them in the background and installs only updates signed with the project
-  key (Ed25519 + SHA-256). The game server keeps running while the app updates.
-- **Terms of use and privacy notice**: accepted on first use ([TERMS.md](TERMS.md), [PRIVACY.md](PRIVACY.md)). No
-  account, no ads, no telemetry.
+- **Step-by-step setup:** a checklist on the Dashboard shows what is ready and what is missing.
+- **Install with progress:** downloads SteamCMD (Valve's signature is checked) and installs or updates the server,
+  with speed and time left.
+- **Use the server you already have:** pick its folder and the app reads its settings, asking before it changes
+  anything you typed.
+- **All the settings in one place:** name, ports, players, maps and map cycle, mod maps, day or night, mutators
+  (including those of your mods), 60 game rules, admins, passwords and tokens, with "How to get it?" guides.
+- **mod.io mods:** authorize the server once, see each mod download, and the app restarts once when new mods need
+  it.
+- **Run it:** start and stop with live phases, change the map while it runs, players panel (kick, ban, message),
+  message of the day and join/leave messages.
+- **Automation:** scheduled messages, daily restart with warning and update, restart after a crash, Discord
+  notices, start with Windows.
+- **Port diagnosis:** checks the Firewall, your router (UPnP), your public IP, CGNAT and Steam, and explains how to
+  confirm with a friend.
+- **Explained errors and clean logs:** every known error says what happened, why and how to fix it; passwords and
+  tokens are always masked.
+- **Safe secrets and portable backup:** secrets are encrypted by Windows (DPAPI); one password-protected file moves
+  everything to another PC.
+- **Feedback:** report a problem or suggest an idea from the app, with the log and an optional screenshot.
+- **5 languages and 5 themes:** English, Português, Español, Русский, Українська.
 
-## Development
+## Quick start
 
-Requirements: Windows 10/11 (WebView2), Go 1.27, Node 24.
+1. Install the app and accept the terms of use.
+2. **Installation:** choose a server folder (about 25 GB free), download SteamCMD and install the server. If you
+   already have a server, choose its folder instead.
+3. **Server:** set the name, the maps and the passwords. Get a Steam game server token (GSLT) with the guide.
+4. **Mods:** authorize the server on mod.io and subscribe to mods on the mod.io website.
+5. **Server › Network:** forward the game and query ports (UDP) in your router, create the Firewall rule and run
+   **Diagnose ports**.
+6. **Dashboard:** click **Start server** and share the join command with your players.
+
+The full tutorial, with pictures, is in the **[user guide](docs/GUIDE.md)**.
+
+## Screenshots
+
+| Installation                                  | Server settings                                     |
+| --------------------------------------------- | --------------------------------------------------- |
+| ![Installation](docs/images/install.png)      | ![Server settings](docs/images/server-settings.png) |
+| **Port diagnosis**                            | **Feedback**                                        |
+| ![Port diagnosis](docs/images/port-check.png) | ![Feedback](docs/images/feedback.png)               |
+
+## Feedback and support
+
+- **Found a problem or have an idea?** In the app, open **Feedback**: it prepares a file with the details and opens
+  the GitHub form already filled in. Or [open an issue](https://github.com/felipesulzbach/sandstorm-server-assist/issues/new/choose).
+- **Security problem?** Please do not open a public issue: see [SECURITY.md](SECURITY.md).
+
+## Build from source
+
+Requirements: Windows 10/11 (WebView2), Go 1.27, Node.js 24; NSIS for the installer.
 
 ```bash
 npm install
-npm run dev        # app in development mode
-npm test           # Go + front-end tests
-npm run lint
-npm run typecheck
-npm run build      # desktop/build/bin/sandstorm-server-assist.exe
-npm run build:installer   # + desktop/build/dist/sandstorm-server-assist-<version>-windows-setup.exe (needs NSIS)
-npm run package           # portable zip in desktop/build/dist
+npm run dev               # app in development mode
+npm test                  # Go, front-end and docs tests
+npm run build             # desktop/build/bin/sandstorm-server-assist.exe
+npm run build:installer   # installer in desktop/build/dist
 ```
 
-Releases: `npm run update:keygen` creates the update signing key once (outside the repository, in
-`~/.sandstorm-server-assist/`); its public key goes in `desktop/internal/adapters/updater/pubkey.go`.
-`npm run update:manifest` writes the signed `latest.json` for the installer in `desktop/build/dist`. Upload the
-installer first and `latest.json` last to the download folder.
-
-Download page: `site/` (5 languages). `npm run site:preview` builds it in `desktop/build/dist/site`;
-`npm run site:publish` uploads it with the files and the signed `latest.json` (needs `SSA_SSH_HOST`). See
-[docs/PAGINA_DOWNLOAD.md](docs/PAGINA_DOWNLOAD.md).
-
-Security checks: `npm run audit` (npm deps), `npm run audit:go` (govulncheck), `npm run audit:code` (gosec +
-ESLint security rules).
-
-Architecture: Wails 2 (Go, Clean/Hexagonal) + React 19 + Vite. Business rules live in Go
-(`desktop/internal/domain` and `desktop/internal/app`); the UI only sends ids and options. Details and
-decisions (in Portuguese) are in [docs/](docs/).
+Wails 2 (Go, Clean/Hexagonal) + React 19 + Vite. Rules live in Go (`desktop/internal`); the screens only send ids and
+options. See [architecture](docs/ARCHITECTURE.md), [decisions](docs/DECISIONS.md), [releasing](docs/RELEASING.md) and
+[contributing](CONTRIBUTING.md).
 
 ## Translations
 
-UI texts live in `desktop/frontend/src/i18n/locales/`. `en-US.ts` is the reference; the other files must have
-exactly the same keys (a test checks it). To add a language, copy `en-US.ts`, translate it and register it in
-`desktop/frontend/src/i18n/index.tsx`.
+The app and these docs are available in 5 languages. Screen texts are in `desktop/frontend/src/i18n/locales/`
+(`en-US.ts` is the reference). Translations of the README and the guide follow the English files; if they differ,
+the English version is correct. Help with translations is welcome.
 
-## Contributing
+## Credits
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Security issues: [SECURITY.md](SECURITY.md).
+Created by **Felipe Sulzbach** ([@felipesulzbach](https://github.com/felipesulzbach)), with the help of
+[Claude Code](https://claude.com/claude-code) by Anthropic. Made for the Insurgency: Sandstorm community.
 
 ## License
 
-[Apache License 2.0](LICENSE). See also [NOTICE](NOTICE), [DISCLAIMER.md](DISCLAIMER.md), [TERMS.md](TERMS.md) and [PRIVACY.md](PRIVACY.md).
+[Apache License 2.0](LICENSE). See also [NOTICE](NOTICE), [DISCLAIMER.md](DISCLAIMER.md), [TERMS.md](TERMS.md) and
+[PRIVACY.md](PRIVACY.md).

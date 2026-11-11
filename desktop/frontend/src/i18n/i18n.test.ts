@@ -44,6 +44,15 @@ function goValidationKeys(): string[] {
   return [...keys];
 }
 
+/** Códigos dos itens e das conclusões do diagnóstico de portas (domain/netcheck). */
+function goNetcheckKeys(): { items: string[]; verdicts: string[] } {
+  const src = readFileSync(resolve(GO, 'domain/netcheck/netcheck.go'), 'utf8');
+  const items = new Set<string>();
+  for (const m of src.matchAll(/(?:add\(|Key: )"([A-Za-z]+)"/g)) items.add(m[1]!);
+  const verdicts = [...src.matchAll(/Verdict[A-Za-z]+\s*=\s*"([a-z]+)"/g)].map((m) => m[1]!);
+  return { items: [...items], verdicts };
+}
+
 /** Todas as folhas (caminho com pontos) de um objeto de mensagens. */
 function leaves(o: unknown, prefix = ''): string[] {
   if (typeof o === 'string' || Array.isArray(o)) return [prefix];
@@ -65,6 +74,18 @@ describe('i18n', () => {
   it('has text for every validation key used in Go', () => {
     for (const key of goValidationKeys()) {
       expect(typeof lookup(enUS, key), key).toBe('string');
+    }
+  });
+
+  it('has text for every port diagnosis code of Go', () => {
+    const { items, verdicts } = goNetcheckKeys();
+    expect(items.length).toBeGreaterThan(15);
+    expect(verdicts).toHaveLength(4);
+    for (const k of items) {
+      expect(typeof lookup(enUS, `server.portCheck.items.${k}`), k).toBe('string');
+    }
+    for (const v of verdicts) {
+      expect(typeof lookup(enUS, `server.portCheck.verdict.${v}`), v).toBe('string');
     }
   });
 

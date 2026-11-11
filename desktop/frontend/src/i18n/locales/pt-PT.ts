@@ -22,6 +22,7 @@ export const ptPT: Messages = {
     mods: 'Mods',
     backup: 'Cópia de segurança',
     settings: 'Definições',
+    feedback: 'Feedback',
     about: 'Sobre',
   },
   common: {
@@ -326,21 +327,77 @@ export const ptPT: Messages = {
         'As mensagens de entrada e saída são enviadas pelo RCON. Ligue o RCON (com palavra-passe) em Palavras-passe e tokens para usá-las.',
     },
     portCheck: {
-      button: 'Testar portas pela internet',
-      running: 'A testar… (até 15 s)',
-      hint: 'Com o servidor pronto, o verificador do projeto testa o seu IP público de fora. Só vão os números das portas; nada é guardado.',
-      queryOpen:
-        'Porta de consulta UDP {port}: aberta. O servidor respondeu pela internet ("{name}", mapa {map}).',
-      queryClosed: 'Porta de consulta UDP {port}: sem resposta pela internet.',
-      gamePort:
-        'Porta do jogo UDP {port}: não dá para testar de fora. Reencaminhe-a junto com a porta de consulta.',
-      rconExposed:
-        'Porta do RCON TCP {port}: ABERTA para a internet. Qualquer pessoa pode tentar a sua palavra-passe do RCON. Retire esta porta do router.',
-      rconClosed: 'Porta do RCON TCP {port}: fechada para a internet, como deve ser.',
+      button: 'Diagnosticar portas',
+      running: 'A verificar… (até 15 s)',
+      hint: 'Verifica a partir deste PC: o servidor, a Firewall do Windows, o router (UPnP), o seu IP público e a Steam. Só um teste de fora da sua rede prova que as portas estão abertas: veja os passos abaixo.',
+      gamePort: 'Porta de jogo UDP {port}: reencaminhe-a no router junto com a porta de consulta.',
       publicIp: 'O seu IP público: {ip}',
-      useIp: 'Usar em "IP que os jogadores usam"',
-      closedHelp:
-        'Confira: o reencaminhamento no router aponta para este PC, a Firewall do Windows permite o InsurgencyServer.exe e o seu fornecedor não usa CGNAT. Com um programa de VPN, este teste não se aplica: os jogadores ligam-se pela VPN.',
+      useIp: 'Usar como "IP que os jogadores usam"',
+      verdict: {
+        open: 'As portas parecem abertas: o servidor respondeu pelo seu IP público.',
+        likely:
+          'Tudo o que este PC consegue verificar parece certo. Confirme com um teste de fora da sua rede.',
+        problem: 'Foi encontrado um problema. Corrija os itens a vermelho e verifique de novo.',
+        unsure:
+          'Não foi possível confirmar a partir deste PC. Faça o teste de fora da sua rede (abaixo).',
+      },
+      items: {
+        serverOff:
+          'O servidor não está ligado. Inicie-o para verificar a porta de consulta, o caminho pelo IP público e a Steam.',
+        localOk: 'O servidor responde na porta de consulta UDP {port} neste PC.',
+        localNo:
+          'O servidor não responde na porta de consulta UDP {port}, nem neste PC. Espere que termine de carregar ou confira a porta de consulta.',
+        firewallOk: 'A Firewall do Windows tem as regras do servidor.',
+        firewallMissing:
+          'As regras da Firewall do Windows criadas pela app não foram encontradas. Crie-as em Servidor › Rede (ignore se criou a sua própria regra).',
+        routerUnknown:
+          'O router não respondeu por UPnP, por isso a app não consegue ler os reencaminhamentos. Confira-os na página do router.',
+        routerMapped: 'Router: a porta UDP {port} está reencaminhada para este PC.',
+        routerNoMap:
+          'Router: não há reencaminhamento UPnP para a porta UDP {port}. Reencaminhamentos feitos à mão na página do router muitas vezes não aparecem aqui; confirme que existem.',
+        routerOtherPc:
+          'Router: a porta UDP {port} está reencaminhada para outro aparelho ({client}), não para este PC.',
+        routerWrongPort:
+          'Router: a porta UDP {port} está reencaminhada para a porta interna {internal}. Os dois números têm de ser iguais.',
+        routerDisabled:
+          'Router: o reencaminhamento da porta UDP {port} existe, mas está desligado.',
+        rconForwarded:
+          'Router: a porta RCON TCP {port} está aberta para a internet. Qualquer pessoa pode tentar a sua senha RCON. Remova este reencaminhamento.',
+        cgnat:
+          'O endereço do seu router na internet ({ip}) não é um IP público: o seu fornecedor usa CGNAT. O reencaminhamento de portas não vai funcionar; peça um IP público ao fornecedor.',
+        ipMismatch:
+          'O router diz que o IP dele na internet é {router}, mas a internet vê {public}. O fornecedor pode usar CGNAT, ou há um programa de VPN ativo.',
+        publicOk: 'O router tem o seu IP público ({ip}), por isso não há CGNAT.',
+        publicIp: 'IP público visto pela internet: {ip}.',
+        publicUnknown:
+          'Não foi possível descobrir o seu IP público (sem internet, ou STUN bloqueado).',
+        loopbackOk:
+          'O servidor respondeu pelo seu IP público {ip}:{port}: o router reencaminha a porta de consulta.',
+        loopbackNo:
+          'Sem resposta pelo seu IP público a partir deste PC. Muitos routers não permitem isto, por isso não quer dizer que a porta esteja fechada.',
+        steamListed: 'A Steam lista o seu servidor no seu IP público.',
+        steamNotListed:
+          'A Steam ainda não lista o seu servidor no seu IP público. Logo depois de iniciar pode levar alguns minutos; se continuar assim, confira o token da Steam (GSLT).',
+      },
+      manual: {
+        title: 'Teste de fora da sua rede (o único teste seguro)',
+        intro:
+          'Um PC não consegue testar as próprias portas pela internet. Peça a um amigo noutra rede que faça isto com o seu servidor ligado:',
+        yourIp: 'o seu IP público',
+        steps: [
+          'Abrir a Steam e ir a Ver › Servidores de jogo.',
+          'Abrir o separador Favoritos e clicar em "Adicionar servidor" (o botão +).',
+          'Escrever {ip}:{port} e clicar em "Procurar jogos neste endereço".',
+          'Se o servidor aparecer com o nome e o mapa, as portas estão abertas. O amigo pode então entrar pela lista.',
+        ],
+        tipsTitle: 'Dicas:',
+        tips: [
+          'Não teste a partir de um PC da sua própria rede: a maioria dos routers bloqueia o caminho de volta para o próprio IP público.',
+          'Os dados móveis (telemóvel como hotspot) contam como outra rede.',
+          'Sites que "testam portas" normalmente testam só TCP. O jogo usa UDP, por isso podem dizer "fechada" mesmo com a porta aberta.',
+          'Os jogadores precisam da porta de jogo e da porta de consulta reencaminhadas (as duas UDP). Nunca reencaminhe a porta RCON.',
+        ],
+      },
     },
   },
   sync: {
@@ -556,6 +613,46 @@ export const ptPT: Messages = {
     links: 'Ligações úteis',
     serverGuide: 'Guia de servidores da comunidade',
     modioGuide: 'Guia de administração de servidores do mod.io',
+    credits: 'Créditos',
+    creditsText:
+      'Criado por Felipe Sulzbach, com a ajuda do Claude Code (Anthropic). Gratuito e de código aberto, feito para a comunidade de Insurgency: Sandstorm.',
+  },
+  feedback: {
+    title: 'Feedback',
+    subtitle: 'Relatar um problema ou sugerir uma melhoria',
+    kindLabel: 'Tipo',
+    kind: {
+      bug: 'Relatar um problema',
+      idea: 'Sugerir uma melhoria',
+    },
+    intro: {
+      bug: 'Conte o que correu mal. A app prepara um ficheiro com os detalhes e abre o formulário do GitHub já preenchido.',
+      idea: 'Partilhe uma ideia para melhorar a app. A app abre o formulário do GitHub já preenchido.',
+    },
+    titleField: 'Título (opcional)',
+    titleHint: 'Uma linha. Se ficar vazio, a app escreve um.',
+    description: 'Descrição (opcional)',
+    descriptionHint: {
+      bug: 'O que fez, o que esperava e o que aconteceu.',
+      idea: 'O que gostaria que a app fizesse, e porque ajudaria.',
+    },
+    includeLog: 'Incluir o registo da app',
+    includeLogHint:
+      'As últimas linhas do painel Registos. Senhas, tokens, endereços IP e SteamIDs ficam mascarados.',
+    image: 'Captura de ecrã (opcional)',
+    imageHint: 'PNG, JPG, GIF ou WebP, até 5 MB.',
+    chooseImage: 'Escolher imagem',
+    removeImage: 'Remover',
+    create: 'Preparar e abrir o GitHub',
+    privacy:
+      'A app não envia nada. Guarda um ficheiro .zip neste PC e abre o formulário no navegador; é você quem decide o que publicar. É preciso uma conta gratuita no GitHub.',
+    done: 'Guardado {file} ({size}).',
+    next: [
+      'Entre no GitHub na janela do navegador que abriu.',
+      'Arraste o ficheiro .zip (mostrado na janela do Explorador) para a última caixa do formulário.',
+      'Reveja o texto e clique em "Create".',
+    ],
+    showFile: 'Mostrar o ficheiro',
   },
   update: {
     title: 'Atualizações',
@@ -633,7 +730,7 @@ export const ptPT: Messages = {
       updates: {
         title: '6. Atualizações automáticas',
         text: [
-          'O app instalado procura versões novas na página de download do projeto, baixa-as em segundo plano e instala quando clica em Atualizar ou fecha o app.',
+          'A app instalada procura versões novas nas publicações do projeto no GitHub, descarrega-as em segundo plano e instala-as quando clica em Atualizar ou fecha a app.',
           'Só são aceites atualizações assinadas com a chave do projeto. A versão portátil só avisa que há uma versão nova.',
         ],
       },
@@ -666,9 +763,10 @@ export const ptPT: Messages = {
         text: [
           'Valve (Steam): download do SteamCMD e do servidor do jogo.',
           'mod.io: o e-mail da conta do servidor (para receber o código de acesso), o próprio código e a chave de API do servidor, para autorizar e baixar mods.',
-          'Página de download do projeto: a procura de atualizações só pede a versão mais recente; como qualquer site, ela vê o seu endereço IP e a hora do pedido. Nenhum identificador seu é enviado.',
-          'Teste de portas (só quando clica em "Testar portas pela internet"): o verificador do projeto, no servidor da página de download, recebe o seu endereço IP e os números das portas, testa essas portas de fora uma vez e responde. Nada é guardado nem registado.',
+          'GitHub (página do projeto): a procura de atualizações pede o ficheiro da versão mais recente e descarrega o instalador de lá. Como qualquer site, o GitHub vê o seu endereço IP e a hora do pedido. Nenhum identificador seu é enviado.',
+          'Diagnóstico de portas (só quando clica em "Diagnosticar portas"): servidores STUN públicos da Cloudflare e da Google respondem com o seu endereço IP público; a Steam (Valve) é consultada sobre se lista um servidor nesse endereço; o seu router é consultado sobre os reencaminhamentos (UPnP, dentro da sua rede). Nada mais é enviado.',
           'Discord (só se definir um webhook em Servidor › Automação): os textos dos avisos que escreveu, com o nome do servidor, o mapa e os nomes dos jogadores que entram ou saem, vão para o seu canal do Discord. O Discord recebe o seu IP, como qualquer site.',
+          'Feedback (relatar um problema ou sugerir uma melhoria): a app não envia nada. Guarda um ficheiro neste PC e abre o formulário do GitHub no navegador; é você quem escolhe o que publicar.',
           'Os links em que clica abrem no seu navegador, com as regras de cada site.',
         ],
       },
@@ -757,7 +855,10 @@ export const ptPT: Messages = {
     'server-guide': 'Guia de servidores da comunidade',
     'apache-license': 'Apache License 2.0',
     wails: 'Wails',
-    'download-page': 'Página de download',
+    'download-page': 'Versões no GitHub',
+    project: 'Projeto no GitHub',
+    'user-guide': 'Guia de utilização',
+    author: 'Felipe Sulzbach no GitHub',
   },
   guides: {
     steamId: {
@@ -1571,27 +1672,6 @@ export const ptPT: Messages = {
         'Para um mapa de mod, confira na página Mods se o mod está ativo.',
       ],
     },
-    'port-check-failed': {
-      title: 'Não foi possível testar as portas',
-      what: 'O app não recebeu resposta do verificador de portas.',
-      cause: 'Sem internet, ou o verificador da página de download está indisponível agora.',
-      solution: ['Confira a ligação à internet e tente de novo daqui a alguns minutos.'],
-    },
-    'port-check-limit': {
-      title: 'Muitos testes em pouco tempo',
-      what: 'O verificador de portas aceita poucos testes por minuto para cada IP.',
-      cause: 'Vários testes foram iniciados seguidos.',
-      solution: ['Espere um minuto e tente de novo.'],
-    },
-    'port-check-ipv6': {
-      title: 'O teste foi feito por IPv6',
-      what: 'A sua ligação chegou ao verificador por IPv6, e o servidor do jogo escuta por IPv4.',
-      cause: 'O seu fornecedor prefere IPv6 para este site.',
-      solution: [
-        'Peça a um amigo fora da sua rede para entrar com o seu endereço IPv4.',
-        'Ou teste de novo mais tarde.',
-      ],
-    },
     'discord-failed': {
       title: 'A mensagem do Discord não foi enviada',
       what: 'O Discord não aceitou a mensagem do webhook.',
@@ -1626,6 +1706,18 @@ export const ptPT: Messages = {
         'Veja a Instalação: a pasta do SteamCMD tem de estar definida.',
         'Atualize uma vez à mão em Instalação para ver o erro.',
       ],
+    },
+    'report-failed': {
+      title: 'Não foi possível preparar o relato',
+      what: 'A app não conseguiu guardar o ficheiro do relato neste PC.',
+      cause: 'O disco está cheio ou a pasta da app não pode ser escrita.',
+      solution: ['Liberte espaço em disco e tente de novo.'],
+    },
+    'report-image': {
+      title: 'Esta imagem não pode ser usada',
+      what: 'O ficheiro escolhido não foi adicionado ao relato.',
+      cause: 'Tem mais de 5 MB, ou não é uma imagem PNG, JPG, GIF ou WebP.',
+      solution: ['Escolha uma imagem menor, ou guarde a captura como PNG ou JPG.'],
     },
   },
 };

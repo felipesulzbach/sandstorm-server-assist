@@ -21,6 +21,7 @@ export const enUS = {
     mods: 'Mods',
     backup: 'Backup',
     settings: 'Settings',
+    feedback: 'Feedback',
     about: 'About',
   },
   common: {
@@ -321,21 +322,74 @@ export const enUS = {
         'The join and leave messages are sent through RCON. Turn on RCON (with a password) in Passwords & tokens to use them.',
     },
     portCheck: {
-      button: 'Test ports from the internet',
-      running: 'Testing… (up to 15 s)',
-      hint: 'With the server ready, the project checker tests your public IP from outside. Only the port numbers are sent; nothing is stored.',
-      queryOpen:
-        'Query port UDP {port}: open. The server answered from the internet ("{name}", map {map}).',
-      queryClosed: 'Query port UDP {port}: no answer from the internet.',
-      gamePort:
-        'Game port UDP {port}: cannot be tested from outside. Forward it together with the query port.',
-      rconExposed:
-        'RCON port TCP {port}: OPEN to the internet. Anyone can try your RCON password. Remove this port from the router.',
-      rconClosed: 'RCON port TCP {port}: closed to the internet, as it should be.',
+      button: 'Diagnose ports',
+      running: 'Checking… (up to 15 s)',
+      hint: 'Checks from this PC: the server, Windows Firewall, the router (UPnP), your public IP and Steam. Only a test from outside your network proves the ports are open: see the steps below.',
+      gamePort: 'Game port UDP {port}: forward it in the router together with the query port.',
       publicIp: 'Your public IP: {ip}',
       useIp: 'Use as "IP players use"',
-      closedHelp:
-        'Check: the port forwarding in the router points to this PC, Windows Firewall allows InsurgencyServer.exe, and your provider does not use CGNAT. With a VPN program, this test does not apply: players connect through the VPN.',
+      verdict: {
+        open: 'The ports look open: the server answered through your public IP.',
+        likely:
+          'Everything this PC can check looks right. Confirm with a test from outside your network.',
+        problem: 'Found a problem. Fix the red items below and run the check again.',
+        unsure: 'Could not confirm from this PC. Do the test from outside your network (below).',
+      },
+      items: {
+        serverOff:
+          'The server is not running. Start it to check the query port, the public IP route and Steam.',
+        localOk: 'The server answers on query port UDP {port} on this PC.',
+        localNo:
+          'The server does not answer on query port UDP {port}, not even on this PC. Wait until it finishes loading, or check the query port.',
+        firewallOk: 'Windows Firewall has the rules for the server.',
+        firewallMissing:
+          "The app's Windows Firewall rules were not found. Create them in Server › Network (ignore this if you made your own rule).",
+        routerUnknown:
+          'The router did not answer over UPnP, so the app cannot read its port forwards. Check them in the router page.',
+        routerMapped: 'Router: port UDP {port} is forwarded to this PC.',
+        routerNoMap:
+          'Router: no UPnP forward for port UDP {port}. Forwards made by hand in the router page often do not show here; check that they exist.',
+        routerOtherPc:
+          'Router: port UDP {port} is forwarded to another device ({client}), not to this PC.',
+        routerWrongPort:
+          'Router: port UDP {port} is forwarded to internal port {internal}. Both numbers must be the same.',
+        routerDisabled: 'Router: the forward of port UDP {port} exists but is turned off.',
+        rconForwarded:
+          'Router: the RCON port TCP {port} is forwarded to the internet. Anyone can try your RCON password. Remove this forward.',
+        cgnat:
+          "Your router's internet address ({ip}) is not a public IP: your provider uses CGNAT. Port forwarding will not work; ask your provider for a public IP.",
+        ipMismatch:
+          'The router says its internet IP is {router}, but the internet sees {public}. Your provider may use CGNAT, or a VPN program is active.',
+        publicOk: 'The router has your public IP ({ip}), so there is no CGNAT.',
+        publicIp: 'Public IP seen by the internet: {ip}.',
+        publicUnknown: 'Could not find your public IP (no internet, or STUN is blocked).',
+        loopbackOk:
+          'The server answered through your public IP {ip}:{port}: the router forwards the query port.',
+        loopbackNo:
+          'No answer through your public IP from this PC. Many routers do not allow this, so it does not mean the port is closed.',
+        steamListed: 'Steam lists your server at your public IP.',
+        steamNotListed:
+          'Steam does not list your server at your public IP yet. Right after starting this can take a few minutes; if it stays like this, check the Steam token (GSLT).',
+      },
+      manual: {
+        title: 'Test from outside your network (the only sure test)',
+        intro:
+          'A PC cannot test its own ports from the internet. Ask a friend who is on another network to do this while your server is running:',
+        yourIp: 'your public IP',
+        steps: [
+          'Open Steam and go to View › Game Servers.',
+          'Open the Favorites tab and click "Add a server" (the + button).',
+          'Type {ip}:{port} and click "Find games at this address".',
+          'If your server shows up with its name and map, the ports are open. Your friend can then join it from the list.',
+        ],
+        tipsTitle: 'Tips:',
+        tips: [
+          'Do not test from a PC on your own network: most routers block the way back to their own public IP.',
+          'Mobile data (a phone as hotspot) counts as another network.',
+          'Websites that "check ports" usually test only TCP. The game uses UDP, so they may say "closed" even when it is open.',
+          'Players need the game port and the query port forwarded (both UDP). Never forward the RCON port.',
+        ],
+      },
     },
   },
   sync: {
@@ -552,6 +606,46 @@ export const enUS = {
     links: 'Useful links',
     serverGuide: 'Community server guide',
     modioGuide: 'mod.io server admin guide',
+    credits: 'Credits',
+    creditsText:
+      'Created by Felipe Sulzbach, with the help of Claude Code (Anthropic). Free and open source, made for the Insurgency: Sandstorm community.',
+  },
+  feedback: {
+    title: 'Feedback',
+    subtitle: 'Report a problem or suggest an improvement',
+    kindLabel: 'Type',
+    kind: {
+      bug: 'Report a problem',
+      idea: 'Suggest an improvement',
+    },
+    intro: {
+      bug: 'Tell what went wrong. The app prepares a file with the details and opens the GitHub form already filled in.',
+      idea: 'Share an idea to make the app better. The app opens the GitHub form already filled in.',
+    },
+    titleField: 'Title (optional)',
+    titleHint: 'One line. If empty, the app writes one.',
+    description: 'Description (optional)',
+    descriptionHint: {
+      bug: 'What you did, what you expected and what happened.',
+      idea: 'What you would like the app to do, and why it would help.',
+    },
+    includeLog: 'Include the app log',
+    includeLogHint:
+      'The last lines of the Logs panel. Passwords, tokens, IP addresses and SteamIDs are masked.',
+    image: 'Screenshot (optional)',
+    imageHint: 'PNG, JPG, GIF or WebP, up to 5 MB.',
+    chooseImage: 'Choose image',
+    removeImage: 'Remove',
+    create: 'Prepare and open GitHub',
+    privacy:
+      'Nothing is sent by the app. It saves a .zip file on this PC and opens the form in your browser; you decide what to post. You need a free GitHub account.',
+    done: 'Saved {file} ({size}).',
+    next: [
+      'Sign in to GitHub in the browser window that opened.',
+      'Drag the .zip file (shown in the Explorer window) into the last box of the form.',
+      'Check the text and click "Create".',
+    ],
+    showFile: 'Show the file',
   },
   update: {
     title: 'Updates',
@@ -629,7 +723,7 @@ export const enUS = {
       updates: {
         title: '6. Automatic updates',
         text: [
-          'The installed app checks the project download page for new versions, downloads them in the background and installs them when you click Update or close the app.',
+          'The installed app checks the project releases on GitHub for new versions, downloads them in the background and installs them when you click Update or close the app.',
           'Only updates signed with the project key are accepted. The portable version only tells you that a new version exists.',
         ],
       },
@@ -662,9 +756,10 @@ export const enUS = {
         text: [
           'Valve (Steam): download of SteamCMD and of the game server.',
           'mod.io: the server account e-mail (to receive the login code), the code itself and the server API key, to authorize and download mods.',
-          'Project download page: the check for updates asks only for the latest version; like any website, it sees your IP address and the request time. No identifier of yours is sent.',
-          'Port test (only when you click "Test ports from the internet"): the project checker, on the download page server, receives your IP address and the port numbers, tests those ports from outside once and answers. Nothing is stored or logged.',
+          'GitHub (project page): the check for updates asks for the latest version file and downloads the installer from there. Like any website, GitHub sees your IP address and the request time. No identifier of yours is sent.',
+          'Port diagnosis (only when you click "Diagnose ports"): public STUN servers of Cloudflare and Google answer with your public IP address; Steam (Valve) is asked whether it lists a server at that address; your router is asked about its port forwards (UPnP, inside your network). Nothing else is sent.',
           'Discord (only if you set a webhook in Server › Automation): the notice texts you wrote, with the server name, the map and the names of players who join or leave, go to your Discord channel. Discord receives your IP, like any website.',
+          'Feedback (report a problem or suggest an improvement): the app sends nothing. It saves a file on this PC and opens the GitHub form in your browser; you choose what to post publicly.',
           'Links you click open in your browser, under the rules of each site.',
         ],
       },
@@ -752,7 +847,10 @@ export const enUS = {
     'server-guide': 'Community server guide',
     'apache-license': 'Apache License 2.0',
     wails: 'Wails',
-    'download-page': 'Download page',
+    'download-page': 'Releases on GitHub',
+    project: 'Project on GitHub',
+    'user-guide': 'User guide',
+    author: 'Felipe Sulzbach on GitHub',
   },
   guides: {
     steamId: {
@@ -1558,27 +1656,6 @@ export const enUS = {
         'For a mod map, check on the Mods page that the mod is active.',
       ],
     },
-    'port-check-failed': {
-      title: 'Could not test the ports',
-      what: 'The app could not get an answer from the port checker.',
-      cause: 'No internet, or the checker of the download page is unavailable right now.',
-      solution: ['Check your internet connection and try again in a few minutes.'],
-    },
-    'port-check-limit': {
-      title: 'Too many tests in a short time',
-      what: 'The port checker accepts a few tests per minute for each IP.',
-      cause: 'Several tests were started in a row.',
-      solution: ['Wait one minute and try again.'],
-    },
-    'port-check-ipv6': {
-      title: 'The test went over IPv6',
-      what: 'Your connection reached the checker over IPv6, and the game server listens over IPv4.',
-      cause: 'Your provider prefers IPv6 for this site.',
-      solution: [
-        'Ask a friend outside your network to join with your IPv4 address.',
-        'Or test again later.',
-      ],
-    },
     'discord-failed': {
       title: 'The Discord message was not sent',
       what: 'Discord did not accept the message from the webhook.',
@@ -1612,6 +1689,18 @@ export const enUS = {
         'Check Installation: the SteamCMD folder must be set.',
         'Update once by hand in Installation to see the error.',
       ],
+    },
+    'report-failed': {
+      title: 'Could not prepare the report',
+      what: 'The app could not save the report file on this PC.',
+      cause: 'The disk is full or the app folder cannot be written.',
+      solution: ['Free some disk space and try again.'],
+    },
+    'report-image': {
+      title: 'This image cannot be used',
+      what: 'The chosen file was not added to the report.',
+      cause: 'It is larger than 5 MB, or it is not a PNG, JPG, GIF or WebP image.',
+      solution: ['Choose a smaller image, or save the screenshot as PNG or JPG.'],
     },
   },
 };

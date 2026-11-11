@@ -83,6 +83,7 @@ func Run(assets fs.FS) error {
 	inst := &InstallAPI{a: a}
 	srv := &ServerAPI{a: a}
 	logs := &LogAPI{a: a}
+	reports := &ReportAPI{a: a}
 	bak := &BackupAPI{a: a}
 
 	return wails.Run(&options.App{
@@ -131,7 +132,7 @@ func Run(assets fs.FS) error {
 			// Versão nova já baixada e o usuário fechou o app: instala agora (sem reabrir), como no game-in.
 			a.updates.InstallOnExit()
 		},
-		Bind:    []any{sys, cfgAPI, inst, srv, logs, bak},
+		Bind:    []any{sys, cfgAPI, inst, srv, logs, bak, reports},
 		Windows: &windows.Options{Theme: windows.SystemDefault},
 	})
 }

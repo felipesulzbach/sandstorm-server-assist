@@ -3,6 +3,7 @@ import {
   Archive,
   Download,
   Info,
+  MessageSquareWarning,
   LayoutDashboard,
   Package,
   Server,
@@ -22,9 +23,11 @@ import { ModsPage } from './features/mods/ModsPage';
 import { BackupPage } from './features/backup/BackupPage';
 import { SettingsPage } from './features/settings/SettingsPage';
 import { AboutPage } from './features/about/AboutPage';
+import { FeedbackPage } from './features/feedback/FeedbackPage';
 import { LegalGate, useTerms } from './features/legal/Legal';
 
-export type PageId = 'dashboard' | 'install' | 'server' | 'mods' | 'backup' | 'settings' | 'about';
+export type PageId =
+  'dashboard' | 'install' | 'server' | 'mods' | 'backup' | 'settings' | 'feedback' | 'about';
 
 const MAIN: { id: PageId; icon: LucideIcon }[] = [
   { id: 'dashboard', icon: LayoutDashboard },
@@ -35,6 +38,7 @@ const MAIN: { id: PageId; icon: LucideIcon }[] = [
 ];
 const BOTTOM: { id: PageId; icon: LucideIcon }[] = [
   { id: 'settings', icon: SettingsIcon },
+  { id: 'feedback', icon: MessageSquareWarning },
   { id: 'about', icon: Info },
 ];
 
@@ -114,6 +118,7 @@ function Shell() {
             {page === 'mods' && <ModsPage status={status} />}
             {page === 'backup' && <BackupPage status={status} />}
             {page === 'settings' && <SettingsPage />}
+            {page === 'feedback' && <FeedbackPage />}
             {page === 'about' && <AboutPage info={info} terms={terms} />}
           </ErrorBoundary>
         </main>

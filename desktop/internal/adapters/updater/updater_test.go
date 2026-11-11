@@ -7,9 +7,9 @@ import (
 
 func TestFetcherRefusesOtherHostsAndNames(t *testing.T) {
 	for _, base := range []string{
-		"http://game-in.duckdns.org/sandstorm/downloads/", // sem HTTPS
-		"https://example.com/downloads/",                  // host fora da lista
-		"https://game-in.duckdns.org/sandstorm/downloads", // sem a barra do fim
+		"http://github.com/felipesulzbach/sandstorm-server-assist/releases/", // sem HTTPS
+		"https://example.com/downloads/",                                     // host fora da lista
+		"https://github.com/felipesulzbach/sandstorm-server-assist/releases", // sem a barra do fim
 	} {
 		if _, err := NewHTTPFetcher(base); err == nil {
 			t.Errorf("accepted %s", base)
@@ -24,8 +24,17 @@ func TestFetcherRefusesOtherHostsAndNames(t *testing.T) {
 			t.Errorf("accepted file name %q", name)
 		}
 	}
-	if u, _ := f.url("latest.json"); u != DefaultBaseURL+"latest.json" {
-		t.Fatalf("url %s", u)
+	for _, name := range []string{"other.exe", "sandstorm-server-assist-0.2-windows-setup.exe"} {
+		if _, err := f.url(name); err == nil {
+			t.Errorf("accepted file name %q", name)
+		}
+	}
+	if u, _ := f.url("latest.json"); u != DefaultBaseURL+"latest/download/latest.json" {
+		t.Fatalf("manifest url %s", u)
+	}
+	want := DefaultBaseURL + "download/v0.2.0/sandstorm-server-assist-0.2.0-windows-setup.exe"
+	if u, _ := f.url("sandstorm-server-assist-0.2.0-windows-setup.exe"); u != want {
+		t.Fatalf("installer url %s", u)
 	}
 }
 

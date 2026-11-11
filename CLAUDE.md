@@ -1,43 +1,60 @@
 # Sandstorm Server Assist
 
-App desktop (Windows) para instalar, configurar e iniciar um servidor dedicado de Insurgency: Sandstorm com
-mods do mod.io. `desktop/` é o projeto Wails 2 (Go, Clean/Hexagonal) e `desktop/frontend/` o React + Vite
-(workspace `@ssa/frontend`). Detalhes no README; decisões em `docs/DECISOES.md`; andamento em
-`docs/PLANO_DESENVOLVIMENTO.md`; última sessão em `docs/RESUMO_SESSAO.md`. O histórico de como o servidor foi
-configurado à mão está em `resumo_sessao.md` (raiz): é a fonte das regras do mod.io que o app aplica.
+Free, open-source Windows desktop app to install, configure and run an Insurgency: Sandstorm dedicated server with
+mod.io mods. `desktop/` is the Wails 2 project (Go, Clean/Hexagonal) and `desktop/frontend/` the React + Vite front
+end (workspace `@ssa/frontend`). Overview in the README; architecture in `docs/ARCHITECTURE.md`; decisions in
+`docs/DECISIONS.md`; plan in `docs/dev/ROADMAP.md`; session notes in `docs/dev/DEVLOG.md`; releases in
+`docs/RELEASING.md`. The private notes of how the maintainer's server was first set up by hand (`resumo_sessao.md`
+at the root) stay out of git: they are the source of the mod.io rules the app applies.
 
-## Regras do projeto
+## Project rules
 
-- **Plano sempre atualizado:** ao terminar uma etapa ou decidir algo, atualize `docs/PLANO_DESENVOLVIMENTO.md`
-  (e `docs/DECISOES.md` se for decisão de arquitetura). No fim da sessão, atualize `docs/RESUMO_SESSAO.md`.
-- **Segurança a cada mudança de código:** rode a skill `security-audit` (no mínimo `npm run audit:code` e a
-  revisão do diff) e corrija antes de concluir. Nunca `npm audit fix --force`.
-- **Git:** commit e push só com autorização do usuário.
-- **Regras só no Go** (`internal/domain` puro + `internal/app` casos de uso). O front só mostra e coleta escolhas.
-- **O front nunca manda comando nem caminho livre:** manda ids e opções. Caminhos só vêm de diálogos do Windows
-  abertos pelo Go. O Go monta os argumentos do servidor e do SteamCMD (lista, sem shell).
-- **Segredos** (senhas, tokens, sessão do mod.io) só no cofre DPAPI (`adapters/vault`) ou no backup cifrado.
-  Nunca em log, nunca no front sem o usuário clicar em "Mostrar". Toda linha de log mostrada passa por
+- **Keep the plan current:** when a step ends or something is decided, update `docs/dev/ROADMAP.md` (and
+  `docs/DECISIONS.md` for architecture decisions). At the end of a session, add a short entry to
+  `docs/dev/DEVLOG.md`. User-visible changes go into `CHANGELOG.md`.
+- **Security on every code change:** run the `security-audit` skill (at least `npm run audit:code` and a review of the
+  diff) and fix before finishing. Never `npm audit fix --force`.
+- **Git:** commit and push only with the maintainer's approval.
+- **Rules only in Go** (`internal/domain` pure + `internal/app` use cases). The front end only shows and collects
+  choices.
+- **The front end never sends a command or a free path:** it sends ids and options. Paths come only from Windows
+  dialogs opened by Go. Go builds the server and SteamCMD arguments (list, no shell).
+- **Secrets** (passwords, tokens, the mod.io session) only in the DPAPI vault (`adapters/vault`) or the encrypted
+  backup. Never in logs, never in the front end unless the user clicks "Show". Every log line shown goes through
   `domain/logparse.Redact`.
-- **Erros** sempre como item do catálogo `domain/problems` (o que aconteceu, causa, solução).
-- **Links externos** só por chave (`links` em `adapters/desktop/system_api.go`).
-- **Wails:** depois de mudar métodos expostos em `internal/adapters/desktop`, rode `npm run gen:bindings`.
-- **Textos da tela em 5 idiomas** (ADR-009): en-US é a referência (`desktop/frontend/src/i18n/locales/en-US.ts`);
-  pt-PT, es-ES, ru e uk com as mesmas chaves (o `npm test` confere). O Go não tem texto para o usuário: devolve
-  códigos (`problems.*`) e chaves (`validation.*`). Linguagem simples.
-- **Projeto que será público** (ADR-008, ADR-012): Apache 2.0; nada de chave, token, IP, e-mail ou nome real
-  no código, nos testes ou nos docs. `resumo_sessao.md` (notas do servidor do usuário) fica fora do git.
-- **Termos e dados** (ADR-015): mudou `TERMS.md`/`PRIVACY.md` ou os textos `legal.*`, suba `legal.Version`.
-- **Aparência** (ADR-011): cores só por variáveis CSS; tema novo em `styles/themes.css` + `shared/appearance.ts`.
+- **Errors** always as an item of the `domain/problems` catalog (what happened, cause, solution).
+- **External links** only by key (`links` in `adapters/desktop/system_api.go`). Internet only to the fixed hosts of
+  `adapters/netx`.
+- **Wails:** after changing exposed methods in `internal/adapters/desktop`, run `npm run gen:bindings`.
+- **Screen texts in 5 languages** (ADR-009): en-US is the reference (`desktop/frontend/src/i18n/locales/en-US.ts`);
+  pt-PT, es-ES, ru and uk with the same keys (`npm test` checks). Go has no user-facing text: it returns codes
+  (`problems.*`) and keys (`validation.*`). Plain language.
+- **Docs in English** (ADR-035). The README and `docs/GUIDE.md` also exist in pt-PT, es-ES, ru and uk
+  (`README.<lang>.md`, `docs/<lang>/GUIDE.md`): when the English one changes, update the translations with the same
+  sections and images (`npm test` checks the structure).
+- **Public project** (ADR-008, ADR-012): Apache 2.0; no keys, tokens, IP addresses or e-mail addresses in code, tests
+  or docs. The author's name appears only in the credits (README, About, `NOTICE`).
+- **Terms and data** (ADR-015): if `TERMS.md`/`PRIVACY.md` or the `legal.*` texts change, bump `legal.Version`.
+- **Appearance** (ADR-011): colors only through CSS variables; a new theme in `styles/themes.css` +
+  `shared/appearance.ts`.
 
-## Comandos
+## Cautions
 
-- `npm install` → dependências.
-- `npm run dev` → app em modo desenvolvimento.
+- The maintainer's real server folder has secrets in plain text (`Game.ini`, notes next to the `.bat`) and the mod.io
+  session token (`user.json`): never display their values.
+- Never start, stop or restart the maintainer's real game server unless asked.
+- The update signing key (`~/.sandstorm-server-assist/update-signing-key.pem`) never goes into git or logs.
+
+## Commands
+
+- `npm install` → dependencies.
+- `npm run dev` → app in development mode.
 - `npm run build` → `desktop/build/bin/sandstorm-server-assist.exe`.
-- `npm run build:installer` → instalador NSIS em `desktop/build/dist` (ADR-014); `npm run package` → zip portátil.
-- `npm run site:preview` / `npm run site:publish` → página de download (ADR-016, `docs/PAGINA_DOWNLOAD.md`;
-  publicar envia ao servidor: só com autorização do usuário).
-- `npm run update:manifest` → `latest.json` assinado (chave em `~/.sandstorm-server-assist/`, nunca no git).
-- `npm test` (Go + front), `npm run lint`, `npm run typecheck`.
+- `npm run build:installer` → NSIS installer in `desktop/build/dist` (ADR-014); `npm run package` → portable zip.
+- `npm run release:publish` → GitHub Release with the signed `latest.json` (ADR-032, `docs/RELEASING.md`; publishing
+  only with the maintainer's approval). `-- --dry-run` checks without publishing.
+- `npm run site:preview` / `npm run site:publish` → old download page, bridge for apps up to 0.1.10 (ADR-016;
+  publishing only with the maintainer's approval).
+- `npm run update:manifest` → signed `latest.json` (key in `~/.sandstorm-server-assist/`, never in git).
+- `npm test` (Go + front end + docs translations), `npm run lint`, `npm run typecheck`.
 - `npm run audit`, `npm run audit:go`, `npm run audit:code`.

@@ -10,7 +10,8 @@ import (
 
 	"sandstorm-server-assist/desktop/internal/adapters/fsx"
 	"sandstorm-server-assist/desktop/internal/adapters/modio"
-	"sandstorm-server-assist/desktop/internal/adapters/portcheck"
+	"sandstorm-server-assist/desktop/internal/adapters/netdiag"
+	"sandstorm-server-assist/desktop/internal/adapters/winsys"
 	"sandstorm-server-assist/desktop/internal/app/config"
 	"sandstorm-server-assist/desktop/internal/app/mapchange"
 	"sandstorm-server-assist/desktop/internal/app/runner"
@@ -78,20 +79,28 @@ func (s *ServerAPI) Scenarios() ([]server.Scenario, error) { return s.a.maps.Sce
 // ChangeMap troca para um cenário da lista (a tela manda só o id e, se quiser, Day ou Night).
 func (s *ServerAPI) ChangeMap(id, lighting string) error { return s.a.maps.Change(id, lighting) }
 
-// ---- teste de portas pela internet (ADR-021) ----
+// ---- diagnóstico de portas feito no PC (ADR-033) ----
 
-// CheckPorts pede ao verificador do projeto o teste das portas deste servidor pela internet. O servidor precisa
-// estar pronto (a porta de consulta só responde com ele ligado). Vão só os números das portas.
-func (s *ServerAPI) CheckPorts() (netcheck.Result, error) {
-	if s.a.runner.Status().Phase != runner.Ready {
-		return netcheck.Result{}, problems.New(problems.ServerNotRunning, "")
-	}
+// CheckPorts faz o diagnóstico das portas pelo próprio PC: servidor respondendo, Firewall, roteador (UPnP), IP
+// público e CGNAT (STUN), retorno pelo IP público e lista da Steam. Funciona com o servidor parado (mede menos).
+func (s *ServerAPI) CheckPorts() netcheck.Result {
 	p := s.a.cfg.Profile()
-	req := netcheck.Request{QueryPort: p.QueryPort}
-	if p.Rcon {
-		req.RconPort = p.RconPort
+	fw := netcheck.Unknown
+	if info := (&SystemAPI{a: s.a}).Firewall(); info.Ready {
+		fw = netcheck.No
+		if info.Rules {
+			fw = netcheck.Yes
+		}
 	}
-	return portcheck.Check(s.a.ctx, req, p.Port)
+	var local []string
+	for _, a := range winsys.LocalAddresses() {
+		local = append(local, a.IP)
+	}
+	return netdiag.Run(s.a.ctx, netdiag.Input{
+		GamePort: p.Port, QueryPort: p.QueryPort, RconPort: p.RconPort, Rcon: p.Rcon,
+		ServerRunning: s.a.runner.Status().Phase == runner.Ready,
+		LocalIPs:      local, Firewall: fw,
+	})
 }
 
 // ---- mod.io ----

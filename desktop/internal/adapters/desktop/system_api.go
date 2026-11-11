@@ -35,6 +35,9 @@ var links = map[string]string{
 	"apache-license":      "https://www.apache.org/licenses/LICENSE-2.0",
 	"wails":               "https://wails.io",
 	"download-page":       upd.PageURL,
+	"project":             "https://github.com/felipesulzbach/sandstorm-server-assist",
+	"user-guide":          "https://github.com/felipesulzbach/sandstorm-server-assist/blob/main/docs/GUIDE.md",
+	"author":              "https://github.com/felipesulzbach",
 }
 
 // Info é o que a tela mostra sobre o app.

@@ -1,0 +1,35 @@
+name: Idea or improvement
+description: Suggest a new feature or a better way to do something.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea! The app can fill this form for you: **Feedback › Suggest an improvement**.
+  - type: textarea
+    id: description
+    attributes:
+      label: Your idea (optional)
+      description: What would you like the app to do, and why would it help?
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      placeholder: '0.2.0'
+    validations:
+      required: false
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+    validations:
+      required: false
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Screenshots or report file (optional)
+      description: Drag images or the `.zip` created by the app into this box.
+    validations:
+      required: false

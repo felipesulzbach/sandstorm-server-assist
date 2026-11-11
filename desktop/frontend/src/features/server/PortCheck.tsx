@@ -1,14 +1,22 @@
 import { useState } from 'react';
-import { AlertTriangle, CheckCircle2, Globe, Info, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Globe, Info, Stethoscope, XCircle } from 'lucide-react';
 import { useI18n } from '../../i18n';
 import { backend, type PortCheck as Result } from '../../shared/backend';
 import { ErrorCard } from '../../shared/components';
 import { useAction } from '../../shared/hooks';
 
 /**
- * Teste das portas pela internet (ADR-021). O Go pede ao verificador do projeto, que testa de fora o IP desta
- * máquina: a porta de consulta (o servidor responde?) e a do RCON (não deveria estar aberta). A tela só mostra.
+ * Diagnóstico das portas feito no próprio PC (ADR-033). O Go mede (servidor, Firewall, roteador por UPnP, IP
+ * público e CGNAT por STUN, retorno pelo IP público, lista da Steam) e devolve itens com código; a tela só traduz.
+ * Só um teste de fora da rede prova que a porta abre: a tela ensina o teste com um amigo.
  */
+const ICONS = {
+  ok: CheckCircle2,
+  bad: XCircle,
+  warn: AlertTriangle,
+  info: Info,
+} as const;
+
 export function PortCheck({
   connectIp,
   onUseIp,
@@ -16,7 +24,7 @@ export function PortCheck({
   connectIp: string;
   onUseIp: (ip: string) => void;
 }) {
-  const { t } = useI18n();
+  const { t, tl } = useI18n();
   const action = useAction();
   const [res, setRes] = useState<Result | null>(null);
 
@@ -30,7 +38,7 @@ export function PortCheck({
     <div className="portcheck field--wide">
       <div className="row row--wrap">
         <button type="button" className="btn" disabled={action.busy} onClick={run}>
-          <Globe size={16} aria-hidden />{' '}
+          <Stethoscope size={16} aria-hidden />{' '}
           {action.busy ? t('server.portCheck.running') : t('server.portCheck.button')}
         </button>
         <span className="hint">{t('server.portCheck.hint')}</span>
@@ -39,60 +47,61 @@ export function PortCheck({
       {action.error && <ErrorCard error={action.error} onClose={() => action.setError(null)} />}
 
       {res && (
-        <ul className="portcheck__list">
-          <li className={res.queryOpen ? 'is-ok' : 'is-bad'}>
-            {res.queryOpen ? (
-              <CheckCircle2 size={16} aria-hidden />
-            ) : (
-              <XCircle size={16} aria-hidden />
-            )}
-            <span>
-              {res.queryOpen
-                ? t('server.portCheck.queryOpen', {
-                    port: res.queryPort,
-                    name: res.serverName,
-                    map: res.map,
-                  })
-                : t('server.portCheck.queryClosed', { port: res.queryPort })}
-            </span>
-          </li>
-          <li className="is-info">
-            <Info size={16} aria-hidden />
-            <span>{t('server.portCheck.gamePort', { port: res.gamePort })}</span>
-          </li>
-          {res.rconTested && (
-            <li className={res.rconExposed ? 'is-bad' : 'is-ok'}>
-              {res.rconExposed ? (
-                <AlertTriangle size={16} aria-hidden />
-              ) : (
-                <CheckCircle2 size={16} aria-hidden />
-              )}
-              <span>
-                {t(
-                  res.rconExposed ? 'server.portCheck.rconExposed' : 'server.portCheck.rconClosed',
-                  {
-                    port: res.rconPort,
-                  },
-                )}
-              </span>
+        <>
+          <p className={`portcheck__verdict portcheck__verdict--${res.verdict}`}>
+            {t(`server.portCheck.verdict.${res.verdict}`)}
+          </p>
+          <ul className="portcheck__list">
+            {(res.items ?? []).map((it) => {
+              const Icon = ICONS[it.status as keyof typeof ICONS] ?? Info;
+              return (
+                <li key={it.key + JSON.stringify(it.params ?? {})} className={`is-${it.status}`}>
+                  <Icon size={16} aria-hidden />
+                  <span>{t(`server.portCheck.items.${it.key}`, it.params ?? {})}</span>
+                </li>
+              );
+            })}
+            <li className="is-info">
+              <Info size={16} aria-hidden />
+              <span>{t('server.portCheck.gamePort', { port: res.gamePort })}</span>
             </li>
-          )}
-          <li className="is-info">
-            <Globe size={16} aria-hidden />
-            <span>{t('server.portCheck.publicIp', { ip: res.publicIp })}</span>
-            {res.publicIp !== connectIp && (
-              <button
-                type="button"
-                className="btn btn--small btn--ghost"
-                onClick={() => onUseIp(res.publicIp)}
-              >
-                {t('server.portCheck.useIp')}
-              </button>
+            {res.publicIp && (
+              <li className="is-info">
+                <Globe size={16} aria-hidden />
+                <span>{t('server.portCheck.publicIp', { ip: res.publicIp })}</span>
+                {res.publicIp !== connectIp && (
+                  <button
+                    type="button"
+                    className="btn btn--small btn--ghost"
+                    onClick={() => onUseIp(res.publicIp)}
+                  >
+                    {t('server.portCheck.useIp')}
+                  </button>
+                )}
+              </li>
             )}
-          </li>
-        </ul>
+          </ul>
+        </>
       )}
-      {res && !res.queryOpen && <p className="hint">{t('server.portCheck.closedHelp')}</p>}
+
+      <details className="portcheck__manual" open={res !== null && res.verdict !== 'open'}>
+        <summary>{t('server.portCheck.manual.title')}</summary>
+        <p className="hint">{t('server.portCheck.manual.intro')}</p>
+        <ol>
+          {tl('server.portCheck.manual.steps', {
+            ip: res?.publicIp || connectIp || t('server.portCheck.manual.yourIp'),
+            port: res?.queryPort ?? '',
+          }).map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+        <p className="hint">{t('server.portCheck.manual.tipsTitle')}</p>
+        <ul>
+          {tl('server.portCheck.manual.tips').map((tip) => (
+            <li key={tip}>{tip}</li>
+          ))}
+        </ul>
+      </details>
     </div>
   );
 }

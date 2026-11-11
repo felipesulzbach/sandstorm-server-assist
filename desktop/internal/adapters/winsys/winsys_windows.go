@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"syscall"
 	"unsafe"
@@ -155,4 +156,19 @@ func RunElevated(arg string) error {
 		return errors.New("the rule was not created")
 	}
 	return nil
+}
+
+// WindowsVersion devolve a versão do Windows para o relato de problema, ex.: "Windows 11 (build 26100)".
+func WindowsVersion() string {
+	v := windows.RtlGetVersion()
+	name := "Windows " + strconv.Itoa(int(v.MajorVersion))
+	if v.MajorVersion == 10 && v.BuildNumber >= 22000 {
+		name = "Windows 11"
+	}
+	return name + " (build " + strconv.Itoa(int(v.BuildNumber)) + ")"
+}
+
+// RevealFile abre o Explorer com o arquivo selecionado.
+func RevealFile(path string) error {
+	return exec.Command("explorer.exe", "/select,"+path).Start() // #nosec G204 -- explorer.exe com um arquivo criado pelo app
 }

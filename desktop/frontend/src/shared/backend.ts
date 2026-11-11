@@ -6,6 +6,7 @@ import * as Inst from '../../wailsjs/go/desktop/InstallAPI';
 import * as Srv from '../../wailsjs/go/desktop/ServerAPI';
 import * as Logs from '../../wailsjs/go/desktop/LogAPI';
 import * as Bak from '../../wailsjs/go/desktop/BackupAPI';
+import * as Rep from '../../wailsjs/go/desktop/ReportAPI';
 import {
   EventsOn,
   Quit,
@@ -69,6 +70,9 @@ export type UpdateState = updater.State;
 export type Terms = desktop.Terms;
 export type BackupSummary = backupsvc.Summary;
 export type CreateResult = desktop.CreateResult;
+export type ReportImage = desktop.ImageInfo;
+export type ReportResult = desktop.ReportResult;
+export type ReportKind = 'bug' | 'idea';
 export type SecretKey =
   | 'serverPassword'
   | 'rconPassword'
@@ -166,6 +170,12 @@ export const backend = {
 
   createBackup: (password: string, includeModio: boolean) => Bak.Create(password, includeModio),
   chooseBackupFile: () => Bak.ChooseFile(),
+
+  chooseReportImage: () => Rep.ChooseImage(),
+  clearReportImage: () => Rep.ClearImage(),
+  createReport: (kind: ReportKind, title: string, description: string, includeLog: boolean) =>
+    Rep.Create({ kind, title, description, includeLog }),
+  showReport: () => Rep.ShowLast(),
   inspectBackup: (password: string) => Bak.Inspect(password),
   chooseRestoreDir: () => Bak.ChooseRestoreDir(),
   restoreBackup: (password: string, restoreModio: boolean) => Bak.Restore(password, restoreModio),

@@ -1,6 +1,6 @@
 # Terms of Use
 
-Version **2026-11-10**. The app shows these terms in its own language (English, Portuguese, Spanish, Russian
+Version **2026-11-11**. The app shows these terms in its own language (English, Portuguese, Spanish, Russian
 and Ukrainian) and asks you to accept them before first use. When this version changes, it asks again.
 
 ## 1. What this app is
@@ -47,7 +47,7 @@ Tokens and accounts from Steam, GameStats and mod.io are yours and follow the ru
 
 ## 6. Automatic updates
 
-The installed app checks the project download page for new versions and downloads them in the background. It
+The installed app checks the project releases on GitHub for new versions and downloads them in the background. It
 installs them when you click **Update** or close the app.
 
 Only updates signed with the project key are accepted. The portable version only tells you that a new version

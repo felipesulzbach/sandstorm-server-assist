@@ -21,11 +21,13 @@ import (
 	"sandstorm-server-assist/desktop/internal/domain/update"
 )
 
-// DefaultBaseURL é a pasta dos downloads da página do app (mesmo servidor do game-in e do midia-multi-tools).
-const DefaultBaseURL = "https://game-in.duckdns.org/sandstorm/downloads/"
+// DefaultBaseURL é a pasta das Releases do projeto no GitHub (ADR-032). O latest.json vem da Release mais recente
+// ("latest/download/latest.json") e o instalador vem da Release da própria versão ("download/v<versão>/<arquivo>"):
+// se outra Release sair no meio do download, o instalador continua o mesmo que o manifesto assinou.
+const DefaultBaseURL = "https://github.com/felipesulzbach/sandstorm-server-assist/releases/"
 
-// PageURL é a página de download (para a versão portátil baixar a nova à mão).
-const PageURL = "https://game-in.duckdns.org/sandstorm/"
+// PageURL é a página da Release mais recente (para a versão portátil baixar a nova à mão).
+const PageURL = DefaultBaseURL + "latest"
 
 const maxManifestBytes = 64 << 10
 
@@ -48,18 +50,31 @@ func NewHTTPFetcher(base string) (*HTTPFetcher, error) {
 // checagem fica aqui também.
 var fileName = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]*$`)
 
+// installerVersion tira a versão do nome do instalador (o manifesto já exige o nome da própria versão).
+var installerVersion = regexp.MustCompile(`^sandstorm-server-assist-(\d{1,4}\.\d{1,4}\.\d{1,4})-windows-setup\.exe$`)
+
+const manifestName = "latest.json"
+
 func (f *HTTPFetcher) url(name string) (string, error) {
 	if !fileName.MatchString(name) || strings.Contains(name, "..") {
 		return "", errors.New("invalid update file name")
 	}
-	return f.base.JoinPath(name).String(), nil // #nosec G125 -- nome conferido acima (sem barras nem "..")
+	if name == manifestName {
+		return f.base.JoinPath("latest", "download", manifestName).String(), nil
+	}
+	m := installerVersion.FindStringSubmatch(name)
+	if m == nil {
+		return "", errors.New("invalid update file name")
+	}
+	// #nosec G125 -- nome e versão conferidos acima (sem barras nem "..")
+	return f.base.JoinPath("download", "v"+m[1], name).String(), nil
 }
 
 // Manifest busca o latest.json (no máximo 64 KB).
 func (f *HTTPFetcher) Manifest(ctx context.Context) ([]byte, error) {
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
-	u, err := f.url("latest.json")
+	u, err := f.url(manifestName)
 	if err != nil {
 		return nil, err
 	}

@@ -1575,7 +1575,7 @@ code {
   margin-top: 10px;
 }
 
-/* Teste de portas pela internet (ADR-021) */
+/* Diagnóstico de portas feito no PC (ADR-033) */
 .portcheck {
   display: grid;
   gap: 10px;
@@ -1602,6 +1602,35 @@ code {
 }
 .portcheck__list .is-info svg {
   color: var(--muted);
+}
+.portcheck__list .is-warn svg {
+  color: var(--warn);
+}
+.portcheck__verdict {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border-left: 4px solid var(--muted);
+  background: var(--surface-2);
+}
+.portcheck__verdict--open,
+.portcheck__verdict--likely {
+  border-left-color: var(--ok);
+}
+.portcheck__verdict--problem {
+  border-left-color: var(--danger);
+}
+.portcheck__verdict--unsure {
+  border-left-color: var(--warn);
+}
+.portcheck__manual summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.portcheck__manual ol,
+.portcheck__manual ul {
+  margin: 6px 0;
+  padding-left: 20px;
 }
 
 /* Configurações do servidor (ADR-022) */

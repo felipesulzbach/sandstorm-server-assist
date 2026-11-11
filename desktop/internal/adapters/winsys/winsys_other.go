@@ -23,3 +23,9 @@ func AddFirewallRules(string) error { return errOnlyWindows }
 
 // RunElevated só existe no Windows.
 func RunElevated(string) error { return errOnlyWindows }
+
+// WindowsVersion só existe no Windows.
+func WindowsVersion() string { return "not Windows" }
+
+// RevealFile só existe no Windows.
+func RevealFile(string) error { return errOnlyWindows }

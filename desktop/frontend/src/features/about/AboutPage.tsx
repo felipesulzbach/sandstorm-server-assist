@@ -91,6 +91,15 @@ export function AboutPage({ info, terms }: { info: AppInfo | null; terms: Terms 
         </div>
       </section>
       <section className="card">
+        <h2 className="card__title">{t('about.credits')}</h2>
+        <p>{t('about.creditsText')}</p>
+        <div className="row row--wrap">
+          <LinkButton linkKey="project" />
+          <LinkButton linkKey="user-guide" />
+          <LinkButton linkKey="author" />
+        </div>
+      </section>
+      <section className="card">
         <h2 className="card__title">{t('about.license')}</h2>
         <p>{t('about.licenseText')}</p>
         <LinkButton linkKey="apache-license" />
