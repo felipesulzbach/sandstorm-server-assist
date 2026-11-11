@@ -67,7 +67,9 @@ Short notes of each development session, newest last. They help a new session pi
     optional screenshot) and opens the form filled in. Description and image are optional.
   - **Docs in English (ADR-035)**, README and user guide in the 5 app languages with a language bar; the development
     notes became this log and the roadmap; credits added.
-- Not done yet: screenshots for the docs, and publishing 0.2.0 (needs the maintainer's approval).
+- Screenshots taken from the dev app with empty temporary data and demo values.
+- **Published** the same day: GitHub Release `v0.2.0` and, as the bridge, the old download server. Installed apps
+  up to 0.1.10 update from the old server to 0.2.0 and then use GitHub.
 
 ## Cautions for future sessions
 
