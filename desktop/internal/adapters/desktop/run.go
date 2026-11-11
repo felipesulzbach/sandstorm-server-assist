@@ -149,6 +149,7 @@ func newApp() *app {
 	mods := &modCache{}
 	a := &app{cfg: cfg, log: log, install: installer.New(log), mods: mods}
 	a.updates = newUpdater()
+	runs := newRunFile(path, log)
 	a.runner = runner.New(runner.Deps{
 		Find: func(dir string) ([]proc.Process, error) { return proc.FindInDir(dir, "InsurgencyServer") },
 		Kill: proc.Kill,
@@ -194,6 +195,8 @@ func newApp() *app {
 			return ids
 		},
 		OnPlayer: func(ev logparse.Event) { a.chat.Observe(ev) },
+		SaveRun:  runs.Save,
+		LoadRun:  runs.Load,
 		Log:      log,
 	})
 	a.maps = mapchange.New(mapchange.Deps{

@@ -100,7 +100,8 @@ export const enUS = {
     port: 'Port',
     since: 'Running since',
     modsActive: '{n} mods active',
-    external: 'This server was started outside the app. The app is following it.',
+    external:
+      "This server was already running when the app opened, and the app did not start it. The app follows and controls it as usual; it just won't restart it by itself to load new mods.",
     authorizing:
       'Authorizing on mod.io with the code. The server will restart by itself in normal mode.',
     remount:

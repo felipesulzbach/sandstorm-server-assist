@@ -101,7 +101,8 @@ export const esES: Messages = {
     port: 'Puerto',
     since: 'En marcha desde',
     modsActive: '{n} mods activos',
-    external: 'Este servidor se inició fuera de la aplicación. La aplicación lo está siguiendo.',
+    external:
+      'Este servidor ya estaba en marcha cuando se abrió la aplicación, y no fue ella quien lo inició. La aplicación lo sigue y lo controla con normalidad; solo no lo reinicia sola para cargar mods nuevos.',
     authorizing:
       'Autorizando en mod.io con el código. El servidor se reiniciará solo en modo normal.',
     remount:

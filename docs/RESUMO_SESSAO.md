@@ -152,7 +152,12 @@ mapa de mod escolhidos em listas lidas dos mods instalados (ADR-024). Publicada 
 servidor vazio (0.1.5). Causa: lista nula do Go. Corrigido e criada a proteção contra erro de tela (ADR-025). Publicada na página no mesmo
 dia (`latest.json` na 0.1.6).
 
-**Falta (com o usuário):** atualizar o app instalado para a 0.1.6, aceitar os termos novos, testar o botão
+**10/11 (noite) · fase 23, versão 0.1.7:** o usuário viu "iniciado fora da aplicação" depois de fechar e abrir o
+app com o servidor que o próprio app iniciou. Agora o app grava o registro da partida e continua com o servidor
+como dele; o aviso ficou só para servidor de fora, com texto mais claro (ADR-026). A partir da próxima partida
+iniciada pela 0.1.7 (a que já está rodando continua como de fora).
+
+**Falta (com o usuário):** atualizar o app instalado para a 0.1.7, aceitar os termos novos, testar o botão
 "Testar portas pela internet" com o servidor ligado, testar a troca para um mapa de mod e as mensagens no chat com jogadores. Da fase 19:
 testar com jogadores o painel (expulsar/banir), a troca com dia/noite, as regras no jogo, o webhook do Discord, a
 regra do Firewall (pede administrador) e o reinício diário. Da fase 21: ver no jogo a mensagem do dia formatada e se

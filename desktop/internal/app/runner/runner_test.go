@@ -338,3 +338,68 @@ func TestEachStartOpensARunAndCleansOnce(t *testing.T) {
 		t.Fatalf("runs=%d last=%+v", runs, last)
 	}
 }
+
+// App fechado e aberto de novo com o servidor que ele iniciou (ADR-026): continua como servidor do app, com a linha
+// de comando, sem o aviso de "iniciado fora". Quando a partida acaba, o registro é apagado.
+func TestReopenedAppResumesItsOwnServer(t *testing.T) {
+	s, f, dir := setup(t)
+	var saved *Run
+	var mu sync.Mutex
+	s.d.SaveRun = func(r *Run) { mu.Lock(); saved = r; mu.Unlock() }
+	s.d.LoadRun = func() *Run { mu.Lock(); defer mu.Unlock(); return saved }
+	if err := s.Start(); err != nil {
+		t.Fatal(err)
+	}
+	mu.Lock()
+	run := saved
+	mu.Unlock()
+	if run == nil || run.Dir != dir || run.CmdLine == "" || strings.Contains(run.CmdLine, "segredo#1") {
+		t.Fatalf("registro: %+v", run)
+	}
+
+	// O app fecha; o processo começou logo depois do registro. O app reabre.
+	f.mu.Lock()
+	f.started = run.Started.Add(3 * time.Second)
+	f.mu.Unlock()
+	again := New(s.d)
+	again.Tick()
+	st := again.Status()
+	if st.External || st.CmdLine != run.CmdLine || !again.ownStart {
+		t.Errorf("deveria continuar como servidor do app: %+v", st)
+	}
+
+	// O servidor para: o registro some.
+	_ = again.Stop()
+	again.Tick()
+	mu.Lock()
+	defer mu.Unlock()
+	if saved != nil {
+		t.Errorf("registro não apagado: %+v", saved)
+	}
+}
+
+// Registro antigo, de outra pasta ou processo sem hora do Windows: o servidor é tratado como aberto fora do app.
+func TestRunRecordOnlyMatchesItsOwnStart(t *testing.T) {
+	at := time.Date(2026, 11, 10, 18, 4, 0, 0, time.UTC)
+	run := &Run{Started: at, Dir: `C:\srv`}
+	cases := []struct {
+		name string
+		run  *Run
+		dir  string
+		p    time.Time
+		want bool
+	}{
+		{"logo depois", run, `C:\srv`, at.Add(2 * time.Second), true},
+		{"maiúsculas na pasta", run, `c:\SRV\`, at.Add(time.Second), true},
+		{"iniciado bem depois (por fora)", run, `C:\srv`, at.Add(time.Hour), false},
+		{"iniciado antes do registro", run, `C:\srv`, at.Add(-time.Minute), false},
+		{"outra pasta", run, `C:\outro`, at.Add(time.Second), false},
+		{"sem hora do Windows", run, `C:\srv`, time.Time{}, false},
+		{"sem registro", nil, `C:\srv`, at, false},
+	}
+	for _, c := range cases {
+		if got := c.run.matches(c.dir, []proc.Process{{PID: 1, Started: c.p}}); got != c.want {
+			t.Errorf("%s: %v, esperado %v", c.name, got, c.want)
+		}
+	}
+}

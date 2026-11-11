@@ -101,7 +101,8 @@ export const ptPT: Messages = {
     port: 'Porta',
     since: 'Em execução desde',
     modsActive: '{n} mods ativos',
-    external: 'Este servidor foi iniciado fora da aplicação. A aplicação está a acompanhá-lo.',
+    external:
+      'Este servidor já estava a correr quando a aplicação abriu, e não foi ela que o iniciou. A aplicação acompanha-o e controla-o normalmente; só não o reinicia sozinha para carregar mods novos.',
     authorizing: 'A autorizar no mod.io com o código. O servidor reinicia sozinho em modo normal.',
     remount:
       'Foram baixados mods novos e o servidor não carregou os que já estavam instalados (mapa do mod e mutators). A reiniciar uma vez para carregar todos.',

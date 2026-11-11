@@ -396,3 +396,19 @@ Registro curto: contexto, decisão e consequência. Decisão nova entra no fim.
     caracteres e com a máscara de segredos do log.
 - **Verificado:** teste do Go com o `listplayers` vazio no formato real (`{"players":[],"bans":[]}`), testes da
   proteção (erro na página, troca de página, erro no app) e o botão no modo dev com o servidor real vazio.
+
+## ADR-026 · O app reaberto reconhece o servidor que ele iniciou
+
+- **Contexto:** o app sabia que o servidor era dele só enquanto estava aberto. Iniciar pelo app, fechar e abrir de
+  novo mostrava "iniciado fora da aplicação", o que confundia. Para um servidor de fora, o app não reinicia sozinho
+  para carregar mods novos, não mostra a linha de comando e não apaga os logs antigos; o resto (parar, reiniciar,
+  jogadores, chat, troca de mapa, mensagens, reinícios automáticos) funciona igual.
+- **Decisão:**
+  - Ao iniciar, o app grava `server-run.json` ao lado do `config.json`: hora, pasta e a linha de comando já
+    mascarada (sem segredos). Quando o servidor para, o arquivo é apagado.
+  - Ao abrir com o servidor rodando, ele é do app se a pasta é a mesma e o processo mais antigo começou entre 5 s
+    antes e 2 min depois da hora gravada. Sem a hora do Windows, ou fora da janela, continua como de fora.
+  - O aviso de servidor de fora passou a dizer o que acontece de fato: já estava rodando, não foi o app que o
+    iniciou, é controlado normalmente e só não é reiniciado sozinho para carregar mods novos.
+- **Limite:** a autorização do mod.io com código (ADR-003) não é retomada; se o app fechar no meio dela, o servidor
+  continua com o código até ser reiniciado.

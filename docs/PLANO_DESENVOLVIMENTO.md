@@ -192,6 +192,11 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
   `build:installer`, `package`, `site:publish`. `latest.json` na 0.1.6, SHA-256 do instalador baixado confere,
   página mostra 0.1.6; verificador, game-in e `/midia/` seguiram respondendo 200. Sem mudança no servidor.
 
+## Fase 23 · O app reaberto continua com o próprio servidor (10/11/2026, versão 0.1.7)
+
+- Registro da partida em `server-run.json`; ao reabrir, o servidor iniciado pelo app continua como dele (linha de
+  comando, reinício para carregar mods novos). Aviso de servidor de fora reescrito nos 5 idiomas. ADR-026.
+
 ## Pendências
 
 - Feito depois da primeira rodada: ícone, zip portátil, testes de installer/config/logbuf e teste real do

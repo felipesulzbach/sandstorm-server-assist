@@ -62,6 +62,35 @@ type Status struct {
 	Remount bool `json:"remount"`
 }
 
+// Run é o registro da partida iniciada pelo app, gravado em disco (ADR-026). Com ele, o app reaberto reconhece o
+// servidor que ele mesmo iniciou e continua de onde parou, em vez de tratá-lo como aberto fora do app.
+type Run struct {
+	Started time.Time `json:"started"`
+	Dir     string    `json:"dir"`
+	CmdLine string    `json:"cmdLine"` // já com os segredos mascarados (Launch.Shown)
+}
+
+// Janela em que a hora de início do processo precisa cair para ser a partida registrada.
+const (
+	runBefore = 5 * time.Second
+	runAfter  = 2 * time.Minute
+)
+
+// matches diz se os processos encontrados são os da partida registrada: mesma pasta e processo mais antigo
+// iniciado logo depois do registro. Sem hora do Windows, não reconhece (fica como servidor de fora).
+func (r *Run) matches(dir string, list []proc.Process) bool {
+	if r == nil || r.Started.IsZero() || !strings.EqualFold(filepath.Clean(r.Dir), filepath.Clean(dir)) {
+		return false
+	}
+	first := time.Time{}
+	for _, p := range list {
+		if !p.Started.IsZero() && (first.IsZero() || p.Started.Before(first)) {
+			first = p.Started
+		}
+	}
+	return !first.IsZero() && !first.Before(r.Started.Add(-runBefore)) && !first.After(r.Started.Add(runAfter))
+}
+
 // ServerExe é o executável do servidor dentro da pasta.
 const ServerExe = "InsurgencyServer.exe"
 
@@ -84,8 +113,11 @@ type Deps struct {
 	CleanLogs func(serverDir string)
 	// OnPlayer recebe as entradas e saídas de jogadores lidas no log (mensagens no chat, ADR-020). Pode ser nil.
 	OnPlayer func(logparse.Event)
-	Log      *logbuf.Buffer
-	Now      func() time.Time
+	// SaveRun grava (nil apaga) o registro da partida iniciada pelo app; LoadRun o lê (ADR-026). Podem ser nil.
+	SaveRun func(*Run)
+	LoadRun func() *Run
+	Log     *logbuf.Buffer
+	Now     func() time.Time
 }
 
 // Service é o controle do servidor.
@@ -236,6 +268,12 @@ func (s *Service) start(code string) error {
 		s.emitLocked()
 		return problems.Wrap(problems.ServerStartFailed, err)
 	}
+	if s.d.SaveRun != nil {
+		s.mu.Lock()
+		run := &Run{Started: s.st.Since, Dir: p.ServerDir, CmdLine: s.st.CmdLine}
+		s.mu.Unlock()
+		s.d.SaveRun(run)
+	}
 	s.emitLocked()
 	return nil
 }
@@ -357,19 +395,29 @@ func (s *Service) Tick() {
 		pids = append(pids, pr.PID)
 	}
 	s.st.PIDs = pids
+	clearRun := false
 
 	switch {
 	case !installed && !running:
 		s.st.Phase = NotInstalled
 	case running && (s.st.Phase == Stopped || s.st.Phase == NotInstalled || s.st.Phase == Crashed):
-		// Servidor aberto fora do app (ou antes de o app abrir): acompanha lendo o log atual desde o início.
+		// Servidor que já estava rodando quando o app abriu: acompanha lendo o log atual desde o início.
 		// "Em execução desde" é a hora em que o processo começou, não a hora em que o app o viu.
-		s.st = Status{Phase: Starting, Since: startedAt(list, s.d.Now()), External: true, PIDs: pids}
+		// Se é a partida que o próprio app iniciou antes de fechar (registro em disco, ADR-026), continua como dele.
+		var run *Run
+		if s.d.LoadRun != nil {
+			run = s.d.LoadRun()
+		}
+		own := run.matches(p.ServerDir, list)
+		s.st = Status{Phase: Starting, Since: startedAt(list, s.d.Now()), External: !own, PIDs: pids}
+		if own {
+			s.st.CmdLine = run.CmdLine
+		}
 		if s.d.Log != nil {
 			s.d.Log.StartRun(s.st.Since)
 		}
 		s.mods = map[int]*ModState{}
-		s.ownStart = false
+		s.ownStart = own
 		s.added = map[int]bool{}
 		s.remountCheck = false
 		s.travelMap = p.TravelMap
@@ -388,11 +436,15 @@ func (s *Service) Tick() {
 		}
 		s.stopping = false
 		s.authCode = ""
+		clearRun = true // a partida acabou: o registro não vale mais
 	case !running && installed && s.st.Phase == NotInstalled:
 		s.st.Phase = Stopped
 	}
 	active := running || s.st.Phase == Crashed
 	s.mu.Unlock()
+	if clearRun && s.d.SaveRun != nil {
+		s.d.SaveRun(nil)
+	}
 
 	if active {
 		s.readLog()
