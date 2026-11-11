@@ -1,6 +1,6 @@
 # Plano de desenvolvimento
 
-> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-10, à noite (0.1.6 publicada).
+> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-10, à noite (0.1.7 publicada).
 > Base: [RESUMO_PROJETO.md](RESUMO_PROJETO.md) · Decisões: [DECISOES.md](DECISOES.md)
 
 ## Situação
@@ -196,6 +196,9 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
 
 - Registro da partida em `server-run.json`; ao reabrir, o servidor iniciado pelo app continua como dele (linha de
   comando, reinício para carregar mods novos). Aviso de servidor de fora reescrito nos 5 idiomas. ADR-026.
+- **Publicada** no PC de publicação: testes, lint, typecheck, `audit`, `audit:go` e `audit:code` limpos;
+  `build:installer`, `package`, `site:publish`. `latest.json` na 0.1.7, SHA-256 do instalador baixado confere,
+  página mostra 0.1.7; verificador, game-in e `/midia/` seguiram respondendo 200. Sem mudança no servidor.
 
 ## Pendências
 

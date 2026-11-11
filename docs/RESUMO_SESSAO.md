@@ -155,7 +155,8 @@ dia (`latest.json` na 0.1.6).
 **10/11 (noite) · fase 23, versão 0.1.7:** o usuário viu "iniciado fora da aplicação" depois de fechar e abrir o
 app com o servidor que o próprio app iniciou. Agora o app grava o registro da partida e continua com o servidor
 como dele; o aviso ficou só para servidor de fora, com texto mais claro (ADR-026). A partir da próxima partida
-iniciada pela 0.1.7 (a que já está rodando continua como de fora).
+iniciada pela 0.1.7 (a que já está rodando continua como de fora). Publicada na página no mesmo dia
+(`latest.json` na 0.1.7).
 
 **Falta (com o usuário):** atualizar o app instalado para a 0.1.7, aceitar os termos novos, testar o botão
 "Testar portas pela internet" com o servidor ligado, testar a troca para um mapa de mod e as mensagens no chat com jogadores. Da fase 19:
