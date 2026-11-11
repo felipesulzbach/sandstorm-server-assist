@@ -17,8 +17,14 @@ import (
 const (
 	// FromServer: o servidor listou (está carregado e pronto para trocar).
 	FromServer = "server"
-	// FromConfig: está no MapCycle ou é o mapa inicial/de mod do perfil, mas o servidor não listou (mapas de mod).
+	// FromConfig: está no MapCycle ou é o mapa inicial/de mod do perfil, mas o servidor não listou. Só usado quando
+	// o app não sabe quais mods estão carregados.
 	FromConfig = "config"
+	// FromMod: cenário de um mod carregado nesta partida (lido dos .pak do mod, ADR-029).
+	FromMod = "mod"
+	// FromMissing: está na rotação (ou é o mapa de mod do perfil), mas o mod dele não está carregado (ADR-030).
+	// Aparece na lista para o usuário entender, sem poder ser escolhido.
+	FromMissing = "missing"
 )
 
 // Scenario é uma opção de troca de mapa.
@@ -68,10 +74,13 @@ func SplitScenario(id string) (mapName, mode string) {
 	return rest, ""
 }
 
-// MapChoices junta o que o servidor listou com os cenários do perfil (MapCycle, mapa inicial e mapa de mod) que
-// ele não listou. O "scenarios" do servidor só lista os mapas do jogo base (visto em 10/11/2026 com o Containment
-// carregado), então os mapas de mod entram por aqui.
-func MapChoices(fromServer []string, p Profile) []Scenario {
+// MapChoices junta o que o servidor listou com os mapas de mod. O "scenarios" do servidor só lista os mapas do jogo
+// base (visto em 10/11/2026 com o Containment carregado), então os mapas de mod entram por aqui:
+//   - fromMods são os cenários dos mods carregados nesta partida (ADR-029). Um mapa da rotação cujo mod não está
+//     carregado (inscrição retirada, por exemplo) fica de fora: o servidor recusaria a troca.
+//   - fromMods nil: o app não sabe quais mods estão carregados; usa os cenários do perfil (MapCycle, mapa inicial e
+//     mapa de mod), como antes.
+func MapChoices(fromServer []string, p Profile, fromMods []string) []Scenario {
 	seen := map[string]bool{}
 	out := []Scenario{}
 	add := func(id, source string) {
@@ -85,13 +94,21 @@ func MapChoices(fromServer []string, p Profile) []Scenario {
 	for _, id := range fromServer {
 		add(id, FromServer)
 	}
+	// Do perfil: sem saber os mods carregados, entram como opção; sabendo, o que sobrou não tem mod carregado.
+	fromProfile := FromConfig
+	if fromMods != nil {
+		for _, id := range fromMods {
+			add(id, FromMod)
+		}
+		fromProfile = FromMissing
+	}
 	for _, line := range p.MapCycle {
 		if id := scenarioToken.FindString(FixMapCycleLine(line)); id != "" {
-			add(id, FromConfig)
+			add(id, fromProfile)
 		}
 	}
-	add(p.TravelScenario, FromConfig)
-	add(p.StartScenario, FromConfig)
+	add(p.TravelScenario, fromProfile)
+	add(p.StartScenario, fromProfile)
 	sort.Slice(out, func(i, j int) bool {
 		a, b := out[i], out[j]
 		if !strings.EqualFold(a.Map, b.Map) {
@@ -110,10 +127,33 @@ func TravelCommand(id string, choices []Scenario) (string, error) {
 	}
 	for _, c := range choices {
 		if c.ID == id {
+			if c.Source == FromMissing {
+				return "", problems.Field("scenario", "validation.scenarioNotLoaded")
+			}
 			return "travelscenario " + id, nil
 		}
 	}
 	return "", problems.Field("scenario", "validation.scenarioUnknown")
+}
+
+// MissingInCycle diz, linha a linha, se o cenário da rotação não existe no jogo base nem nos mods instalados
+// (ADR-030): quando a rotação chega nele, o servidor não tem para onde ir. known são os cenários que existem; vazio
+// quer dizer que o app não conseguiu ler o jogo base, e nada é marcado. Linhas que o app não entende não são marcadas.
+func MissingInCycle(lines []string, known []string) []bool {
+	out := make([]bool, len(lines))
+	if len(known) == 0 {
+		return out
+	}
+	set := make(map[string]bool, len(known))
+	for _, k := range known {
+		set[strings.ToLower(k)] = true
+	}
+	for i, l := range lines {
+		if id := LineScenario(l); id != "" && !set[strings.ToLower(id)] {
+			out[i] = true
+		}
+	}
+	return out
 }
 
 // TravelWithLighting monta a troca de mapa com dia ou noite (ADR-022). O travelscenario não aceita a iluminação,

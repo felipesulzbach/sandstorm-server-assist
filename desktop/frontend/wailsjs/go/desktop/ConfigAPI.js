@@ -42,10 +42,6 @@ export function Maps() {
   return window['go']['desktop']['ConfigAPI']['Maps']();
 }
 
-export function MarkupPreview(arg1, arg2) {
-  return window['go']['desktop']['ConfigAPI']['MarkupPreview'](arg1, arg2);
-}
-
 export function ModMutators() {
   return window['go']['desktop']['ConfigAPI']['ModMutators']();
 }

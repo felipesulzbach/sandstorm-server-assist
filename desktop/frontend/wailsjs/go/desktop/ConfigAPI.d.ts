@@ -26,8 +26,6 @@ export function MapCycleLines(arg1:Array<string>):Promise<Array<desktop.CycleLin
 
 export function Maps():Promise<desktop.MapsInfo>;
 
-export function MarkupPreview(arg1:string,arg2:boolean):Promise<Array<server.Segment>>;
-
 export function ModMutators():Promise<Array<modio.ModMutator>>;
 
 export function ModScenarios():Promise<Array<modio.ModScenario>>;

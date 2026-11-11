@@ -180,3 +180,20 @@ func scanPak(path string) (pak.Contents, error) {
 	}
 	return pak.Scan(dirIndex)
 }
+
+// BaseScenarios lista os cenários do jogo base, lidos dos .pak do servidor (pasta Insurgency/Content/Paks, só os
+// índices). Serve para saber se um mapa da rotação existe (ADR-030): a lista fixa de mapas do app não tem todos.
+func BaseScenarios(paksDir string) []string {
+	c, _ := scanDir(paksDir)
+	return c.Scenarios
+}
+
+// ScenarioIDs lista todos os cenários dos mods instalados, mesmo os sem mapa identificado (para conferir se um
+// cenário da rotação existe, ADR-030).
+func ScenarioIDs(root string) []string {
+	out := []string{}
+	for _, im := range scanMods(root) {
+		out = append(out, im.contents.Scenarios...)
+	}
+	return out
+}

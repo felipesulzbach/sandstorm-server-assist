@@ -167,7 +167,14 @@ inicialização. Corrigido (ADR-027). O erro inofensivo de raycast do Border pas
 mostrando Border: a linha da viagem vem com o caminho do mapa e o app não a reconhecia. Corrigido (ADR-028).
 Publicada na página no mesmo dia (`latest.json` na 0.1.9).
 
-**Falta (com o usuário):** atualizar o app instalado para a 0.1.9, aceitar os termos novos, testar o botão
+**11/11 · fase 26, versão 0.1.10:** o usuário viu na troca de mapa um mapa de mod cuja inscrição tinha retirado
+(vinha da rotação) e achou ruim a lista única agrupada. Agora os mapas de mod vêm dos mods carregados e a escolha é
+em duas listas, mapa e modo (ADR-029). Também na 0.1.10: mapas da rotação sem mod aparecem desativados na troca e
+com aviso e "Remover" em Servidor › Mapas (ADR-030). Na rotação do usuário, Outback e Redwood Reborn estão nesse caso. E a
+formatação não funciona no jogo (tags escritas na tela de carregamento e no chat): mensagens viraram texto simples
+(ADR-031).
+
+**Falta (com o usuário):** atualizar o app instalado para a 0.1.10, aceitar os termos novos, testar o botão
 "Testar portas pela internet" com o servidor ligado, testar a troca para um mapa de mod e as mensagens no chat com jogadores. Da fase 19:
 testar com jogadores o painel (expulsar/banir), a troca com dia/noite, as regras no jogo, o webhook do Discord, a
 regra do Firewall (pede administrador) e o reinício diário. Da fase 21: ver no jogo a mensagem do dia formatada e se

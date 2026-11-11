@@ -46,16 +46,29 @@ export function MapChangeCard({ status, go }: { status: Status | null; go: (p: P
     return [...g.entries()];
   }, [list]);
 
+  // Mapa da rotação cujo mod não está carregado (ADR-030): aparece desativado, só como referência.
+  const missing = (items: Scenario[]) => items.every((s) => s.source === 'missing');
+  const anyMissing = groups.some(([, items]) => missing(items));
+
+  // Mapa escolhido: começa no cenário atual se ele está no mapa; senão, no primeiro modo do mapa.
+  const pickMap = (map: string) => {
+    const items = groups.find(([m]) => m === map)?.[1] ?? [];
+    const cur = items.find((s) => s.id === status?.scenario);
+    setChoice((cur ?? items[0])?.id ?? '');
+  };
+
   const load = async () => {
     const got = await action.run(backend.scenarios);
     if (got === undefined) return;
     const l = got ?? [];
     setList(l);
-    const cur = l.find((s) => s.id === status?.scenario);
-    setChoice((c) => (l.some((s) => s.id === c) ? c : ((cur ?? l[0])?.id ?? '')));
+    const usable = l.filter((s) => s.source !== 'missing');
+    const cur = usable.find((s) => s.id === status?.scenario);
+    setChoice((c) => (usable.some((s) => s.id === c) ? c : ((cur ?? usable[0])?.id ?? '')));
   };
 
   const chosen = list?.find((s) => s.id === choice) ?? null;
+  const modes = groups.find(([m]) => m === chosen?.map)?.[1] ?? [];
   const label = (s: Scenario) => (s.mode ? `${human(s.map)} · ${human(s.mode)}` : human(s.map));
 
   const change = async () => {
@@ -111,25 +124,37 @@ export function MapChangeCard({ status, go }: { status: Status | null; go: (p: P
               <div className="row row--wrap mapchange__pick">
                 <select
                   className="select"
-                  aria-label={t('dashboard.mapChange.title')}
+                  aria-label={t('dashboard.mapChange.mapLabel')}
+                  value={chosen?.map ?? ''}
+                  disabled={action.busy || confirming}
+                  onChange={(e) => pickMap(e.target.value)}
+                >
+                  {groups.map(([map, items]) => (
+                    <option key={map} value={map} disabled={missing(items)}>
+                      {human(map) +
+                        (missing(items)
+                          ? ` (${t('dashboard.mapChange.notLoaded')})`
+                          : items.some((s) => s.source !== 'server')
+                            ? ` (${t('dashboard.mapChange.fromConfig')})`
+                            : '') +
+                        (items.some((s) => s.id === status?.scenario)
+                          ? ` · ${t('dashboard.mapChange.current')}`
+                          : '')}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className="select"
+                  aria-label={t('dashboard.mapChange.modeLabel')}
                   value={choice}
                   disabled={action.busy || confirming}
                   onChange={(e) => setChoice(e.target.value)}
                 >
-                  {groups.map(([map, items]) => (
-                    <optgroup key={map} label={human(map)}>
-                      {items.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {(s.mode ? human(s.mode) : human(s.map)) +
-                            (s.source === 'config'
-                              ? ` (${t('dashboard.mapChange.fromConfig')})`
-                              : '') +
-                            (s.id === status?.scenario
-                              ? ` · ${t('dashboard.mapChange.current')}`
-                              : '')}
-                        </option>
-                      ))}
-                    </optgroup>
+                  {modes.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {(s.mode ? human(s.mode) : human(s.map)) +
+                        (s.id === status?.scenario ? ` · ${t('dashboard.mapChange.current')}` : '')}
+                    </option>
                   ))}
                 </select>
                 <select
@@ -155,8 +180,16 @@ export function MapChangeCard({ status, go }: { status: Status | null; go: (p: P
                 </button>
               </div>
 
-              {/* O servidor só lista o jogo base: este aviso explica de onde vêm os mapas de mod. */}
+              {/* O servidor só lista o jogo base: este aviso explica de onde vêm os mapas de mod (ADR-029). */}
               <p className="hint">{t('dashboard.mapChange.fromConfigHint')}</p>
+              {anyMissing && (
+                <p className="hint">
+                  {t('dashboard.mapChange.notLoadedHint')}{' '}
+                  <button type="button" className="link" onClick={() => go('server')}>
+                    {t('dashboard.mapChange.openServer')}
+                  </button>
+                </p>
+              )}
 
               <div className="row row--wrap mapchange__actions">
                 {confirming && chosen ? (

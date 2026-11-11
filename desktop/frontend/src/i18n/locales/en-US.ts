@@ -111,7 +111,9 @@ export const enUS = {
     cmdLine: 'Command line (secrets hidden)',
     mapChange: {
       title: 'Change map',
-      text: 'Change the map while the server is running. Players stay connected and go to the new map. Mod maps come from your map rotation.',
+      mapLabel: 'Map',
+      modeLabel: 'Mode',
+      text: 'Change the map while the server is running. Players stay connected and go to the new map. Mod maps come from the mods loaded on the server.',
       needsRcon:
         'To change the map with the server running, turn on RCON (with a password) in Server › Passwords & tokens, then restart the server.',
       openServer: 'Open server settings',
@@ -120,7 +122,10 @@ export const enUS = {
       empty: 'The server did not list any map. Try again in a few seconds.',
       fromConfig: 'mod map',
       fromConfigHint:
-        'The server lists only the base game maps. Mod maps come from your map rotation and the mod map in Server › Maps, and the change works when the mod is loaded. To see another mod map here, add it to the map rotation.',
+        'Mod maps come from the mods loaded in this match. A mod you just subscribed to shows up after the server restarts.',
+      notLoaded: 'mod not loaded',
+      notLoadedHint:
+        'Maps marked "mod not loaded" are in your map rotation, but their mod is not loaded. Remove them from the rotation in Server › Maps, or restart the server if you just subscribed to the mod.',
       current: 'now',
       change: 'Change map',
       confirm: 'Change to {map}? The current match ends and everyone goes to the new map.',
@@ -825,6 +830,11 @@ export const enUS = {
     allNight: 'All night',
     allDefault: 'All default',
     unknownLine: 'line the app does not read',
+    cycleMissing:
+      'Some maps in the rotation are not in the base game or in any installed mod. When the rotation reaches them, the server has nowhere to go.',
+    cycleRemoveMissing: 'Remove these maps',
+    notInstalled: 'mod not installed',
+    remove: 'Remove',
   },
   mutators: {
     AllYouCanEat: 'Start with 100 supply points.',
@@ -1203,24 +1213,9 @@ export const enUS = {
     create: 'Create the firewall rule',
     uac: 'Windows asks for administrator confirmation.',
   },
-  markup: {
-    toolbar: 'Formatting',
-    bold: 'Bold',
-    header1: 'Title 1',
-    header2: 'Title 2',
-    image: 'Image from the internet',
-    insert: 'Insert',
-    preview: 'Preview',
-    imageNote: 'HTTPS address of a PNG or JPG image. Each player’s game downloads it.',
-    imageAt: 'image: {url}',
-    chatNote: 'In the chat only bold; not yet confirmed in the game.',
-  },
   validation: {
-    markupTag: 'The game does not know the tag {tag}. Use the buttons above the field.',
-    markupUnclosed: 'The tag {tag} was not closed. End the formatted text with </>.',
-    markupClose: 'There is a </> without an opening tag.',
-    markupNested: 'Close one tag with </> before opening another.',
-    markupImage: 'The image needs an address that starts with https://.',
+    markupPlain:
+      'The game does not show formatting and would show {tag} as written. Remove the tags.',
     rule: 'The value of {rule} must be between {min} and {max}.',
     ruleBool: 'Choose on or off for {rule}.',
     ruleMinMax: 'The minimum number of enemies cannot be greater than the maximum.',
@@ -1245,6 +1240,7 @@ export const enUS = {
     chatMessage: 'The message has up to {max} characters, in one line.',
     chatNeedsRcon: 'Turn on RCON in Passwords & tokens: the app sends this message through RCON.',
     scenarioUnknown: 'This map is not in the list. Ask the server for the list again.',
+    scenarioNotLoaded: 'The mod of this map is not loaded on the server.',
     logKeep: 'Runs to keep must be between {min} and {max}.',
     unknownField: 'Unknown field.',
     password: 'Use 4 to 64 characters: letters, numbers and ! @ # $ % * . _ + - (no spaces).',

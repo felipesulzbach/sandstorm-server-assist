@@ -48,7 +48,7 @@ func TestMapChoices(t *testing.T) {
 		`(Scenario="Scenario=Scenario_Outback_Checkpoint_Security",Lighting="Day")`,
 		"Scenario_Farmhouse_Checkpoint_Security",
 	}
-	got := MapChoices([]string{"Scenario_Farmhouse_Checkpoint_Security", "Scenario_Gap_Push_Insurgents"}, p)
+	got := MapChoices([]string{"Scenario_Farmhouse_Checkpoint_Security", "Scenario_Gap_Push_Insurgents"}, p, nil)
 	want := []Scenario{
 		{"Scenario_Containment_Checkpoint_Security", "Containment", "Checkpoint_Security", FromConfig},
 		{"Scenario_Farmhouse_Checkpoint_Security", "Farmhouse", "Checkpoint_Security", FromServer},
@@ -60,8 +60,56 @@ func TestMapChoices(t *testing.T) {
 	}
 }
 
+// Com os mods carregados conhecidos, a lista traz os mapas deles e deixa de fora os da rotação sem mod (11/11/2026:
+// um mapa de mod com a inscrição retirada continuava na rotação e aparecia na lista).
+func TestMapChoicesUseLoadedMods(t *testing.T) {
+	p := Default()
+	p.TravelMap, p.TravelScenario = "Containment", "Scenario_Containment_Checkpoint_Security"
+	p.MapCycle = []string{"Scenario_Redwood_Checkpoint_Security", "Scenario_Farmhouse_Checkpoint_Security"}
+	got := MapChoices([]string{"Scenario_Farmhouse_Checkpoint_Security"}, p,
+		[]string{"Scenario_Containment_Checkpoint_Security", "Scenario_Estates_Checkpoint_Insurgency", "bad id; quit"})
+	want := []Scenario{
+		{"Scenario_Containment_Checkpoint_Security", "Containment", "Checkpoint_Security", FromMod},
+		{"Scenario_Estates_Checkpoint_Insurgency", "Estates", "Checkpoint_Insurgency", FromMod},
+		{"Scenario_Farmhouse_Checkpoint_Security", "Farmhouse", "Checkpoint_Security", FromServer},
+		{"Scenario_Redwood_Checkpoint_Security", "Redwood", "Checkpoint_Security", FromMissing},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %+v", got)
+	}
+	// O mapa sem mod aparece, mas a troca para ele é recusada antes de ir ao servidor.
+	_, err := TravelCommand("Scenario_Redwood_Checkpoint_Security", got)
+	if pe, ok := err.(*problems.Error); !ok || pe.Msg != "validation.scenarioNotLoaded" {
+		t.Fatalf("troca para mapa sem mod: %v", err)
+	}
+	// Nenhum mod carregado (lista vazia, não nil): jogo base e o que sobrou do perfil, marcado.
+	got = MapChoices([]string{"Scenario_Farmhouse_Checkpoint_Security"}, p, []string{})
+	if len(got) != 3 || got[0].Source != FromMissing || got[2].Source != FromMissing {
+		t.Fatalf("sem mods: %+v", got)
+	}
+}
+
+// Linhas reais da rotação (11/11/2026): mapas de mods que não estão instalados ficam marcados.
+func TestMissingInCycle(t *testing.T) {
+	lines := []string{
+		`(Scenario="Scenario_Farmhouse_Checkpoint_Security",Lighting="Day")`,
+		`(Scenario="Scenario_Outback_Checkpoint_Security",Lighting="Night")`,
+		`(Scenario="Scenario_RedwoodReborn_Checkpoint_2",Lighting="Winter")`,
+		"Scenario_Estates_Checkpoint_Insurgency",
+		"linha que o app não entende",
+	}
+	known := []string{"Scenario_Farmhouse_Checkpoint_Security", "scenario_estates_checkpoint_insurgency"}
+	if got := MissingInCycle(lines, known); !reflect.DeepEqual(got, []bool{false, true, true, false, false}) {
+		t.Fatalf("got %v", got)
+	}
+	// Sem o jogo base lido, nada é marcado.
+	if got := MissingInCycle(lines, nil); !reflect.DeepEqual(got, make([]bool, len(lines))) {
+		t.Fatalf("sem lista: %v", got)
+	}
+}
+
 func TestTravelCommand(t *testing.T) {
-	list := MapChoices([]string{"Scenario_Gap_Push_Insurgents"}, Default())
+	list := MapChoices([]string{"Scenario_Gap_Push_Insurgents"}, Default(), nil)
 	cmd, err := TravelCommand("Scenario_Gap_Push_Insurgents", list)
 	if err != nil || cmd != "travelscenario Scenario_Gap_Push_Insurgents" {
 		t.Fatalf("%q %v", cmd, err)

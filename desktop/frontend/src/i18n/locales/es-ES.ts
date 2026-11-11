@@ -112,7 +112,9 @@ export const esES: Messages = {
     cmdLine: 'Línea de comandos (secretos ocultos)',
     mapChange: {
       title: 'Cambiar mapa',
-      text: 'Cambia el mapa con el servidor encendido. Los jugadores siguen conectados y van al nuevo mapa. Los mapas de mods vienen de tu rotación de mapas.',
+      mapLabel: 'Mapa',
+      modeLabel: 'Modo',
+      text: 'Cambia el mapa con el servidor encendido. Los jugadores siguen conectados y van al nuevo mapa. Los mapas de mods vienen de los mods cargados en el servidor.',
       needsRcon:
         'Para cambiar el mapa con el servidor encendido, activa RCON (con contraseña) en Servidor › Contraseñas y tokens y reinicia el servidor.',
       openServer: 'Abrir ajustes del servidor',
@@ -121,7 +123,10 @@ export const esES: Messages = {
       empty: 'El servidor no listó ningún mapa. Inténtalo de nuevo en unos segundos.',
       fromConfig: 'mapa de mod',
       fromConfigHint:
-        'El servidor solo lista los mapas del juego base. Los mapas de mods vienen de la rotación de mapas y del mapa de mod en Servidor › Mapas, y el cambio funciona cuando el mod está cargado. Para ver otro mapa de mod aquí, añádelo a la rotación de mapas.',
+        'Los mapas de mods vienen de los mods cargados en esta partida. Un mod al que te acabas de suscribir aparece después de reiniciar el servidor.',
+      notLoaded: 'mod no cargado',
+      notLoadedHint:
+        'Los mapas marcados con "mod no cargado" están en la rotación de mapas, pero su mod no está cargado. Quítalos de la rotación en Servidor › Mapas o, si te acabas de suscribir al mod, reinicia el servidor.',
       current: 'ahora',
       change: 'Cambiar mapa',
       confirm: '¿Cambiar a {map}? La partida actual termina y todos van al nuevo mapa.',
@@ -836,6 +841,11 @@ export const esES: Messages = {
     allNight: 'Todo de noche',
     allDefault: 'Todo predeterminado',
     unknownLine: 'línea que la app no lee',
+    cycleMissing:
+      'Algunos mapas de la rotación no están en el juego base ni en ningún mod instalado. Cuando la rotación llegue a ellos, el servidor no tendrá adónde ir.',
+    cycleRemoveMissing: 'Quitar estos mapas',
+    notInstalled: 'mod no instalado',
+    remove: 'Quitar',
   },
   mutators: {
     AllYouCanEat: 'Empiezas con 100 puntos de suministro.',
@@ -1218,24 +1228,8 @@ export const esES: Messages = {
     create: 'Crear la regla del firewall',
     uac: 'Windows pide la confirmación de administrador.',
   },
-  markup: {
-    toolbar: 'Formato',
-    bold: 'Negrita',
-    header1: 'Título 1',
-    header2: 'Título 2',
-    image: 'Imagen de internet',
-    insert: 'Insertar',
-    preview: 'Vista previa',
-    imageNote: 'Dirección HTTPS de una imagen PNG o JPG. El juego de cada jugador la descarga.',
-    imageAt: 'imagen: {url}',
-    chatNote: 'En el chat solo negrita; aún no confirmado en el juego.',
-  },
   validation: {
-    markupTag: 'El juego no conoce la etiqueta {tag}. Usa los botones encima del campo.',
-    markupUnclosed: 'La etiqueta {tag} no se cerró. Termina el texto con formato con </>.',
-    markupClose: 'Hay un </> sin etiqueta de apertura.',
-    markupNested: 'Cierra una etiqueta con </> antes de abrir otra.',
-    markupImage: 'La imagen necesita una dirección que empiece por https://.',
+    markupPlain: 'El juego no muestra formato y mostraría {tag} tal cual. Quita las etiquetas.',
     rule: 'El valor de {rule} debe estar entre {min} y {max}.',
     ruleBool: 'Elige activado o desactivado en {rule}.',
     ruleMinMax: 'El mínimo de enemigos no puede ser mayor que el máximo.',
@@ -1260,6 +1254,7 @@ export const esES: Messages = {
     chatMessage: 'El mensaje tiene hasta {max} caracteres, en una línea.',
     chatNeedsRcon: 'Activa RCON en Contraseñas y tokens: la app envía este mensaje por RCON.',
     scenarioUnknown: 'Este mapa no está en la lista. Pide la lista al servidor otra vez.',
+    scenarioNotLoaded: 'El mod de este mapa no está cargado en el servidor.',
     logKeep: 'Los inicios a mantener deben estar entre {min} y {max}.',
     unknownField: 'Campo desconocido.',
     password: 'Usa de 4 a 64 caracteres: letras, números y ! @ # $ % * . _ + - (sin espacios).',

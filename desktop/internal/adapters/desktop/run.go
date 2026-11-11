@@ -66,6 +66,8 @@ type app struct {
 	autostart bool
 	// updatesOnce liga a procura de atualizações uma vez, só depois do aceite dos termos (ADR-015).
 	updatesOnce sync.Once
+	// scenarios guarda os cenários que existem (jogo base e mods instalados) para conferir a rotação (ADR-030).
+	scenarios *scenarioCache
 }
 
 // Run monta a aplicação e abre a janela. Só volta quando a janela fecha.
@@ -147,7 +149,7 @@ func newApp() *app {
 	cfg := config.Open(path, store)
 	log := logbuf.New(6000, cfg.SecretValues)
 	mods := &modCache{}
-	a := &app{cfg: cfg, log: log, install: installer.New(log), mods: mods}
+	a := &app{cfg: cfg, log: log, install: installer.New(log), mods: mods, scenarios: &scenarioCache{}}
 	a.updates = newUpdater()
 	runs := newRunFile(path, log)
 	a.runner = runner.New(runner.Deps{
@@ -200,8 +202,9 @@ func newApp() *app {
 		Log:      log,
 	})
 	a.maps = mapchange.New(mapchange.Deps{
-		Config: cfg.Current,
-		Ready:  func() bool { return a.runner.Status().Phase == runner.Ready },
+		Config:       cfg.Current,
+		Ready:        func() bool { return a.runner.Status().Phase == runner.Ready },
+		ModScenarios: func() []string { return loadedModScenarios(a.runner.Status().Mods) },
 		Dial: func(port int, password string) (mapchange.Conn, error) {
 			c, err := rcon.Dial(port, password)
 			if errors.Is(err, rcon.ErrAuth) {

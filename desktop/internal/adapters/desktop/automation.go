@@ -152,15 +152,6 @@ func (c *ConfigAPI) ModMutators() []modio.ModMutator { return modio.Mutators(mod
 // mod depois de carregar.
 func (c *ConfigAPI) ModScenarios() []modio.ModScenario { return modio.Scenarios(modio.RootDir()) }
 
-// MarkupPreview confere a formatação de uma mensagem e devolve os pedaços para a prévia (chat=true: só o que o chat
-// aceita). O erro aponta o problema (tag desconhecida, sem fechar...).
-func (c *ConfigAPI) MarkupPreview(text string, chat bool) ([]server.Segment, error) {
-	if len(text) > 8000 {
-		return nil, problems.Field("motd", "validation.motd", "max", "1000")
-	}
-	return server.ParseMarkup(text, chat, "markup")
-}
-
 // RulesInfo é o catálogo da aba Regras.
 type RulesInfo struct {
 	Groups []string         `json:"groups"`
@@ -176,6 +167,8 @@ func (c *ConfigAPI) Rules() RulesInfo {
 type CycleLine struct {
 	Scenario string `json:"scenario"`
 	Lighting string `json:"lighting"`
+	// Missing: o mapa não está no jogo base nem nos mods instalados (ADR-030).
+	Missing bool `json:"missing"`
 }
 
 // MapCycleLines lê o cenário e a iluminação de cada linha da rotação (para a tela mostrar).
@@ -183,9 +176,11 @@ func (c *ConfigAPI) MapCycleLines(lines []string) []CycleLine {
 	if len(lines) > 500 {
 		lines = lines[:500]
 	}
+	p, _, _ := c.a.cfg.Current()
+	missing := server.MissingInCycle(lines, c.a.scenarios.known(p.ServerDir))
 	out := make([]CycleLine, len(lines))
 	for i, l := range lines {
-		out[i] = CycleLine{Scenario: server.LineScenario(l), Lighting: server.LineLighting(l)}
+		out[i] = CycleLine{Scenario: server.LineScenario(l), Lighting: server.LineLighting(l), Missing: missing[i]}
 	}
 	return out
 }

@@ -111,7 +111,9 @@ export const ptPT: Messages = {
     cmdLine: 'Linha de comandos (segredos ocultos)',
     mapChange: {
       title: 'Trocar mapa',
-      text: 'Troque o mapa com o servidor ligado. Os jogadores continuam ligados e vão para o novo mapa. Os mapas de mods vêm da sua rotação de mapas.',
+      mapLabel: 'Mapa',
+      modeLabel: 'Modo',
+      text: 'Troque o mapa com o servidor ligado. Os jogadores continuam ligados e vão para o novo mapa. Os mapas de mods vêm dos mods carregados no servidor.',
       needsRcon:
         'Para trocar o mapa com o servidor ligado, ligue o RCON (com palavra-passe) em Servidor › Palavras-passe e tokens e reinicie o servidor.',
       openServer: 'Abrir definições do servidor',
@@ -120,7 +122,10 @@ export const ptPT: Messages = {
       empty: 'O servidor não listou nenhum mapa. Tente de novo daqui a alguns segundos.',
       fromConfig: 'mapa de mod',
       fromConfigHint:
-        'O servidor só lista os mapas do jogo base. Os mapas de mods vêm da rotação de mapas e do mapa de mod em Servidor › Mapas, e a troca funciona quando o mod está carregado. Para ver outro mapa de mod aqui, adicione-o à rotação de mapas.',
+        'Os mapas de mods vêm dos mods carregados nesta partida. Um mod em que acabou de se inscrever aparece depois de o servidor reiniciar.',
+      notLoaded: 'mod não carregado',
+      notLoadedHint:
+        'Os mapas marcados com "mod não carregado" estão na rotação de mapas, mas o mod deles não está carregado. Remova-os da rotação em Servidor › Mapas ou, se acabou de se inscrever no mod, reinicie o servidor.',
       current: 'agora',
       change: 'Trocar mapa',
       confirm: 'Trocar para {map}? A partida atual termina e todos vão para o novo mapa.',
@@ -830,6 +835,11 @@ export const ptPT: Messages = {
     allNight: 'Tudo de noite',
     allDefault: 'Tudo no padrão',
     unknownLine: 'linha que o app não lê',
+    cycleMissing:
+      'Alguns mapas da rotação não estão no jogo base nem em nenhum mod instalado. Quando a rotação chegar neles, o servidor não tem para onde ir.',
+    cycleRemoveMissing: 'Remover estes mapas',
+    notInstalled: 'mod não instalado',
+    remove: 'Remover',
   },
   mutators: {
     AllYouCanEat: 'Começa com 100 pontos de abastecimento.',
@@ -1211,24 +1221,8 @@ export const ptPT: Messages = {
     create: 'Criar a regra da firewall',
     uac: 'O Windows pede a confirmação de administrador.',
   },
-  markup: {
-    toolbar: 'Formatação',
-    bold: 'Negrito',
-    header1: 'Título 1',
-    header2: 'Título 2',
-    image: 'Imagem da internet',
-    insert: 'Inserir',
-    preview: 'Pré-visualização',
-    imageNote: 'Endereço HTTPS de uma imagem PNG ou JPG. O jogo de cada jogador descarrega-a.',
-    imageAt: 'imagem: {url}',
-    chatNote: 'No chat só negrito; ainda não confirmado no jogo.',
-  },
   validation: {
-    markupTag: 'O jogo não conhece a tag {tag}. Use os botões acima do campo.',
-    markupUnclosed: 'A tag {tag} não foi fechada. Termine o texto formatado com </>.',
-    markupClose: 'Há um </> sem tag de abertura.',
-    markupNested: 'Feche uma tag com </> antes de abrir outra.',
-    markupImage: 'A imagem precisa de um endereço que comece com https://.',
+    markupPlain: 'O jogo não mostra formatação e mostraria {tag} escrito. Tire as tags.',
     rule: 'O valor de {rule} tem de estar entre {min} e {max}.',
     ruleBool: 'Escolha ligado ou desligado em {rule}.',
     ruleMinMax: 'O mínimo de inimigos não pode ser maior que o máximo.',
@@ -1252,6 +1246,7 @@ export const ptPT: Messages = {
     chatMessage: 'A mensagem tem até {max} caracteres, numa linha.',
     chatNeedsRcon: 'Ligue o RCON em Palavras-passe e tokens: o app envia esta mensagem pelo RCON.',
     scenarioUnknown: 'Este mapa não está na lista. Peça a lista ao servidor de novo.',
+    scenarioNotLoaded: 'O mod deste mapa não está carregado no servidor.',
     logKeep: 'Os arranques a manter têm de estar entre {min} e {max}.',
     unknownField: 'Campo desconhecido.',
     password: 'Use de 4 a 64 caracteres: letras, números e ! @ # $ % * . _ + - (sem espaços).',

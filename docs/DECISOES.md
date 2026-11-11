@@ -433,3 +433,47 @@ Registro curto: contexto, decisão e consequência. Decisão nova entra no fim.
 - **Decisão:** a leitura da viagem aceita o caminho (usa a última parte, como já fazia no `LoadMap`) e o cenário
   em qualquer posição das opções.
 - **Verificado:** testes com as linhas reais (Estates, Border e a inicialização), que falhavam no código antigo.
+
+## ADR-029 · Troca de mapa com os mapas dos mods carregados, em listas de mapa e modo
+
+- **Contexto:** os mapas de mod da troca de mapa vinham da rotação do perfil (ADR-019). Um mapa cuja inscrição foi
+  retirada continuava na rotação, aparecia na lista e o servidor recusava a troca; um mod carregado fora da rotação
+  não aparecia. A lista única, agrupada por mapa, também era difícil de usar.
+- **Decisão:**
+  - Os mapas de mod vêm dos mods ativos nesta partida (lidos no log) cruzados com os cenários dos .pak desses mods
+    (ADR-024): `MapChoices(servidor, perfil, mods)`, origem `mod`. Sem nenhum mod ativo conhecido, usa a
+    rotação do perfil, como antes.
+  - Na tela, duas listas: o mapa (marcado "mapa de mod" e "agora") e o modo desse mapa. Ao trocar de mapa, o
+    primeiro modo já vem escolhido (ou o atual, se for o mesmo mapa).
+- **Verificado:** testes do domínio (mapa da rotação sem mod fica de fora) e da tela; com os mods reais, a lista traz
+  TORO, Mashtuur, Estates, Border, Daybreak e Containment, sem o mapa da inscrição retirada.
+
+## ADR-030 · Mapas da rotação sem mod: avisar, não apagar
+
+- **Contexto:** depois de retirar a inscrição de um mod de mapa, o mapa fica na rotação. Quando a rotação chega nele,
+  o servidor não tem para onde ir. A lista fixa de mapas oficiais do app também não tem todos (faltam Trainyard e
+  Hold, por exemplo), então não serve para decidir o que existe.
+- **Decisão:**
+  - O que existe é lido dos arquivos: cenários do jogo base nos .pak do servidor (`Insurgency/Content/Paks`, só os
+    índices, cerca de 20 ms) e de todos os mods instalados. Leitura guardada por 15 s. Sem o jogo base lido, nada é
+    marcado.
+  - Em Servidor › Mapas, cada linha da rotação sem mapa conhecido ganha "mod não instalado" e "Remover", e um aviso
+    em cima oferece "Remover estes mapas". O app nunca tira sozinho (o usuário pode se inscrever de novo).
+  - Na troca de mapa, o mapa da rotação cujo mod não está carregado aparece desativado, "mod não carregado", com a
+    explicação e o atalho para Servidor; o Go recusa a troca para ele (`validation.scenarioNotLoaded`).
+- **Verificado:** com a rotação real (92 linhas), só as 8 do Outback e do Redwood Reborn ficam marcadas; testes do
+  domínio e das duas telas.
+
+## ADR-031 · Mensagens sem formatação (substitui a formatação do ADR-024)
+
+- **Contexto:** o ADR-024 pôs negrito, títulos e imagem na mensagem do dia e negrito no chat, a partir das tabelas de
+  estilo achadas nos arquivos do jogo, sem confirmar no jogo. Em 11/11/2026 o usuário viu as tags escritas na tela de
+  carregamento (vindas do `Motd.txt`) e no chat (vindas do `say`): nenhuma das duas interpreta as tags.
+- **Decisão:**
+  - Mensagem do dia e mensagens de chat (entrada, saída, programadas, "Mensagem para todos") são texto simples. O
+    editor com botões e prévia saiu (`MarkupEditor`, `ConfigAPI.MarkupPreview`); os campos são caixas de texto.
+  - Tags de formatação são recusadas ao salvar (`validation.markupPlain`, com a tag encontrada). Ao gravar o
+    `Motd.txt` e ao enviar ao chat, o app tira as que já estavam salvas (`StripMarkup`: só `<Bold>`, `<Header1>`,
+    `<Header2>`, `</>` e a imagem; outro texto entre `<` e `>` fica).
+- **Lição:** recurso do jogo achado só nos arquivos fica marcado "a confirmar" e não entra como funcionalidade antes
+  de ser visto no jogo.

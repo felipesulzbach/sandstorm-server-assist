@@ -27,6 +27,9 @@ type Deps struct {
 	Ready func() bool
 	// Dial conecta no RCON do servidor desta máquina. Senha errada → um erro que satisfaz errors.Is(err, ErrAuth).
 	Dial func(port int, password string) (Conn, error)
+	// ModScenarios devolve os cenários dos mods carregados nesta partida (ADR-029). nil = não se sabe (usa os
+	// cenários do perfil). Pode ser nil.
+	ModScenarios func() []string
 	// Log escreve no log do app (o texto passa pela máscara de segredos).
 	Log func(text, level string)
 }
@@ -108,7 +111,11 @@ func (s *Service) Scenarios() ([]server.Scenario, error) {
 	if err != nil {
 		return nil, problems.New(problems.RconFailed, err.Error())
 	}
-	list := server.MapChoices(server.ParseScenarios(resp), p)
+	var mods []string
+	if s.d.ModScenarios != nil {
+		mods = s.d.ModScenarios()
+	}
+	list := server.MapChoices(server.ParseScenarios(resp), p, mods)
 	s.mu.Lock()
 	s.list = list
 	s.mu.Unlock()

@@ -270,6 +270,7 @@ export namespace desktop {
 	export class CycleLine {
 	    scenario: string;
 	    lighting: string;
+	    missing: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new CycleLine(source);
@@ -279,6 +280,7 @@ export namespace desktop {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.scenario = source["scenario"];
 	        this.lighting = source["lighting"];
+	        this.missing = source["missing"];
 	    }
 	}
 	export class ExistingScan {
@@ -1237,22 +1239,6 @@ export namespace server {
 	        this.map = source["map"];
 	        this.mode = source["mode"];
 	        this.source = source["source"];
-	    }
-	}
-	export class Segment {
-	    style: string;
-	    text: string;
-	    src?: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new Segment(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.style = source["style"];
-	        this.text = source["text"];
-	        this.src = source["src"];
 	    }
 	}
 

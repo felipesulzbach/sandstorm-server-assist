@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Moon, Sun } from 'lucide-react';
+import { AlertTriangle, Moon, Sun } from 'lucide-react';
 import { useI18n } from '../../i18n';
 import {
   backend,
@@ -109,9 +109,26 @@ export function CycleLighting({
     }
   };
 
+  // Linhas cujo mapa não está no jogo base nem nos mods instalados (ADR-030). O app só avisa: o usuário tira.
+  const missing = info.filter((l) => l.missing).length;
+  const remove = (keep: (i: number) => boolean) => onChange(lines.filter((_, i) => keep(i)));
+
   if (lines.length === 0) return null;
   return (
     <div className="cycle">
+      {missing > 0 && (
+        <div className="banner banner--warn row row--wrap" role="status">
+          <AlertTriangle size={16} aria-hidden />
+          <span>{t('lighting.cycleMissing')}</span>
+          <button
+            type="button"
+            className="btn btn--small"
+            onClick={() => remove((i) => !info[i]?.missing)}
+          >
+            {t('lighting.cycleRemoveMissing')}
+          </button>
+        </div>
+      )}
       <div className="row row--wrap">
         <span className="field__label">{t('lighting.cycleTitle')}</span>
         <button
@@ -140,6 +157,18 @@ export function CycleLighting({
         {info.map((l, i) => (
           <li key={`${i}-${l.scenario}`} className="cycle__row">
             <code>{l.scenario || lines[i]}</code>
+            {l.missing && (
+              <>
+                <span className="pill pill--warn">{t('lighting.notInstalled')}</span>
+                <button
+                  type="button"
+                  className="btn btn--small btn--ghost"
+                  onClick={() => remove((j) => j !== i)}
+                >
+                  {t('lighting.remove')}
+                </button>
+              </>
+            )}
             {l.scenario ? (
               <select
                 className="select select--short"

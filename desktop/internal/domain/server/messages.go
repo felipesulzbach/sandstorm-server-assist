@@ -59,7 +59,8 @@ func hasControl(s string, lines bool) bool {
 
 // MotdFile é o conteúdo do Motd.txt (linhas com CRLF, sem espaços sobrando no fim).
 func MotdFile(text string) string {
-	text = strings.TrimSpace(strings.ReplaceAll(text, "\r\n", "\n"))
+	// Tags de formatação salvas antes da 0.1.10 saem: a tela de carregamento as mostraria escritas (ADR-031).
+	text = strings.TrimSpace(strings.ReplaceAll(StripMarkup(text), "\r\n", "\n"))
 	if text == "" {
 		return ""
 	}
@@ -96,7 +97,7 @@ func ChatCommand(template, player string) string {
 	if template == "" || hasControl(template, false) {
 		return ""
 	}
-	text := strings.ReplaceAll(template, NameTag, cleanName(player))
+	text := strings.ReplaceAll(StripMarkup(template), NameTag, cleanName(player))
 	text = strings.Join(strings.Fields(text), " ")
 	if utf8.RuneCountInString(text) > maxChatSent {
 		text = string([]rune(text)[:maxChatSent])

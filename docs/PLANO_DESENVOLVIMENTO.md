@@ -216,6 +216,15 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
   limpos; `build:installer`, `package`, `site:publish`. `latest.json` na 0.1.9, SHA-256 do instalador baixado
   confere, página mostra 0.1.9; verificador, game-in e `/midia/` seguiram respondendo 200. Sem mudança no servidor.
 
+## Fase 26 · Troca de mapa com os mods carregados e listas de mapa e modo (11/11/2026, versão 0.1.10)
+
+- Mapas de mod da troca vêm dos mods ativos na partida (não mais da rotação); listas separadas de mapa e modo.
+  ADR-029.
+- Mapas da rotação sem mod: aviso com "Remover" em Servidor › Mapas (existência lida dos .pak do jogo base e dos
+  mods instalados) e item desativado na troca de mapa. ADR-030.
+- Mensagens sem formatação: o jogo mostrou `<Bold>` escrito na tela de carregamento e no chat. Editor de
+  formatação removido; tags recusadas ao salvar e tiradas do `Motd.txt` e do chat. ADR-031.
+
 ## Pendências
 
 - Feito depois da primeira rodada: ícone, zip portátil, testes de installer/config/logbuf e teste real do

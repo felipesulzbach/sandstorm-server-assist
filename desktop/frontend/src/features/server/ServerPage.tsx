@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Plus, RotateCcw, Save, ServerCog, Trash2 } from 'lucide-react';
 import { useI18n } from '../../i18n';
 import { backend, type MapsInfo, type Profile, type SecretKey } from '../../shared/backend';
@@ -8,7 +8,6 @@ import { fieldError, toAppError } from '../../shared/problem';
 import { useExistingSync } from '../sync/ExistingSync';
 import { AutomationTab } from './AutomationTab';
 import { CycleLighting, ModMapPicker, MutatorPicker } from './MapsExtras';
-import { MarkupEditor } from './MarkupEditor';
 import { BindIpField, FirewallCard } from './NetworkExtras';
 import { PortCheck } from './PortCheck';
 import { ProfileBar } from './ProfileBar';
@@ -350,68 +349,71 @@ export function ServerPage() {
         )}
         {tab === 'messages' && (
           <div className="form">
-            <Block
+            {/* Texto simples: o jogo não interpreta tags de formatação (ADR-031). */}
+            <Field
               label={t('server.messages.motd')}
               hint={t('server.messages.motdHint')}
               error={err('motd')}
+              wide
             >
-              <MarkupEditor
-                value={form.motd ?? ''}
+              <textarea
+                className="input textarea"
+                rows={5}
                 maxLength={1000}
-                onChange={(v) => set('motd', v)}
+                value={form.motd ?? ''}
+                onChange={(e) => set('motd', e.target.value)}
               />
-            </Block>
-            <Block
+            </Field>
+            <Field
               label={t('server.messages.join')}
               hint={t('server.messages.chatHint')}
               error={err('joinMessage')}
+              wide
             >
-              <MarkupEditor
-                chat
-                multiline={false}
-                preview={false}
+              <input
+                className="input"
                 maxLength={150}
                 value={form.joinMessage ?? ''}
                 placeholder={t('server.messages.joinExample')}
-                onChange={(v) => set('joinMessage', v)}
+                onChange={(e) => set('joinMessage', e.target.value)}
               />
-            </Block>
-            <Block
+            </Field>
+            <Field
               label={t('server.messages.leave')}
               hint={t('server.messages.chatHint')}
               error={err('leaveMessage')}
+              wide
             >
-              <MarkupEditor
-                chat
-                multiline={false}
-                preview={false}
+              <input
+                className="input"
                 maxLength={150}
                 value={form.leaveMessage ?? ''}
                 placeholder={t('server.messages.leaveExample')}
-                onChange={(v) => set('leaveMessage', v)}
+                onChange={(e) => set('leaveMessage', e.target.value)}
               />
-            </Block>
-            <Block
+            </Field>
+            <Field
               label={t('server.messages.announcements')}
               hint={t('server.messages.announcementsHint')}
               error={err('announcements')}
+              wide
             >
-              <MarkupEditor
-                chat
+              <textarea
+                className="input textarea"
                 rows={4}
                 value={(form.announcements ?? []).join('\n')}
                 placeholder={t('server.messages.announcementsExample')}
-                onChange={(v) =>
+                onChange={(e) =>
                   set(
                     'announcements',
-                    v
+                    e.target.value
                       .split('\n')
                       .map((x) => x.trimStart())
                       .filter((x, i, all) => x !== '' || i === all.length - 1),
                   )
                 }
               />
-            </Block>
+            </Field>
             <Field label={t('server.messages.every')} error={err('announceEvery')}>
               <input
                 className="input input--short"
@@ -429,31 +431,6 @@ export function ServerPage() {
         )}
       </section>
       <p className="hint">{t('common.appliesNextStart')}</p>
-    </div>
-  );
-}
-
-/** Campo com controles próprios dentro (botões, caixas): bloco em vez de <label>. */
-function Block({
-  label,
-  hint,
-  error,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  error?: string | null;
-  children: ReactNode;
-}) {
-  return (
-    <div className={`field field--wide ${error ? 'has-error' : ''}`}>
-      <span className="field__label">{label}</span>
-      {children}
-      {error ? (
-        <span className="field__error">{error}</span>
-      ) : hint ? (
-        <span className="field__hint">{hint}</span>
-      ) : null}
     </div>
   );
 }
