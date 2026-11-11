@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-11 (0.2.1 in progress).
+> Living document, updated at each step. Last update: 2026-11-11 (0.2.1 published).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -88,6 +88,9 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
   message. ADR-039.
 - Verified: unit and fuzz tests; real check on the maintainer's PC (10 installed mods read in about 10 ms, 5 pairs in
   conflict, and the crash of the maintainer's game traced to the Daybreak mod).
+
+- **0.2.1 published** on 2026-11-11: GitHub Release `v0.2.1` and the bridge server; both `latest.json` serve the
+  same installer (SHA-256 checked after download).
 
 ## Bridge from the old download server
 

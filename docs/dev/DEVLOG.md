@@ -94,6 +94,8 @@ Short notes of each development session, newest last. They help a new session pi
   with the older `.pak` format are read too.
 - Limit: a mod whose file does not match the game version (like Daybreak here) does not show as a conflict, because
   no other mod has the file; it shows when the crash message is checked.
+- Published the same day as `v0.2.1` (GitHub and the bridge server), together with the 0.2.1 work from the other PC
+  (installation feedback, delete a mod, download new mods now).
 
 ## Cautions for future sessions
 
