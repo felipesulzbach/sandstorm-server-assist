@@ -14,10 +14,10 @@
     !define INFO_PRODUCTNAME "Sandstorm Server Assist"
 !endif
 !ifndef INFO_PRODUCTVERSION
-    !define INFO_PRODUCTVERSION "0.1.10"
+    !define INFO_PRODUCTVERSION "0.2.0"
 !endif
 !ifndef INFO_COPYRIGHT
-    !define INFO_COPYRIGHT "Copyright Sandstorm Server Assist contributors. Apache License 2.0."
+    !define INFO_COPYRIGHT "Copyright 2026 Felipe Sulzbach and contributors. Apache License 2.0."
 !endif
 !ifndef PRODUCT_EXECUTABLE
     !define PRODUCT_EXECUTABLE "${INFO_PROJECTNAME}.exe"
