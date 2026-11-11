@@ -165,6 +165,7 @@ inicialização. Corrigido (ADR-027). O erro inofensivo de raycast do Border pas
 
 **11/11 · fase 25, versão 0.1.9:** com a 0.1.8, a troca para o mapa de mod Estates funcionou, mas o painel seguiu
 mostrando Border: a linha da viagem vem com o caminho do mapa e o app não a reconhecia. Corrigido (ADR-028).
+Publicada na página no mesmo dia (`latest.json` na 0.1.9).
 
 **Falta (com o usuário):** atualizar o app instalado para a 0.1.9, aceitar os termos novos, testar o botão
 "Testar portas pela internet" com o servidor ligado, testar a troca para um mapa de mod e as mensagens no chat com jogadores. Da fase 19:

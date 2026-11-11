@@ -1,6 +1,6 @@
 # Plano de desenvolvimento
 
-> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-11 (0.1.8 publicada).
+> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-11 (0.1.9 publicada).
 > Base: [RESUMO_PROJETO.md](RESUMO_PROJETO.md) · Decisões: [DECISOES.md](DECISOES.md)
 
 ## Situação
@@ -212,6 +212,9 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
 ## Fase 25 · Painel mostrava o mapa anterior depois de trocar para um mapa de mod (11/11/2026, versão 0.1.9)
 
 - A viagem para mapa de mod vem com o caminho do mapa no log; o app passou a lê-la. ADR-028.
+- **Publicada** em 11/11/2026 no PC de publicação: testes, lint, typecheck, `audit`, `audit:go` e `audit:code`
+  limpos; `build:installer`, `package`, `site:publish`. `latest.json` na 0.1.9, SHA-256 do instalador baixado
+  confere, página mostra 0.1.9; verificador, game-in e `/midia/` seguiram respondendo 200. Sem mudança no servidor.
 
 ## Pendências
 
