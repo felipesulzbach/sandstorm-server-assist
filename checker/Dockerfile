@@ -2,7 +2,7 @@
 # download, que monta a imagem direto do GitHub (deploy/compose.prod.yaml do game-in).
 # Build local: docker build -t ssa-checker checker
 
-FROM golang:1.27.2-alpine AS build
+FROM golang:1.27.4-alpine AS build
 WORKDIR /src
 COPY go.mod ./
 COPY *.go ./

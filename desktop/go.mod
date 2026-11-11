@@ -1,6 +1,6 @@
 module sandstorm-server-assist/desktop
 
-go 1.27.3
+go 1.27.4
 
 require (
 	github.com/wailsapp/wails/v2 v2.17.1

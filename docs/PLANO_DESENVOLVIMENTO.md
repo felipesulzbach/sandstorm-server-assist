@@ -1,6 +1,6 @@
 # Plano de desenvolvimento
 
-> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-11 (0.1.9 publicada).
+> Documento vivo: atualizado a cada etapa. Última atualização: 2026-11-11 (0.1.10 publicada; Go 1.27.4).
 > Base: [RESUMO_PROJETO.md](RESUMO_PROJETO.md) · Decisões: [DECISOES.md](DECISOES.md)
 
 ## Situação
@@ -224,6 +224,14 @@ mod.io não foram executados de ponta a ponta (dependem da internet e da conta d
   mods instalados) e item desativado na troca de mapa. ADR-030.
 - Mensagens sem formatação: o jogo mostrou `<Bold>` escrito na tela de carregamento e no chat. Editor de
   formatação removido; tags recusadas ao salvar e tiradas do `Motd.txt` e do chat. ADR-031.
+- **Go 1.27.4** (11/11/2026): o `audit:go` achou a GO-2026-6859 (servidor HTTP/1 cai por corrida no
+  `MaxBytesReader`, corrigida no Go 1.27.4). `desktop/go.mod`, `checker/go.mod` e a imagem do `checker/Dockerfile`
+  subiram para 1.27.4. O app não abre servidor HTTP; o verificador de portas abre e usa o `MaxBytesReader`.
+- **Publicada** em 11/11/2026 no PC de publicação, já com o Go 1.27.4: testes, lint, typecheck, `audit`, `audit:go`
+  e `audit:code` limpos; `build:installer`, `package`, `site:publish`. `latest.json` na 0.1.10, SHA-256 do
+  instalador baixado confere, página mostra 0.1.10; a limpeza das versões antigas manteve 0.1.8, 0.1.9 e 0.1.10.
+- **Falta:** recompilar o verificador no servidor com o Go 1.27.4 (passos em `docs/PAGINA_DOWNLOAD.md`), com
+  autorização do usuário. Até lá, ele roda a imagem antiga, compilada com o Go 1.27.2.
 
 ## Pendências
 

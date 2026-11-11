@@ -172,7 +172,9 @@ Publicada na página no mesmo dia (`latest.json` na 0.1.9).
 em duas listas, mapa e modo (ADR-029). Também na 0.1.10: mapas da rotação sem mod aparecem desativados na troca e
 com aviso e "Remover" em Servidor › Mapas (ADR-030). Na rotação do usuário, Outback e Redwood Reborn estão nesse caso. E a
 formatação não funciona no jogo (tags escritas na tela de carregamento e no chat): mensagens viraram texto simples
-(ADR-031).
+(ADR-031). Publicada na página no mesmo dia (`latest.json` na 0.1.10), já com o Go 1.27.4: o `audit:go` achou a
+GO-2026-6859 (servidor HTTP/1 cai por corrida no `MaxBytesReader`). App, verificador e Dockerfile subiram para o
+Go 1.27.4; falta recompilar o verificador no servidor (com autorização do usuário).
 
 **Falta (com o usuário):** atualizar o app instalado para a 0.1.10, aceitar os termos novos, testar o botão
 "Testar portas pela internet" com o servidor ligado, testar a troca para um mapa de mod e as mensagens no chat com jogadores. Da fase 19:
