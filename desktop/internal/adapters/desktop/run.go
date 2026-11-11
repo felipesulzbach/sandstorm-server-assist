@@ -33,6 +33,7 @@ import (
 	"sandstorm-server-assist/desktop/internal/app/installer"
 	"sandstorm-server-assist/desktop/internal/app/logbuf"
 	"sandstorm-server-assist/desktop/internal/app/mapchange"
+	"sandstorm-server-assist/desktop/internal/app/modfiles"
 	"sandstorm-server-assist/desktop/internal/app/notify"
 	"sandstorm-server-assist/desktop/internal/app/players"
 	"sandstorm-server-assist/desktop/internal/app/runner"
@@ -66,6 +67,8 @@ type app struct {
 	autostart bool
 	// updatesOnce liga a procura de atualizações uma vez, só depois do aceite dos termos (ADR-015).
 	updatesOnce sync.Once
+	// modFiles apaga um mod baixado para o servidor baixar de novo (ADR-037).
+	modFiles *modfiles.Service
 	// scenarios guarda os cenários que existem (jogo base e mods instalados) para conferir a rotação (ADR-030).
 	scenarios *scenarioCache
 }
@@ -237,6 +240,14 @@ func newApp() *app {
 			return c, nil
 		},
 		Log: func(text, level string) { log.Add("app", text, level) },
+	})
+	a.modFiles = modfiles.New(modfiles.Deps{
+		Running:     func() bool { return len(a.runner.Status().PIDs) > 0 },
+		Busy:        a.install.Busy,
+		StopAndWait: a.runner.StopAndWait,
+		Start:       a.runner.Start,
+		Remove:      func(id int) error { return modio.RemoveInstalled(modio.RootDir(), id) },
+		Log:         func(text, level string) { log.Add("app", text, level) },
 	})
 	a.watch = watchdog.New(watchdog.Deps{
 		Config:      cfg.Current,

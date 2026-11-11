@@ -8,7 +8,7 @@
   "frontend:dev:serverUrl": "auto",
   "info": {
     "productName": "Sandstorm Server Assist",
-    "productVersion": "0.2.0",
+    "productVersion": "0.2.1",
     "comments": "Install, configure and run an Insurgency: Sandstorm dedicated server",
     "copyright": "Copyright 2026 Felipe Sulzbach and contributors. Apache License 2.0."
   }

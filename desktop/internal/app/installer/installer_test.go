@@ -56,10 +56,16 @@ func TestSplitCRLF(t *testing.T) {
 
 func TestProgressSpeedAndBusy(t *testing.T) {
 	s := New(nil)
-	if _, err := s.begin(InstallServer); err != nil {
+	// A tela recebe o estado assim que a tarefa começa, antes de qualquer progresso.
+	var seen []State
+	s.SetNotify(func(st State) { seen = append(seen, st) })
+	if _, err := s.begin(InstallServer, true); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := s.begin(FetchSteamCMD); err == nil {
+	if len(seen) != 1 || seen[0].Task != InstallServer || seen[0].Last != InstallServer || !seen[0].Validate {
+		t.Fatalf("aviso no início: %+v", seen)
+	}
+	if _, err := s.begin(FetchSteamCMD, false); err == nil {
 		t.Error("duas tarefas ao mesmo tempo")
 	}
 	s.progress("downloading", 10, 100, 0)
@@ -68,7 +74,7 @@ func TestProgressSpeedAndBusy(t *testing.T) {
 		t.Errorf("%+v", st)
 	}
 	s.end(InstallServer, nil)
-	if st := s.State(); st.Task != Idle || st.Finished != InstallServer || st.Percent != 100 {
+	if st := s.State(); st.Task != Idle || st.Finished != InstallServer || st.Last != InstallServer || st.Percent != 100 {
 		t.Errorf("%+v", st)
 	}
 }

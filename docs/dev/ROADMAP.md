@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-11 (0.2.0 published).
+> Living document, updated at each step. Last update: 2026-11-11 (0.2.1 in progress).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -26,6 +26,9 @@
 | 16–19. Server control (0.1.3)        | Map change by RCON, messages, neutral network texts, game rules, players, automation, Discord, profiles    | ✅ Done |
 | 20–26. Mods and fixes (0.1.4–0.1.10) | Mod mutators and maps, screen error protection, own-server recognition, map change fixes (ADR-023 to 031)  | ✅ Done |
 | 27. Community release (0.2.0)        | GitHub Releases updates, local port diagnosis, Feedback page, English docs in 5 languages (ADR-032 to 035) | ✅ Done |
+| 28. Installation feedback (0.2.1)    | Progress, result and errors next to the button; task shown as soon as it starts; Check SteamCMD (ADR-036)  | ✅ Done |
+| 29. Delete a mod (0.2.1)             | Delete a downloaded mod so the server downloads it again, now or on the next start (ADR-037)               | ✅ Done |
+| 30. Download new mods now (0.2.1)    | Subscribed mods not on disk: start or restart the server to download them (ADR-038)                        | ✅ Done |
 
 Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](../../CHANGELOG.md).
 
@@ -49,6 +52,28 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
 - **Published** on 2026-11-11: GitHub Release `v0.2.0` (installer, portable zip, `latest.json`, `SHA256SUMS.txt`)
   and, as the bridge, on the old download server. Both `latest.json` point to 0.2.0 and serve the same installer
   (SHA-256 checked after download).
+
+## Phase 28 · Installation feedback (0.2.1)
+
+- `installer.begin` notifies the screen at once; `State` gains `last`, `validate`, `upToDate` and `present`;
+  `steamcmd.Parse` reads "already up to date".
+- `InstallPage`: `TaskPanel` in the SteamCMD and server cards (progress with Cancel, result, error), scrolled into
+  view on start; the old "Progress" card at the top is gone. **Check SteamCMD** when it is present. ADR-036.
+- Verified: Go tests (notify on start, up-to-date parsing) and front-end tests of the panel; not run against the
+  real server folder.
+
+## Phase 29 · Delete a downloaded mod (0.2.1)
+
+- `modio.RemoveInstalled` (state.json entry and folder), `app/modfiles` (stop, delete, start), `ServerAPI.DeleteMod`;
+  delete button with the confirmation on each downloaded mod's row. ADR-037.
+- Verified: adapter test with the real `state.json` shape, use case tests (stopped, running, failure, busy) and
+  front-end tests of the row; not run on the real mods.
+
+## Phase 30 · Download new mods now (0.2.1)
+
+- `modfiles.DownloadNew` (start, or stop and start), `ServerAPI.DownloadNewMods`; `PendingMods` above the Mods table
+  with the confirmation for a running server. ADR-038.
+- Verified: use case and front-end tests; not run on the real server.
 
 ## Bridge from the old download server
 

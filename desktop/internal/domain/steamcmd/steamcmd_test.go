@@ -15,7 +15,7 @@ func TestParse(t *testing.T) {
 		{" Update state (0x11) preallocating, progress: 70.00 (7 / 10)", Line{Phase: Preallocate, Percent: 70, Done: 7, Total: 10}},
 		{" Update state (0x101) committing, progress: 99.99 (9 / 10)", Line{Phase: Committing, Percent: 99.99, Done: 9, Total: 10}},
 		{"Success! App '581330' fully installed.", Line{Phase: Done, Percent: 100}},
-		{"Success! App '581330' already up to date.", Line{Phase: Done, Percent: 100}},
+		{"Success! App '581330' already up to date.", Line{Phase: Done, Percent: 100, UpToDate: true}},
 		{"ERROR! Failed to install app '581330' (Missing configuration)", Line{Phase: Failed, Error: "Missing configuration"}},
 		{"ERROR! Failed to install app '581330' (Disk write failure)", Line{Phase: Failed, Error: "Disk write failure"}},
 		{"Logging in user 'anonymous' to Steam Public...OK", Line{Phase: LoggingIn}},

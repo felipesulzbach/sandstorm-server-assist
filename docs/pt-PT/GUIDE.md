@@ -23,7 +23,7 @@ A app procura versões novas sozinha e só instala atualizações assinadas pelo
 
 1. Abra **Instalação** e escolha a **Pasta do servidor**. Precisa de cerca de 25 GB livres, mais os mods. Evite
    pastas do sistema, como `C:\Program Files`.
-2. Clique em **Transferir SteamCMD**. A app verifica a assinatura digital da Valve antes de o executar.
+2. Clique em **Transferir SteamCMD**. A app verifica a assinatura digital da Valve antes de o executar. Depois de transferido, o botão passa a **Verificar SteamCMD**: o SteamCMD atualiza-se sozinho sempre que a app o usa.
 3. Clique em **Instalar servidor** e acompanhe o progresso. Mais tarde, **Procurar atualizações** atualiza-o e
    **Verificar ficheiros** repara uma instalação estragada.
 
@@ -64,9 +64,14 @@ O servidor transfere os mods subscritos pela conta do mod.io dele.
    ao modo normal.
 3. Subscreva mods no [site do mod.io](https://mod.io/g/insurgencysandstorm) com essa conta. A lista mostra cada mod e
    o download dele quando o servidor inicia.
+   Os mods ainda não transferidos aparecem acima da lista: **Transferir agora** arranca o servidor (ou reinicia-o,
+   depois de perguntar) para os transferir.
 
 Para começar num mapa de mod, escolha-o em **Servidor › Mapas** (**Nome do mapa do mod** e
 **Cenário do mapa do mod**).
+
+Um mod parece danificado ou quer uma cópia nova? Clique no caixote ao lado dele. **Apagar e transferir de novo**
+para e arranca o servidor por si; **Só apagar** (servidor parado) deixa a transferência para o próximo arranque.
 
 ## 5. Abrir as portas
 

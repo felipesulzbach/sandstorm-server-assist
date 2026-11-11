@@ -187,6 +187,16 @@ func (s *ServerAPI) Mods() ModsView {
 	return v
 }
 
+// DeleteMod apaga um mod baixado (pasta e registro do mod.io) para o servidor baixar de novo (ADR-037).
+// redownload=true inicia o servidor logo depois; com o servidor rodando, ele para, apaga e volta.
+func (s *ServerAPI) DeleteMod(id int, redownload bool) error {
+	return s.a.modFiles.Delete(id, redownload)
+}
+
+// DownloadNewMods faz o servidor baixar os mods inscritos que ainda não estão no disco: inicia o servidor, ou
+// reinicia se ele está rodando (ADR-038).
+func (s *ServerAPI) DownloadNewMods() error { return s.a.modFiles.DownloadNew() }
+
 // RefreshSubscriptions lê do mod.io as inscrições da conta do servidor (usa a sessão do user.json).
 func (s *ServerAPI) RefreshSubscriptions() (ModsView, error) {
 	uf, err := modio.UserFile()

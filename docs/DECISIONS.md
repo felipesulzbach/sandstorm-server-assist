@@ -434,3 +434,49 @@ one, the older one says so.
   English file. Code comments are still mostly in Portuguese; new code may use English.
 - **Credits:** the author is credited by name and GitHub handle in the README, the About screen and `NOTICE`; the app
   was built with the help of Claude Code (Anthropic).
+
+## ADR-036 · Installation feedback next to the button
+
+- **Context:** on the Installation screen, "Check for updates" seemed to do nothing, then "Verify files" showed
+  "Wait for the current task" at the top of the page, out of view. Two causes: Go marked the task as running but
+  only told the screen at the first progress line, and SteamCMD spends a while updating itself before printing any
+  (the buttons stayed enabled and nothing showed); and the progress, result and error lived at the top of the page.
+  "Download SteamCMD" with SteamCMD already present only checked the signature and showed nothing near the button.
+- **Decision:**
+  - The installer tells the screen as soon as a task starts. The state also says which task ran last (`last`),
+    whether it verified files (`validate`), whether the server was already up to date (`upToDate`, from SteamCMD's
+    "already up to date") and whether SteamCMD was already there (`present`).
+  - Progress, result and errors show inside the card of the button that started the task, and the area scrolls into
+    view when the task starts. The buttons are disabled from the click on.
+  - With SteamCMD present, the button is **Check SteamCMD**, with a note that SteamCMD updates itself every time the
+    app runs it; the check downloads it again only if the file is damaged.
+
+## ADR-037 · Delete a downloaded mod so the server downloads it again
+
+- **Context:** the maintainer asked for a way to delete a downloaded mod, to force the server to download it again
+  (a broken mod, or a fresh copy), either on the next start or right away. The server's mod.io plugin downloads the
+  subscribed mods when it starts and keeps what is installed in `254/metadata/state.json`. Deleting only the mod
+  folder is not enough: the entry would still say "installed" and the server would try to mount files that are gone.
+  The server rewrites `state.json` when it closes, so it must be stopped.
+- **Decision:**
+  - `modio.RemoveInstalled` removes the mod from the `Mods` list of `state.json` (other mods and fields kept as they
+    were, a `.bak` copy on the first change) and deletes `254/mods/<id>`. The folder comes only from the id, never
+    from `PathOnDisk`, and must be inside the mod.io mods folder.
+  - `app/modfiles` orders the steps: **Delete and download again** stops the server if it runs, deletes, then starts
+    it (it downloads the mod; the restart for new mods of ADR-017 still applies). **Only delete** needs the server
+    stopped; the mod comes back on the next start if it is still subscribed. If deleting fails after a stop, the
+    server is started again. It refuses while the server is being installed or updated.
+  - On the Mods screen, each downloaded mod has a delete button; the confirmation, progress, result and error show on
+    the mod's row. New problem code `mod-delete`.
+
+## ADR-038 · Download new mods now: start or restart the server
+
+- **Context:** after subscribing to new mods and reading the subscriptions, the Mods list showed them as "will be
+  downloaded" with no way to download them. Only the server's mod.io plugin downloads mods, and only when the server
+  starts; a running server does not load new mods.
+- **Decision:** when subscribed mods are not on disk, the Mods screen lists them above the table with **Download
+  now**, which starts the server, or **Restart and download now** with a confirmation (the match ends and players
+  leave for a moment) when it runs. `modfiles.DownloadNew` refuses while the server is being installed. After the
+  download, the restart of ADR-017 loads every mod. The progress shows on each mod's row.
+- **Not chosen:** downloading the mods with the app. It would copy the plugin's private files (`state.json`, the mod
+  folders), which can change between game versions and which the server rewrites.

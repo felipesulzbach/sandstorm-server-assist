@@ -23,7 +23,7 @@ La app busca versiones nuevas sola y solo instala actualizaciones firmadas por e
 
 1. Abre **Instalación** y elige la **Carpeta del servidor**. Necesita unos 25 GB libres, más los mods. Evita
    carpetas del sistema como `C:\Program Files`.
-2. Pulsa **Descargar SteamCMD**. La app comprueba la firma digital de Valve antes de ejecutarlo.
+2. Pulsa **Descargar SteamCMD**. La app comprueba la firma digital de Valve antes de ejecutarlo. Una vez descargado, el botón pasa a ser **Comprobar SteamCMD**: SteamCMD se actualiza solo cada vez que la app lo usa.
 3. Pulsa **Instalar servidor** y sigue el progreso. Más tarde, **Buscar actualizaciones** lo actualiza y
    **Verificar archivos** repara una instalación dañada.
 
@@ -63,9 +63,14 @@ El servidor descarga los mods a los que está suscrita su cuenta de mod.io.
    modo normal.
 3. Suscríbete a mods en la [web de mod.io](https://mod.io/g/insurgencysandstorm) con esa cuenta. La lista muestra cada
    mod y su descarga cuando el servidor arranca.
+   Los mods aún no descargados aparecen encima de la lista: **Descargar ahora** arranca el servidor (o lo reinicia,
+   tras preguntar) para descargarlos.
 
 Para empezar en un mapa de mod, elígelo en **Servidor › Mapas** (**Nombre del mapa del mod** y
 **Escenario del mapa del mod**).
+
+¿Un mod parece dañado o quieres una copia nueva? Pulsa la papelera junto a él. **Borrar y descargar de nuevo**
+detiene y arranca el servidor por ti; **Solo borrar** (servidor detenido) deja la descarga para el próximo arranque.
 
 ## 5. Abrir los puertos
 

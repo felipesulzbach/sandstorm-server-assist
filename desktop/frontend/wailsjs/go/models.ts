@@ -669,6 +669,10 @@ export namespace installer {
 	    started: any;
 	    error?: problems.Error;
 	    finished: string;
+	    last: string;
+	    validate: boolean;
+	    upToDate: boolean;
+	    present: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new State(source);
@@ -686,6 +690,10 @@ export namespace installer {
 	        this.started = this.convertValues(source["started"], null);
 	        this.error = this.convertValues(source["error"], problems.Error);
 	        this.finished = source["finished"];
+	        this.last = source["last"];
+	        this.validate = source["validate"];
+	        this.upToDate = source["upToDate"];
+	        this.present = source["present"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

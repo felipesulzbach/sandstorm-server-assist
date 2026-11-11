@@ -52,6 +52,15 @@ type State struct {
 	Error   *problems.Error `json:"error,omitempty"`
 	// Finished indica que a última tarefa terminou bem (para a tela mostrar "concluído").
 	Finished Task `json:"finished"`
+	// Last é a última tarefa iniciada (em andamento, concluída ou com erro): a tela mostra o andamento e o resultado
+	// no cartão dela, perto do botão que a iniciou.
+	Last Task `json:"last"`
+	// Validate: a tarefa do servidor confere todos os arquivos ("Verificar ficheiros").
+	Validate bool `json:"validate"`
+	// UpToDate: o servidor já estava na versão mais recente (nada foi baixado).
+	UpToDate bool `json:"upToDate"`
+	// Present: o SteamCMD já estava na pasta, com a assinatura da Valve conferida (nada foi baixado).
+	Present bool `json:"present"`
 }
 
 // Info é o que já está instalado.
@@ -139,16 +148,23 @@ func (s *Service) progress(phase steamcmd.Phase, done, total int64, pct float64)
 	})
 }
 
-func (s *Service) begin(task Task) (context.Context, error) {
+// begin marca a tarefa e avisa a tela na hora: antes a tela só sabia da tarefa no primeiro progresso, e o SteamCMD
+// passa um tempo se atualizando sem progresso (os botões ficavam ativos e nada aparecia).
+func (s *Service) begin(task Task, validate bool) (context.Context, error) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
 	if s.st.Task != Idle {
+		s.mu.Unlock()
 		return nil, problems.New(problems.Busy, "")
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	s.cancel = cancel
-	s.st = State{Task: task, Started: time.Now()}
+	s.st = State{Task: task, Last: task, Validate: validate, Started: time.Now()}
 	s.lastDone, s.lastAt = 0, time.Time{}
+	st, n := s.st, s.notify
+	s.mu.Unlock()
+	if n != nil {
+		n(st)
+	}
 	return ctx, nil
 }
 
@@ -238,7 +254,7 @@ func (s *Service) FetchSteamCMD(dir string) error {
 	if !fsx.SafeDir(dir) {
 		return problems.New(problems.ServerDirInvalid, dir)
 	}
-	ctx, err := s.begin(FetchSteamCMD)
+	ctx, err := s.begin(FetchSteamCMD, false)
 	if err != nil {
 		return err
 	}
@@ -251,6 +267,7 @@ func (s *Service) fetchSteamCMD(ctx context.Context, dir string) error {
 	if fsx.Exists(exe) {
 		if err := trust.VerifySigner(exe, "Valve"); err == nil {
 			s.logf("SteamCMD already present: " + exe)
+			s.set(func(st *State) { st.Present = true })
 			return nil
 		}
 	}
@@ -327,7 +344,7 @@ func (s *Service) Install(steamcmdDir, serverDir string, validate bool) error {
 	if err := trust.VerifySigner(exe, "Valve"); err != nil {
 		return problems.Wrap(problems.SteamCMDSignature, err)
 	}
-	ctx, err := s.begin(InstallServer)
+	ctx, err := s.begin(InstallServer, validate)
 	if err != nil {
 		return err
 	}
@@ -391,6 +408,7 @@ func (s *Service) runSteamCMD(ctx context.Context, exe, serverDir string, args [
 		switch l.Phase {
 		case steamcmd.Done:
 			success = true
+			s.set(func(st *State) { st.UpToDate = l.UpToDate })
 		case steamcmd.Failed:
 			failure = l.Error
 		case steamcmd.Downloading, steamcmd.Verifying, steamcmd.Preallocate, steamcmd.Committing:

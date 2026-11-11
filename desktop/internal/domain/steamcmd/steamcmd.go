@@ -31,6 +31,8 @@ type Line struct {
 	Total   int64   `json:"total"`
 	// Error é o motivo do erro (ex.: "Missing configuration").
 	Error string `json:"error,omitempty"`
+	// UpToDate: o SteamCMD terminou dizendo que o app já estava na versão mais recente (nada baixado).
+	UpToDate bool `json:"upToDate,omitempty"`
 }
 
 var (
@@ -53,8 +55,8 @@ func Parse(line string) (Line, bool) {
 		total, _ := strconv.ParseInt(m[4], 10, 64)
 		return Line{Phase: statePhase(m[1]), Percent: pct, Done: done, Total: total}, true
 	}
-	if reSuccess.MatchString(line) {
-		return Line{Phase: Done, Percent: 100}, true
+	if m := reSuccess.FindStringSubmatch(line); m != nil {
+		return Line{Phase: Done, Percent: 100, UpToDate: m[1] == "already up to date"}, true
 	}
 	if m := reError.FindStringSubmatch(line); m != nil {
 		msg := m[1]

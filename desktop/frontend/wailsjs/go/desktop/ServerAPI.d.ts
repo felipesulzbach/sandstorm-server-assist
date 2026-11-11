@@ -19,7 +19,11 @@ export function CheckPorts():Promise<netcheck.Result>;
 
 export function Connect():Promise<desktop.Connect>;
 
+export function DeleteMod(arg1:number,arg2:boolean):Promise<void>;
+
 export function DetectAPIKey():Promise<boolean>;
+
+export function DownloadNewMods():Promise<void>;
 
 export function Kick(arg1:string,arg2:string):Promise<void>;
 

@@ -71,6 +71,18 @@ Short notes of each development session, newest last. They help a new session pi
 - **Published** the same day: GitHub Release `v0.2.0` and, as the bridge, the old download server. Installed apps
   up to 0.1.10 update from the old server to 0.2.0 and then use GitHub.
 
+## 2026-11-11 · 0.2.1 (installation feedback)
+
+- The maintainer clicked "Check for updates" and saw nothing, then "Verify files" showed "Wait for the current task"
+  at the top of the page, out of view; "Download SteamCMD" also seemed to do nothing. The installer now tells the
+  screen when a task starts, and progress, result and errors show in the card of the button (ADR-036). With SteamCMD
+  present the button is "Check SteamCMD" and explains that SteamCMD updates itself.
+- Also in 0.2.1: the maintainer asked to delete a downloaded mod so the server downloads it again, right away or on
+  the next start (ADR-037). The app removes the mod from mod.io's `state.json` and deletes its folder; with the
+  server running, "Delete and download again" stops it, deletes and starts it.
+- Also in 0.2.1: new subscriptions showed as "will be downloaded" with no way to download them. The Mods screen now
+  offers to start the server (or restart it, with a confirmation) so mod.io downloads them (ADR-038).
+
 ## Cautions for future sessions
 
 - The maintainer's real server folder has secrets in plain text (`Game.ini`, notes next to the `.bat`) and the mod.io

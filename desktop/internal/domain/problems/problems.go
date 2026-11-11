@@ -53,6 +53,7 @@ const (
 	ServerUpdateFailed = "server-update-failed"
 	ReportFailed       = "report-failed"
 	ReportImage        = "report-image"
+	ModDelete          = "mod-delete"
 )
 
 // links de ajuda de cada problema (chaves de links conhecidos, abertos pelo Go).
@@ -75,7 +76,7 @@ var Codes = []string{
 	DiskFull, NoInternet, InvalidField, VaultUnavailable, BackupPassword, BackupCorrupt, BackupWrite,
 	ConfigWrite, Busy, Canceled, UpdateFailed, ModsNotMounted, LogDelete,
 	RconOff, RconFailed, RconAuth, MapChangeFailed,
-	DiscordFailed, FirewallFailed, AutostartFailed, ServerUpdateFailed, ReportFailed, ReportImage,
+	DiscordFailed, FirewallFailed, AutostartFailed, ServerUpdateFailed, ReportFailed, ReportImage, ModDelete,
 }
 
 // Links devolve os links de ajuda de um código.

@@ -169,6 +169,9 @@ export const ptPT: Messages = {
       title: 'SteamCMD',
       text: 'Ferramenta de linha de comandos da Valve que transfere o servidor. A aplicação confirma a assinatura digital da Valve antes de o executar.',
       fetch: 'Transferir SteamCMD',
+      check: 'Verificar SteamCMD',
+      selfUpdates:
+        'O SteamCMD atualiza-se sozinho sempre que a aplicação o usa. Este botão só confere o ficheiro e transfere-o de novo se estiver danificado.',
       ready: 'SteamCMD pronto',
       missing: 'SteamCMD não encontrado',
     },
@@ -201,7 +204,12 @@ export const ptPT: Messages = {
       cancel: 'Cancelar',
       finished: {
         steamcmd: 'SteamCMD transferido e verificado.',
+        steamcmdPresent:
+          'O SteamCMD já está aqui e a assinatura da Valve é válida. Nada para transferir.',
         server: 'O servidor está instalado e atualizado.',
+        upToDate: 'O servidor já tem a versão mais recente. Nada para transferir.',
+        validated:
+          'Todos os ficheiros do servidor foram verificados; o que estava danificado foi reparado.',
       },
     },
     import: {
@@ -499,6 +507,35 @@ export const ptPT: Messages = {
       openSite: 'Abrir mod.io',
       conflict:
         'Mods de mapa que trazem os mesmos ficheiros do jogo entram em conflito (exemplo: Containment com Old World ou Containment Storm). Se o servidor fechar com "Serial size mismatch", cancele a subscrição de um deles.',
+    },
+    pending: {
+      text: 'Ainda não transferidos: {names}. O servidor transfere os mods inscritos quando arranca.',
+      stoppedHint:
+        '"Transferir agora" arranca o servidor; depois da transferência ele reinicia uma vez sozinho para carregar todos os mods.',
+      runningHint:
+        'Um servidor ligado não carrega mods novos: "Reiniciar e transferir agora" reinicia-o.',
+      start: 'Transferir agora',
+      restart: 'Reiniciar e transferir agora',
+      confirm: 'A partida atual termina e os jogadores saem por um momento. Reiniciar agora?',
+      confirmYes: 'Reiniciar agora',
+      started:
+        'O servidor está a arrancar e transfere os mods novos. Acompanhe o progresso na lista; ele reinicia uma vez sozinho para carregar todos os mods.',
+    },
+    delete: {
+      column: 'Ações',
+      button: 'Apagar os ficheiros transferidos de {name}',
+      confirm:
+        'Apagar os ficheiros transferidos de {name}? O servidor transfere o mod de novo quando arrancar, se continuar inscrito. Use para corrigir um mod danificado ou forçar uma transferência nova.',
+      redownload: 'Apagar e transferir de novo',
+      only: 'Só apagar',
+      working: 'A apagar…',
+      runningHint:
+        '"Apagar e transferir de novo" para o servidor, apaga o mod e arranca o servidor, que o transfere de novo. Para só apagar, pare o servidor primeiro.',
+      stoppedHint:
+        '"Apagar e transferir de novo" arranca o servidor, que transfere o mod. "Só apagar" deixa a transferência para o próximo arranque.',
+      doneRedownload:
+        '{name} apagado. O servidor está a arrancar e transfere-o de novo; acompanhe o progresso aqui.',
+      done: '{name} apagado. O servidor transfere-o de novo no próximo arranque, se continuar inscrito.',
     },
     state: {
       installed: 'Instalado',
@@ -1620,6 +1657,16 @@ export const ptPT: Messages = {
         'Com subscrições novas, o servidor só carrega o que acabou de baixar. No arranque seguinte carrega tudo.',
       solution: [
         'Clique em Reiniciar. O app faz isto sozinho quando foi ele que iniciou o servidor.',
+      ],
+    },
+    'mod-delete': {
+      title: 'Não foi possível apagar o mod',
+      what: 'A aplicação não conseguiu apagar os ficheiros do mod.',
+      cause:
+        'Um ficheiro do mod está em uso (pelo servidor ou por outro programa) ou o Windows bloqueou a pasta.',
+      solution: [
+        'Feche programas que possam estar a usar a pasta do mod e tente de novo.',
+        'Se continuar a falhar, abra os Registos para ver qual ficheiro foi bloqueado.',
       ],
     },
     'log-delete': {

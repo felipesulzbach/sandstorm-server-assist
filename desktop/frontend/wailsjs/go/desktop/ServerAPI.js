@@ -26,8 +26,16 @@ export function Connect() {
   return window['go']['desktop']['ServerAPI']['Connect']();
 }
 
+export function DeleteMod(arg1, arg2) {
+  return window['go']['desktop']['ServerAPI']['DeleteMod'](arg1, arg2);
+}
+
 export function DetectAPIKey() {
   return window['go']['desktop']['ServerAPI']['DetectAPIKey']();
+}
+
+export function DownloadNewMods() {
+  return window['go']['desktop']['ServerAPI']['DownloadNewMods']();
 }
 
 export function Kick(arg1, arg2) {

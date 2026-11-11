@@ -1085,6 +1085,42 @@ code {
   vertical-align: top;
 }
 
+/* Mods inscritos ainda não baixados (ADR-038) */
+.pendingmods {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.pendingmods .banner {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
+/* Texto só para leitores de tela */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Botão de apagar o mod e a confirmação na linha de baixo (ADR-037) */
+.table__actions {
+  width: 1%;
+  text-align: right;
+  white-space: nowrap;
+}
+.table__detail td {
+  padding-top: 0;
+}
+.moddelete {
+  display: grid;
+  gap: 8px;
+}
+
 .table__status {
   min-width: 220px;
 }
@@ -1817,6 +1853,13 @@ code {
 }
 
 /* Aviso de erro de tela (ErrorBoundary) */
+/* Andamento e resultado da instalação no cartão do botão que a iniciou */
+.taskpanel {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
 .screen-error {
   display: grid;
   gap: 12px;

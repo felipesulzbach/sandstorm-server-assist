@@ -168,6 +168,9 @@ export const enUS = {
       title: 'SteamCMD',
       text: "Valve's command-line tool that downloads the server. The app checks Valve's digital signature before running it.",
       fetch: 'Download SteamCMD',
+      check: 'Check SteamCMD',
+      selfUpdates:
+        'SteamCMD updates itself every time the app uses it. This button only checks the file and downloads it again if it is damaged.',
       ready: 'SteamCMD ready',
       missing: 'SteamCMD not found',
     },
@@ -200,7 +203,11 @@ export const enUS = {
       cancel: 'Cancel',
       finished: {
         steamcmd: 'SteamCMD downloaded and verified.',
+        steamcmdPresent:
+          'SteamCMD is already here and the Valve signature is valid. Nothing to download.',
         server: 'The server is installed and up to date.',
+        upToDate: 'The server already has the latest version. Nothing to download.',
+        validated: 'All server files were checked; anything damaged was repaired.',
       },
     },
     import: {
@@ -493,6 +500,35 @@ export const enUS = {
       openSite: 'Open mod.io',
       conflict:
         'Map mods that ship the same game files conflict (example: Containment with Old World or Containment Storm). If the server closes with "Serial size mismatch", unsubscribe one of them.',
+    },
+    pending: {
+      text: 'Not downloaded yet: {names}. The server downloads subscribed mods when it starts.',
+      stoppedHint:
+        '"Download now" starts the server; after the download it restarts once by itself to load every mod.',
+      runningHint:
+        'A running server does not load new mods: "Restart and download now" restarts it.',
+      start: 'Download now',
+      restart: 'Restart and download now',
+      confirm: 'The current match ends and players leave for a moment. Restart now?',
+      confirmYes: 'Restart now',
+      started:
+        'The server is starting and downloads the new mods. Follow the progress in the list; it restarts once by itself to load every mod.',
+    },
+    delete: {
+      column: 'Actions',
+      button: 'Delete the downloaded files of {name}',
+      confirm:
+        'Delete the downloaded files of {name}? The server downloads the mod again when it starts, if it is still subscribed. Use it to fix a broken mod or to force a fresh download.',
+      redownload: 'Delete and download again',
+      only: 'Only delete',
+      working: 'Deleting…',
+      runningHint:
+        '"Delete and download again" stops the server, deletes the mod and starts the server, which downloads it again. To only delete, stop the server first.',
+      stoppedHint:
+        '"Delete and download again" starts the server, which downloads the mod. "Only delete" leaves the download for the next start.',
+      doneRedownload:
+        '{name} deleted. The server is starting and downloads it again; follow the progress here.',
+      done: '{name} deleted. The server downloads it again on its next start, if it is still subscribed.',
     },
     state: {
       installed: 'Installed',
@@ -1605,6 +1641,16 @@ export const enUS = {
       cause:
         'When there are new subscriptions, the server loads only what it has just downloaded. On the next start it loads everything.',
       solution: ['Click Restart. The app does this by itself when it started the server.'],
+    },
+    'mod-delete': {
+      title: 'Could not delete the mod',
+      what: 'The app could not delete the files of the mod.',
+      cause:
+        'A file of the mod is in use (by the server or another program) or Windows blocked the folder.',
+      solution: [
+        'Close programs that may be using the mod folder and try again.',
+        'If it keeps failing, open Logs to see which file was blocked.',
+      ],
     },
     'log-delete': {
       title: 'Some logs could not be deleted',

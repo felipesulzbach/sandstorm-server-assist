@@ -3,6 +3,24 @@
 All notable changes to Sandstorm Server Assist. Versions follow `MAJOR.MINOR.PATCH`. The GitHub release notes of
 each version come from its section here (`npm run release:publish`).
 
+## [0.2.1] - 2026-11-11
+
+### Added
+
+- **Delete a downloaded mod** on the Mods screen, so the server downloads it again: **Delete and download again**
+  (stops and starts the server if needed) or **Only delete** (the server downloads it on its next start, if you are
+  still subscribed). Useful for a broken mod or to force a fresh copy.
+- **Download new mods now:** subscribed mods that are not downloaded yet show above the Mods list with **Download
+  now** (starts the server) or **Restart and download now** (asks first, since the match ends).
+
+### Changed
+
+- **Installation screen:** progress, result and errors now show in the card of the button you clicked, and the
+  screen reacts as soon as you click (before, nothing showed while SteamCMD updated itself). It also says when the
+  server already had the latest version.
+- With SteamCMD already installed, the button is **Check SteamCMD**: SteamCMD updates itself every time the app uses
+  it, so there is nothing to download again unless the file is damaged.
+
 ## [0.2.0] - 2026-11-11
 
 ### Added

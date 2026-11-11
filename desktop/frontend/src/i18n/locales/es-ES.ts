@@ -171,6 +171,9 @@ export const esES: Messages = {
       title: 'SteamCMD',
       text: 'Herramienta de línea de comandos de Valve que descarga el servidor. La aplicación comprueba la firma digital de Valve antes de ejecutarla.',
       fetch: 'Descargar SteamCMD',
+      check: 'Comprobar SteamCMD',
+      selfUpdates:
+        'SteamCMD se actualiza solo cada vez que la aplicación lo usa. Este botón solo comprueba el archivo y lo vuelve a descargar si está dañado.',
       ready: 'SteamCMD listo',
       missing: 'SteamCMD no encontrado',
     },
@@ -203,7 +206,10 @@ export const esES: Messages = {
       cancel: 'Cancelar',
       finished: {
         steamcmd: 'SteamCMD descargado y verificado.',
+        steamcmdPresent: 'SteamCMD ya está aquí y la firma de Valve es válida. Nada que descargar.',
         server: 'El servidor está instalado y actualizado.',
+        upToDate: 'El servidor ya tiene la versión más reciente. Nada que descargar.',
+        validated: 'Se comprobaron todos los archivos del servidor; lo dañado se reparó.',
       },
     },
     import: {
@@ -503,6 +509,35 @@ export const esES: Messages = {
       openSite: 'Abrir mod.io',
       conflict:
         'Los mods de mapa que traen los mismos archivos del juego entran en conflicto (ejemplo: Containment con Old World o Containment Storm). Si el servidor se cierra con "Serial size mismatch", cancela la suscripción de uno de ellos.',
+    },
+    pending: {
+      text: 'Aún no descargados: {names}. El servidor descarga los mods suscritos al arrancar.',
+      stoppedHint:
+        '"Descargar ahora" arranca el servidor; tras la descarga se reinicia una vez solo para cargar todos los mods.',
+      runningHint:
+        'Un servidor encendido no carga mods nuevos: "Reiniciar y descargar ahora" lo reinicia.',
+      start: 'Descargar ahora',
+      restart: 'Reiniciar y descargar ahora',
+      confirm: 'La partida actual termina y los jugadores salen un momento. ¿Reiniciar ahora?',
+      confirmYes: 'Reiniciar ahora',
+      started:
+        'El servidor está arrancando y descarga los mods nuevos. Sigue el progreso en la lista; se reinicia una vez solo para cargar todos los mods.',
+    },
+    delete: {
+      column: 'Acciones',
+      button: 'Borrar los archivos descargados de {name}',
+      confirm:
+        '¿Borrar los archivos descargados de {name}? El servidor vuelve a descargar el mod al arrancar, si sigues suscrito. Úsalo para arreglar un mod dañado o forzar una descarga nueva.',
+      redownload: 'Borrar y descargar de nuevo',
+      only: 'Solo borrar',
+      working: 'Borrando…',
+      runningHint:
+        '"Borrar y descargar de nuevo" detiene el servidor, borra el mod y arranca el servidor, que lo vuelve a descargar. Para solo borrar, detén antes el servidor.',
+      stoppedHint:
+        '"Borrar y descargar de nuevo" arranca el servidor, que descarga el mod. "Solo borrar" deja la descarga para el próximo arranque.',
+      doneRedownload:
+        '{name} borrado. El servidor está arrancando y lo vuelve a descargar; sigue el progreso aquí.',
+      done: '{name} borrado. El servidor lo vuelve a descargar en el próximo arranque, si sigues suscrito.',
     },
     state: {
       installed: 'Instalado',
@@ -1628,6 +1663,16 @@ export const esES: Messages = {
         'Con suscripciones nuevas, el servidor solo carga lo que acaba de descargar. En el siguiente inicio carga todo.',
       solution: [
         'Haz clic en Reiniciar. La app lo hace sola cuando fue ella quien inició el servidor.',
+      ],
+    },
+    'mod-delete': {
+      title: 'No se pudo borrar el mod',
+      what: 'La aplicación no pudo borrar los archivos del mod.',
+      cause:
+        'Un archivo del mod está en uso (por el servidor u otro programa) o Windows bloqueó la carpeta.',
+      solution: [
+        'Cierra los programas que puedan usar la carpeta del mod e inténtalo de nuevo.',
+        'Si sigue fallando, abre Registros para ver qué archivo se bloqueó.',
       ],
     },
     'log-delete': {
