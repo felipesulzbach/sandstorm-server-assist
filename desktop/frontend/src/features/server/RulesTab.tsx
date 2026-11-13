@@ -17,6 +17,9 @@ export function RulesTab({
 }) {
   const { t } = useI18n();
   const [info, setInfo] = useState<RulesInfo | null>(null);
+  const [fromServer, setFromServer] = useState<Record<string, string>>({});
+  const rules = (form.rules ?? null) as Record<string, string> | null;
+  const managed = rules !== null;
 
   useEffect(() => {
     backend
@@ -24,10 +27,16 @@ export function RulesTab({
       .then(setInfo)
       .catch(() => {});
   }, []);
+  // Com a opção desligada, o Go lê as regras que o servidor já tem (ADR-040) para oferecer usá-las.
+  useEffect(() => {
+    if (managed) return;
+    backend
+      .serverRules()
+      .then((r) => setFromServer(r ?? {}))
+      .catch(() => setFromServer({}));
+  }, [managed, form.serverDir]);
   if (!info) return null;
-
-  const rules = (form.rules ?? null) as Record<string, string> | null;
-  const managed = rules !== null;
+  const serverCount = Object.keys(fromServer).length;
   const value = (id: string) => rules?.[id] ?? '';
   const put = (id: string, v: string) => {
     const next = { ...(rules ?? {}) };
@@ -81,6 +90,14 @@ export function RulesTab({
           <span className="field__hint">{t('rules.manageHint')}</span>
         </span>
       </label>
+      {!managed && serverCount > 0 && (
+        <div className="banner banner--info field--wide rules__server" role="status">
+          <p>{t('rules.fromServer', { n: serverCount })}</p>
+          <button type="button" className="btn btn--small" onClick={() => set({ ...fromServer })}>
+            {t('rules.useServer')}
+          </button>
+        </div>
+      )}
       {error && <p className="banner banner--error field--wide">{error}</p>}
       {managed &&
         info.groups.map((g) => (

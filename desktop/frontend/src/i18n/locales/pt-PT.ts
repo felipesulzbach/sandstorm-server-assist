@@ -104,6 +104,8 @@ export const ptPT: Messages = {
     modsActive: '{n} mods ativos',
     external:
       'Este servidor já estava a correr quando a aplicação abriu, e não foi ela que o iniciou. A aplicação acompanha-o e controla-o normalmente; só não o reinicia sozinha para carregar mods novos.',
+    mutatorsRefused:
+      'O servidor recusou estes mutators neste mapa: {names}. O jogo não diz porquê: um mutator pode não funcionar neste modo de jogo ou junto com outro que escolheu (visto com o Ultralethal no Checkpoint, com ou sem o Bullet Sponge). Tire-o em Servidor › Mapas.',
     authorizing: 'A autorizar no mod.io com o código. O servidor reinicia sozinho em modo normal.',
     remount:
       'Foram baixados mods novos e o servidor não carregou os que já estavam instalados (mapa do mod e mutators). A reiniciar uma vez para carregar todos.',
@@ -226,6 +228,9 @@ export const ptPT: Messages = {
     mutatorsMods: 'Dos seus mods',
     mutatorsGame: 'Do jogo',
     mutatorsBadge: 'MOD',
+    mutatorsRefused:
+      'No mapa atual o servidor recusou: {names}. O jogo não diz porquê: pode não funcionar neste modo de jogo ou com outro mutator que escolheu (visto com o Ultralethal no Checkpoint, com ou sem o Bullet Sponge).',
+    mutatorsRefusedBadge: 'recusado pelo servidor',
     mutatorsFromMod: 'Mod: {name}',
     mutatorsMissing: 'Nenhum mod instalado tem este mutator: o servidor não o vai carregar.',
     mutatorsNoMods:
@@ -1042,6 +1047,9 @@ export const ptPT: Messages = {
     manage: 'Definir as regras do jogo aqui',
     manageHint:
       'O app grava estas opções no Game.ini e no Engine.ini quando o servidor inicia. Opções vazias usam o padrão do jogo. Desligado: o app não mexe nestes ficheiros.',
+    fromServer:
+      'O Game.ini do servidor já define {n} regras do jogo. A aplicação ainda não as gere, por isso deixa os ficheiros como estão.',
+    useServer: 'Usar as regras do servidor',
     default: 'Padrão: {value}',
     gameDefault: 'Padrão do jogo',
     on: 'Ligado',
@@ -1323,6 +1331,9 @@ export const ptPT: Messages = {
     score: 'Pontos',
     actions: 'Ações',
     bot: 'bot',
+    showBots: 'Mostrar os {n} bots',
+    hideBots: 'Esconder os {n} bots',
+    noHumans: 'Nenhum jogador, só bots.',
     kick: 'Expulsar',
     ban: 'Banir',
     confirmKick: 'Expulsar {name}?',

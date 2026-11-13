@@ -25,11 +25,17 @@ export function MutatorPicker({
   const { t } = useI18n();
   const [list, setList] = useState<Mutator[]>([]);
   const [mods, setMods] = useState<ModMutator[] | null>(null);
+  // Mutators que o servidor recusou no mapa atual (ADR-041), lidos do estado do servidor.
+  const [refused, setRefused] = useState<string[]>([]);
 
   useEffect(() => {
     backend
       .mutators()
       .then((l) => setList(l ?? []))
+      .catch(() => {});
+    backend
+      .status()
+      .then((s) => setRefused(s?.refusedMutators ?? []))
       .catch(() => {});
     backend
       .modMutators()
@@ -55,6 +61,9 @@ export function MutatorPicker({
       <span>
         {label}
         {kind !== 'game' && <span className="mutators__badge">{t('server.mutatorsBadge')}</span>}
+        {refused.includes(id) && (
+          <span className="pill pill--warn">{t('server.mutatorsRefusedBadge')}</span>
+        )}
         <span className="field__hint">{hint}</span>
       </span>
     </label>
@@ -62,6 +71,11 @@ export function MutatorPicker({
 
   return (
     <div className="mutators">
+      {refused.length > 0 && (
+        <p className="banner banner--warn">
+          {t('server.mutatorsRefused', { names: refused.join(', ') })}
+        </p>
+      )}
       <div className="mutators__scroll">
         <p className="mutators__group">{t('server.mutatorsMods')}</p>
         <div className="mutators__grid">

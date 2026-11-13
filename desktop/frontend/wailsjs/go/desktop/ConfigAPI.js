@@ -94,6 +94,10 @@ export function SecretsState() {
   return window['go']['desktop']['ConfigAPI']['SecretsState']();
 }
 
+export function ServerRules() {
+  return window['go']['desktop']['ConfigAPI']['ServerRules']();
+}
+
 export function SetMapCycleLighting(arg1, arg2, arg3) {
   return window['go']['desktop']['ConfigAPI']['SetMapCycleLighting'](arg1, arg2, arg3);
 }

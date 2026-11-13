@@ -97,6 +97,20 @@ Short notes of each development session, newest last. They help a new session pi
 - Published the same day as `v0.2.1` (GitHub and the bridge server), together with the 0.2.1 work from the other PC
   (installation feedback, delete a mod, download new mods now).
 
+## 2026-11-12 · 0.2.2 (every player listed)
+
+- The maintainer saw only one player on the Players card with three on the server. The real `listplayers` answer
+  (read by the app, names and addresses masked) has every player and bot on one line, 5 cells each; the parser read
+  one player per line. Fixed and tested with that shape; the Players card now lists players by score and folds the
+  bots (19 in that match).
+- Also in 0.2.2: "Set the game rules here" was off on a server with rules in `Game.ini`. The import was not at
+  fault (run on a copy of the maintainer's config: it turns the option on with the 15 rules); the rules arrived
+  after the first import. The Game rules tab now offers the server's rules with one click (ADR-040).
+- Also in 0.2.2: asked whether Bullet Sponge and Ultralethal override each other. The logs show the server refusing
+  Ultralethal every time the two were together, without a reason; the app now warns about refused mutators, read
+  from the log (ADR-041). The maintainer then started the server without Bullet Sponge: Ultralethal was refused
+  again, so Bullet Sponge was not the cause.
+
 ## Cautions for future sessions
 
 - The maintainer's real server folder has secrets in plain text (`Game.ini`, notes next to the `.bat`) and the mod.io

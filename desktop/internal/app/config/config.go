@@ -393,6 +393,18 @@ func lastCommandLine(serverDir string) (string, string) {
 	return "", ""
 }
 
+// ServerRules lê as regras do jogo que o servidor já tem no Game.ini e no Engine.ini (ADR-040). nil quando não há
+// nenhuma, ou sem pasta do servidor. Só lê: a aba Regras oferece usá-las quando o app ainda não cuida das regras.
+func (s *Service) ServerRules() map[string]string {
+	dir := s.Profile().ServerDir
+	if dir == "" {
+		return nil
+	}
+	game, _ := fsx.ReadLimited(filepath.Join(dir, GameIni), 1<<20)
+	engine, _ := fsx.ReadLimited(filepath.Join(dir, EngineIni), 1<<20)
+	return server.ReadRules(string(game), string(engine))
+}
+
 // Detect lê o servidor existente na pasta escolhida: a linha de comando da última partida (log), o Admins.txt,
 // o MapCycle.txt e o [Rcon] do Game.ini. apiKey é a chave do mod.io achada nos logs (ou vazia).
 func (s *Service) Detect(apiKey string) (server.Detected, string, error) {

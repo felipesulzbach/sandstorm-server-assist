@@ -52,6 +52,8 @@ export function ScanExisting():Promise<desktop.ExistingScan>;
 
 export function SecretsState():Promise<Record<string, boolean>>;
 
+export function ServerRules():Promise<Record<string, string>>;
+
 export function SetMapCycleLighting(arg1:Array<string>,arg2:number,arg3:string):Promise<Array<string>>;
 
 export function SetSecret(arg1:string,arg2:string):Promise<Record<string, boolean>>;

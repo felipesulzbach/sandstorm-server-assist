@@ -28,6 +28,9 @@ const (
 	MatchState     Kind = "match-state"
 	Problem        Kind = "problem"
 	GameStatsNoKey Kind = "gamestats-no-token"
+	// MutatorList: o servidor vai carregar estes mutators (a cada mapa). MutatorRefused: ele recusou um (ADR-041).
+	MutatorList    Kind = "mutator-list"
+	MutatorRefused Kind = "mutator-refused"
 	// Jogadores (mensagens de entrada e saída, ADR-020).
 	PlayerLogin  Kind = "player-login"
 	PlayerJoined Kind = "player-joined"
@@ -55,6 +58,9 @@ type Event struct {
 	// Player é o nome do jogador (PlayerLogin, PlayerJoined); PlayerID é o id da plataforma (PlayerLogin, PlayerLeft).
 	Player   string `json:"player,omitempty"`
 	PlayerID string `json:"playerId,omitempty"`
+	// Mutators é a lista de MutatorList; Mutator é o mutator de MutatorRefused ("Ultralethal").
+	Mutators []string `json:"mutators,omitempty"`
+	Mutator  string   `json:"mutator,omitempty"`
 	// Time é a hora da linha (UTC); zero se a linha não tiver.
 	Time time.Time `json:"-"`
 }
@@ -72,6 +78,11 @@ var (
 	reLoadMap    = regexp.MustCompile(`LogLoad: LoadMap: /?(?:[^?\s]*/)?([A-Za-z0-9_]+)(?:\?[^\s]*Scenario=([A-Za-z0-9_]+))?`)
 	reMatchState = regexp.MustCompile(`Match State Changed from (\w+) to (\w+)`)
 	reGameStats  = regexp.MustCompile(`GameStatsServer INIT: No authentication provided`)
+	// Mutators (vistos em 13/11/2026): a lista que o servidor tenta carregar e o aviso de cada um que ele recusa, sem
+	// dizer o motivo ("Cannot use mutator '/Script/Insurgency.Mutator_Ultralethal'" no Checkpoint, com e sem o Bullet
+	// Sponge).
+	reMutatorList    = regexp.MustCompile(`LogGameMode: Display: Attempting to initialize mutators from list: (.*)$`)
+	reMutatorRefused = regexp.MustCompile(`LogGameMode: Warning: Cannot use mutator '([^']{1,200})'`)
 
 	// Jogadores, como aparecem no log (10/11/2026): o pedido de entrada traz o nome completo e o id; a entrada
 	// confirmada traz o nome (às vezes cortado); a saída traz só o id, na conexão do jogo com um controle de jogador.
@@ -164,6 +175,20 @@ func Parse(line string) (Event, bool) {
 	if reGameStats.MatchString(line) {
 		return Event{Kind: GameStatsNoKey}, true
 	}
+	if m := reMutatorList.FindStringSubmatch(line); m != nil {
+		var list []string
+		for _, n := range strings.Split(m[1], ",") {
+			if n = MutatorName(n); n != "" {
+				list = append(list, n)
+			}
+		}
+		return Event{Kind: MutatorList, Mutators: list}, true
+	}
+	if m := reMutatorRefused.FindStringSubmatch(line); m != nil {
+		if n := MutatorName(m[1]); n != "" {
+			return Event{Kind: MutatorRefused, Mutator: n}, true
+		}
+	}
 	if m := reLogin.FindStringSubmatch(line); m != nil {
 		return Event{Kind: PlayerLogin, Player: strings.TrimSpace(m[1]), PlayerID: m[2], Time: Stamp(line)}, true
 	}
@@ -207,4 +232,21 @@ func Level(line string) string {
 func Noise(line string) bool {
 	return strings.Contains(line, "LogPakFile:") || strings.Contains(line, "LogShaderLibrary:") ||
 		strings.Contains(line, "LogStreaming: Display") || strings.Contains(line, "LogConfig:")
+}
+
+// reMutatorName: o nome que vai no -mutators ("Ultralethal", "NoRestrictedArea").
+var reMutatorName = regexp.MustCompile(`^[A-Za-z0-9_]{1,64}$`)
+
+// MutatorName tira do caminho da classe o nome do mutator: "/Script/Insurgency.Mutator_Ultralethal" → "Ultralethal",
+// "/Mod/Mutators/NoRestrictedArea.NoRestrictedArea_C" → "NoRestrictedArea". Texto estranho vira vazio.
+func MutatorName(path string) string {
+	n := strings.TrimSpace(path)
+	if i := strings.LastIndexAny(n, "./"); i >= 0 {
+		n = n[i+1:]
+	}
+	n = strings.TrimSuffix(strings.TrimPrefix(n, "Mutator_"), "_C")
+	if !reMutatorName.MatchString(n) {
+		return ""
+	}
+	return n
 }

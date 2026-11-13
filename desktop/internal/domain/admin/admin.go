@@ -55,41 +55,39 @@ var (
 // ValidNetID diz se o texto é um net ID aceito nos comandos.
 func ValidNetID(id string) bool { return netIDRe.MatchString(id) }
 
-// ParsePlayers lê a tabela do listplayers:
+// ParsePlayers lê a tabela do listplayers. O servidor manda todos os jogadores numa linha só, um registro de 5
+// células atrás do outro (visto em 12/11/2026 com 3 jogadores e 18 bots; antes o app lia só o primeiro):
 //
 //	ID	 | Name				 | NetID			 | IP			 | Score		 |
 //	===============================================================================
-//	0	 | Fulano	 | SteamNWI:765...	 | 203.0.113.5	 | 120	 |
+//	0	 | Fulano	 | SteamNWI:765...	 | 203.0.113.5	 | 120		 | 1	 | Bot	 | None:INVALID	 | 	 | 0		 |
+//
+// As células de todas as linhas (menos cabeçalho e separador) viram uma sequência, e cada registro começa num ID
+// numérico; uma célula que não é ID fora de registro é pulada, então uma linha por jogador também funciona.
 func ParsePlayers(out string) []Player {
 	list := []Player{} // vazia, nunca nil: a tela recebe [] e não null
+	var cells []string
 	for _, line := range strings.Split(strings.ReplaceAll(out, "\r\n", "\n"), "\n") {
-		cols := strings.Split(line, "|")
-		if len(cols) < 4 {
+		first := strings.TrimSpace(strings.SplitN(line, "|", 2)[0])
+		if strings.EqualFold(first, "ID") || strings.Trim(line, "=- \t") == "" {
 			continue
 		}
-		for i := range cols {
-			cols[i] = strings.TrimSpace(cols[i])
+		for _, c := range strings.Split(line, "|") {
+			cells = append(cells, strings.TrimSpace(c))
 		}
-		if strings.EqualFold(cols[0], "ID") || strings.Trim(line, "=- \t") == "" {
+	}
+	for i := 0; i+4 < len(cells) && len(list) < maxRows; {
+		if _, err := strconv.Atoi(cells[i]); err != nil {
+			i++
 			continue
 		}
-		if _, err := strconv.Atoi(cols[0]); err != nil {
-			continue
-		}
-		p := Player{ID: cols[0], Name: cleanText(cols[1], 64), NetID: cols[2]}
-		if len(cols) > 3 {
-			p.IP = cols[3]
-		}
-		if len(cols) > 4 {
-			p.Score, _ = strconv.Atoi(cols[4])
-		}
+		p := Player{ID: cells[i], Name: cleanText(cells[i+1], 64), NetID: cells[i+2], IP: cells[i+3]}
+		p.Score, _ = strconv.Atoi(cells[i+4])
 		if !ValidNetID(p.NetID) {
 			p.NetID, p.Bot = "", true
 		}
 		list = append(list, p)
-		if len(list) >= maxRows {
-			break
-		}
+		i += 5
 	}
 	return list
 }

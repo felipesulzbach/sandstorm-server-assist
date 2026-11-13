@@ -502,3 +502,28 @@ one, the older one says so.
 - **Limit:** a mod whose copy does not match the current game version, with no other mod having the file, is found
   only through the crash message. The app never changes mod files; the fix is to unsubscribe the mod, or delete and
   download it again (ADR-037).
+
+## ADR-040 · Offer the rules the server already has
+
+- **Context:** the maintainer found "Set the game rules here" off on a server whose `Game.ini` sets rules. The rules
+  arrived in the app after the first import, and the app only reads the server when a folder is chosen or **Bring
+  from the server** is clicked. The import itself turns the option on (checked with a copy of the maintainer's config:
+  15 rules).
+- **Decision:** with the option off, the Game rules tab reads the rules of the server's `Game.ini` and `Engine.ini`
+  (`config.ServerRules`, read only) and, when there are any, shows how many with **Use the server rules**, which
+  turns the option on with those values (then Save). The app does not turn it on by itself: once on, it writes the
+  files on every start, so it stays the user's choice.
+
+## ADR-041 · Warn about mutators the server refuses
+
+- **Context:** the maintainer asked whether one mutator can override another (Bullet Sponge and Ultralethal) and, if
+  so, for a warning. In every run of the maintainer's logs with both (9 map loads, Checkpoint) the server logged
+  `Cannot use mutator '/Script/Insurgency.Mutator_Ultralethal'` and loaded the others: the game drops a mutator,
+  it does not combine them. It does not log why, the admin guide says nothing about combinations, and Ultralethal
+  never ran without Bullet Sponge there. A later test without Bullet Sponge (same day) was refused too, so Bullet
+  Sponge is not the cause; the game mode (Checkpoint) or another chosen mutator is, and the game does not say.
+- **Decision:** no list of forbidden pairs (it would be a guess). The app reads the server's own answer:
+  `logparse` reads the mutator list of each map load and every refused mutator (`MutatorName` turns the class path
+  into the `-mutators` name); the runner keeps `RefusedMutators` for the current map (reset at each list, never
+  null). The Dashboard and the mutator picker in Server › Maps warn and mark the refused ones, saying the game gives
+  no reason and naming the case seen.

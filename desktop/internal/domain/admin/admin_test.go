@@ -25,6 +25,43 @@ func TestParsePlayers(t *testing.T) {
 	}
 }
 
+// Formato real de 12/11/2026: todos os jogadores numa linha só (nomes, ids e IPs fictícios). O app mostrava só o
+// primeiro.
+const sampleOneLine = "ID\t | Name\t\t\t\t | NetID\t\t\t | IP\t\t\t | Score\t\t |\n" +
+	"===============================================================================\n" +
+	"257\t | Alpha Bravo\t | SteamNWI:76561190000000001\t | 203.0.113.5\t | 625\t\t | " +
+	"258\t | [CL] Charlie \t | SteamNWI:76561190000000002\t | 203.0.113.6\t | 120\t\t | " +
+	"1\t | Marksman\t | None:INVALID\t | \t | 3\t\t | " +
+	"2\t | \t\t\t\t | None:INVALID\t | \t | 0\t\t | " +
+	"259\t | Delta\t\t | SteamNWI:76561190000000003\t | 203.0.113.7\t | 0\t\t | "
+
+func TestParsePlayersOneLine(t *testing.T) {
+	list := ParsePlayers(sampleOneLine)
+	if len(list) != 5 {
+		t.Fatalf("got %d players: %+v", len(list), list)
+	}
+	want := []struct {
+		id, name, netID string
+		score           int
+		bot             bool
+	}{
+		{"257", "Alpha Bravo", "SteamNWI:76561190000000001", 625, false},
+		{"258", "[CL] Charlie", "SteamNWI:76561190000000002", 120, false},
+		{"1", "Marksman", "", 3, true},
+		{"2", "", "", 0, true},
+		{"259", "Delta", "SteamNWI:76561190000000003", 0, false},
+	}
+	for i, w := range want {
+		p := list[i]
+		if p.ID != w.id || p.Name != w.name || p.NetID != w.netID || p.Score != w.score || p.Bot != w.bot {
+			t.Errorf("%d: %+v, want %+v", i, p, w)
+		}
+	}
+	if list[4].IP != "203.0.113.7" {
+		t.Errorf("ip: %q", list[4].IP)
+	}
+}
+
 func TestParseBans(t *testing.T) {
 	out := "SteamNWI:76561190000000001 - 2026.11.10 - cheating\n76561190000000002 permanent\nnothing here\n"
 	bans := ParseBans(out)

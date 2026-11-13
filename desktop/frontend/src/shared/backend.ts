@@ -124,6 +124,7 @@ export const backend = {
   modMutators: () => Cfg.ModMutators(),
   modScenarios: () => Cfg.ModScenarios(),
   rules: () => Cfg.Rules(),
+  serverRules: () => Cfg.ServerRules(),
   mapCycleLines: (lines: string[]) => Cfg.MapCycleLines(lines),
   setMapCycleLighting: (lines: string[], index: number, lighting: Lighting) =>
     Cfg.SetMapCycleLighting(lines, index, lighting),

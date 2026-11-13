@@ -174,6 +174,13 @@ export function DashboardPage({ go, status }: { go: (p: PageId) => void; status:
                 <p className="banner banner--info">{t('dashboard.authorizing')}</p>
               )}
               {status?.remount && <p className="banner banner--info">{t('dashboard.remount')}</p>}
+              {(status?.refusedMutators?.length ?? 0) > 0 && (
+                <p className="banner banner--warn">
+                  {t('dashboard.mutatorsRefused', {
+                    names: (status?.refusedMutators ?? []).join(', '),
+                  })}
+                </p>
+              )}
               {status?.gameStatsMissing && (
                 <p className="hint">{t('dashboard.gameStatsMissing')}</p>
               )}

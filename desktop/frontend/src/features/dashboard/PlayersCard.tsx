@@ -22,6 +22,7 @@ export function PlayersCard({ status }: { status: Status | null }) {
   const [say, setSay] = useState('');
   const [done, setDone] = useState<string | null>(null);
   const [rcon, setRcon] = useState(false);
+  const [showBots, setShowBots] = useState(false);
   const ready = status?.phase === 'ready';
 
   useEffect(() => {
@@ -54,6 +55,10 @@ export function PlayersCard({ status }: { status: Status | null }) {
       await load();
     }
   };
+
+  // Jogadores primeiro, com mais pontos em cima; os bots (muitos no modo cooperativo) ficam numa linha que abre.
+  const humans = (view?.players ?? []).filter((p) => !p.bot).sort((a, b) => b.score - a.score);
+  const bots = (view?.players ?? []).filter((p) => p.bot);
 
   const minutesLabel = (m: number) =>
     m === 0
@@ -90,7 +95,14 @@ export function PlayersCard({ status }: { status: Status | null }) {
                 </tr>
               </thead>
               <tbody>
-                {view.players.map((p) => (
+                {humans.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="muted">
+                      {t('players.noHumans')}
+                    </td>
+                  </tr>
+                )}
+                {humans.map((p) => (
                   <tr key={`${p.id}-${p.netId}`}>
                     <td>
                       {p.name || '—'}
@@ -121,6 +133,30 @@ export function PlayersCard({ status }: { status: Status | null }) {
                     </td>
                   </tr>
                 ))}
+                {bots.length > 0 && (
+                  <tr className="players__bots">
+                    <td colSpan={3}>
+                      <button
+                        type="button"
+                        className="link"
+                        aria-expanded={showBots}
+                        onClick={() => setShowBots((v) => !v)}
+                      >
+                        {t(showBots ? 'players.hideBots' : 'players.showBots', { n: bots.length })}
+                      </button>
+                    </td>
+                  </tr>
+                )}
+                {showBots &&
+                  bots.map((p) => (
+                    <tr key={`${p.id}-bot`} className="players__bot">
+                      <td>
+                        {p.name || '—'} <span className="pill">{t('players.bot')}</span>
+                      </td>
+                      <td>{p.score}</td>
+                      <td />
+                    </tr>
+                  ))}
               </tbody>
             </table>
           )}

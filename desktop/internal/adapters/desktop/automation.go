@@ -163,6 +163,15 @@ func (c *ConfigAPI) Rules() RulesInfo {
 	return RulesInfo{Groups: server.RuleGroups, Rules: server.Rules}
 }
 
+// ServerRules devolve as regras do jogo que o Game.ini e o Engine.ini do servidor já têm (vazio se nenhuma), para a
+// aba Regras oferecer usá-las (ADR-040).
+func (c *ConfigAPI) ServerRules() map[string]string {
+	if r := c.a.cfg.ServerRules(); r != nil {
+		return r
+	}
+	return map[string]string{}
+}
+
 // CycleLine é uma linha da rotação com o cenário e a iluminação.
 type CycleLine struct {
 	Scenario string `json:"scenario"`

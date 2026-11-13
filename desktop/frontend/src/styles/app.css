@@ -1097,6 +1097,13 @@ code {
   justify-items: start;
 }
 
+/* Regras que o servidor já tem, oferecidas na aba Regras (ADR-040) */
+.rules__server {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
 /* Texto só para leitores de tela */
 .sr-only {
   position: absolute;

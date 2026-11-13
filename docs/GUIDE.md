@@ -37,8 +37,10 @@ Open **Server**. The tabs are:
 - **General:** server name, max players and ports.
 - **Maps:** start map, mod map (the map the server opens after loading the mods), map cycle, day or night, and
   mutators (the app finds the mutators of your installed mods).
+  If the server refuses a mutator, the Dashboard and this list say which one.
 - **Game rules:** bots and difficulty, timers, friendly fire, chat and voice, votes and more. Leave it off to keep
   the files as they are.
+  If the server already sets rules, the tab offers **Use the server rules**.
 - **Administrators:** the SteamID64 of each admin (the guide shows how to find it).
 - **Passwords & tokens:** join password, RCON password, Steam game server token (GSLT) and GameStats token. They are
   kept in a vault encrypted by Windows, never in the server files.

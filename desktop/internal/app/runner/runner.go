@@ -6,6 +6,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -58,6 +59,8 @@ type Status struct {
 	External         bool            `json:"external"`
 	Authorizing      bool            `json:"authorizing"`
 	GameStatsMissing bool            `json:"gameStatsMissing"`
+	// RefusedMutators são os mutators que o servidor recusou ao carregar o mapa atual (ADR-041). Nunca nulo.
+	RefusedMutators []string `json:"refusedMutators"`
 	// Remount: o app está reiniciando o servidor uma vez para montar os mods que ficaram de fora.
 	Remount bool `json:"remount"`
 }
@@ -182,6 +185,7 @@ func (s *Service) snapshot() Status {
 		st.Mods = append(st.Mods, *m)
 	}
 	sort.Slice(st.Mods, func(i, j int) bool { return st.Mods[i].Name < st.Mods[j].Name })
+	st.RefusedMutators = append([]string{}, s.st.RefusedMutators...)
 	st.Authorizing = s.authCode != ""
 	return st
 }
@@ -590,6 +594,13 @@ func (s *Service) apply(ev logparse.Event) {
 		s.st.Problem = e
 	case logparse.GameStatsNoKey:
 		s.st.GameStatsMissing = true
+	case logparse.MutatorList:
+		// Cada mapa carrega os mutators de novo: vale o que foi recusado no mapa atual.
+		s.st.RefusedMutators = nil
+	case logparse.MutatorRefused:
+		if !slices.Contains(s.st.RefusedMutators, ev.Mutator) {
+			s.st.RefusedMutators = append(s.st.RefusedMutators, ev.Mutator)
+		}
 	}
 }
 

@@ -103,6 +103,8 @@ export const enUS = {
     modsActive: '{n} mods active',
     external:
       "This server was already running when the app opened, and the app did not start it. The app follows and controls it as usual; it just won't restart it by itself to load new mods.",
+    mutatorsRefused:
+      'The server refused these mutators on this map: {names}. The game does not say why: a mutator may not work in this game mode or together with another one you chose (seen with Ultralethal in Checkpoint, with or without Bullet Sponge). Remove it in Server › Maps.',
     authorizing:
       'Authorizing on mod.io with the code. The server will restart by itself in normal mode.',
     remount:
@@ -224,6 +226,9 @@ export const enUS = {
     mutatorsMods: 'From your mods',
     mutatorsGame: 'From the game',
     mutatorsBadge: 'MOD',
+    mutatorsRefused:
+      'On the current map the server refused: {names}. The game does not say why: it may not work in this game mode or with another mutator you chose (seen with Ultralethal in Checkpoint, with or without Bullet Sponge).',
+    mutatorsRefusedBadge: 'refused by the server',
     mutatorsFromMod: 'Mod: {name}',
     mutatorsMissing: 'No installed mod has this mutator: the server will not load it.',
     mutatorsNoMods:
@@ -1033,6 +1038,9 @@ export const enUS = {
     manage: 'Set the game rules here',
     manageHint:
       'The app writes these options to Game.ini and Engine.ini when the server starts. Empty options use the game default. Off: the app does not touch these files.',
+    fromServer:
+      "The server's Game.ini already sets {n} game rules. The app is not managing them yet, so it leaves the files as they are.",
+    useServer: 'Use the server rules',
     default: 'Default: {value}',
     gameDefault: 'Game default',
     on: 'On',
@@ -1313,6 +1321,9 @@ export const enUS = {
     score: 'Score',
     actions: 'Actions',
     bot: 'bot',
+    showBots: 'Show the {n} bots',
+    hideBots: 'Hide the {n} bots',
+    noHumans: 'No players, only bots.',
     kick: 'Kick',
     ban: 'Ban',
     confirmKick: 'Kick {name}?',

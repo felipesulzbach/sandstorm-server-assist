@@ -3,6 +3,20 @@
 All notable changes to Sandstorm Server Assist. Versions follow `MAJOR.MINOR.PATCH`. The GitHub release notes of
 each version come from its section here (`npm run release:publish`).
 
+## [0.2.2] - 2026-11-12
+
+### Added
+
+- **Game rules from the server:** when "Set the game rules here" is off and the server's `Game.ini` already sets
+  rules, the Game rules tab says how many and offers **Use the server rules**.
+- **Refused mutators:** when the server refuses a mutator on the current map (seen with Ultralethal in Checkpoint),
+  the Dashboard and the mutator list in Server › Maps say which one. The game gives no reason.
+
+### Fixed
+
+- The Players card showed only one player: the server sends every player on one line, and the app read one per line.
+  Now every player shows, with the highest score on top, and the bots fold into one row you can open.
+
 ## [0.2.1] - 2026-11-11
 
 ### Added

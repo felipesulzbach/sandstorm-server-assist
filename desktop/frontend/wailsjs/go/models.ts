@@ -1177,6 +1177,7 @@ export namespace runner {
 	    external: boolean;
 	    authorizing: boolean;
 	    gameStatsMissing: boolean;
+	    refusedMutators: string[];
 	    remount: boolean;
 	
 	    static createFrom(source: any = {}) {
@@ -1198,6 +1199,7 @@ export namespace runner {
 	        this.external = source["external"];
 	        this.authorizing = source["authorizing"];
 	        this.gameStatsMissing = source["gameStatsMissing"];
+	        this.refusedMutators = source["refusedMutators"];
 	        this.remount = source["remount"];
 	    }
 	

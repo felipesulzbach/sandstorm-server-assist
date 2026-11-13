@@ -40,8 +40,10 @@ Abra **Servidor**. Os separadores são:
 - **Geral:** nome do servidor, máximo de jogadores e portas.
 - **Mapas:** mapa inicial, mapa do mod (o mapa que o servidor abre depois de carregar os mods), rotação de mapas, dia
   ou noite e mutators (a app encontra os mutators dos mods instalados).
+  Se o servidor recusar um mutator, o Painel e esta lista dizem qual.
 - **Regras do jogo:** bots e dificuldade, tempos, fogo amigo, chat e voz, votações e mais. Deixe desligado para
   manter os ficheiros como estão.
+  Se o servidor já define regras, a aba oferece **Usar as regras do servidor**.
 - **Administradores:** o SteamID64 de cada administrador (o guia mostra como o encontrar).
 - **Palavras-passe e tokens:** senha de entrada, senha RCON, token de servidor de jogo da Steam (GSLT) e token do
   GameStats. Ficam num cofre cifrado pelo Windows, nunca nos ficheiros do servidor.

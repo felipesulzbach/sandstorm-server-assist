@@ -479,3 +479,28 @@ func TestModConflictNamesTheMod(t *testing.T) {
 		t.Fatal("mods for an object no mod has")
 	}
 }
+
+// Mutator recusado pelo servidor (ADR-041): aparece no estado até o próximo mapa carregar os mutators de novo.
+func TestRefusedMutators(t *testing.T) {
+	s, _, dir := setup(t)
+	if err := s.Start(); err != nil {
+		t.Fatal(err)
+	}
+	if st := s.Status(); st.RefusedMutators == nil || len(st.RefusedMutators) != 0 {
+		t.Fatalf("lista vazia, nunca nula: %#v", st.RefusedMutators)
+	}
+	appendLog(t, dir,
+		"[t][  1]LogGameMode: Display: Attempting to initialize mutators from list: BulletSponge, Ultralethal",
+		"[t][  1]LogGameMode: Warning: Cannot use mutator '/Script/Insurgency.Mutator_Ultralethal'",
+		"[t][  1]LogGameMode: Warning: Cannot use mutator '/Script/Insurgency.Mutator_Ultralethal'",
+	)
+	s.Tick()
+	if got := s.Status().RefusedMutators; len(got) != 1 || got[0] != "Ultralethal" {
+		t.Fatalf("recusados: %v", got)
+	}
+	appendLog(t, dir, "[t][ 99]LogGameMode: Display: Attempting to initialize mutators from list: BulletSponge")
+	s.Tick()
+	if got := s.Status().RefusedMutators; len(got) != 0 {
+		t.Fatalf("depois do próximo mapa: %v", got)
+	}
+}

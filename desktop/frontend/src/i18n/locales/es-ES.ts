@@ -104,6 +104,8 @@ export const esES: Messages = {
     modsActive: '{n} mods activos',
     external:
       'Este servidor ya estaba en marcha cuando se abrió la aplicación, y no fue ella quien lo inició. La aplicación lo sigue y lo controla con normalidad; solo no lo reinicia sola para cargar mods nuevos.',
+    mutatorsRefused:
+      'El servidor rechazó estos mutators en este mapa: {names}. El juego no dice por qué: un mutator puede no funcionar en este modo de juego o junto con otro que elegiste (visto con Ultralethal en Checkpoint, con o sin Bullet Sponge). Quítalo en Servidor › Mapas.',
     authorizing:
       'Autorizando en mod.io con el código. El servidor se reiniciará solo en modo normal.',
     remount:
@@ -226,6 +228,9 @@ export const esES: Messages = {
     mutatorsMods: 'De tus mods',
     mutatorsGame: 'Del juego',
     mutatorsBadge: 'MOD',
+    mutatorsRefused:
+      'En el mapa actual el servidor rechazó: {names}. El juego no dice por qué: puede no funcionar en este modo de juego o con otro mutator que elegiste (visto con Ultralethal en Checkpoint, con o sin Bullet Sponge).',
+    mutatorsRefusedBadge: 'rechazado por el servidor',
     mutatorsFromMod: 'Mod: {name}',
     mutatorsMissing: 'Ningún mod instalado tiene este mutator: el servidor no lo cargará.',
     mutatorsNoMods:
@@ -1046,6 +1051,9 @@ export const esES: Messages = {
     manage: 'Definir las reglas del juego aquí',
     manageHint:
       'La app escribe estas opciones en Game.ini y Engine.ini cuando el servidor se inicia. Las opciones vacías usan el valor del juego. Desactivado: la app no toca estos archivos.',
+    fromServer:
+      'El Game.ini del servidor ya define {n} reglas del juego. La aplicación aún no las gestiona, así que deja los archivos como están.',
+    useServer: 'Usar las reglas del servidor',
     default: 'Predeterminado: {value}',
     gameDefault: 'Valor del juego',
     on: 'Activado',
@@ -1327,6 +1335,9 @@ export const esES: Messages = {
     score: 'Puntos',
     actions: 'Acciones',
     bot: 'bot',
+    showBots: 'Mostrar los {n} bots',
+    hideBots: 'Ocultar los {n} bots',
+    noHumans: 'Ningún jugador, solo bots.',
     kick: 'Expulsar',
     ban: 'Bloquear',
     confirmKick: '¿Expulsar a {name}?',

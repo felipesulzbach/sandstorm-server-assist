@@ -1,6 +1,7 @@
 package logparse
 
 import (
+	"reflect"
 	"testing"
 	"time"
 
@@ -34,7 +35,7 @@ func TestParseRealLines(t *testing.T) {
 	}
 	for _, c := range cases {
 		got, ok := Parse(c.line)
-		if !ok || got != c.want {
+		if !ok || !reflect.DeepEqual(got, c.want) {
 			t.Errorf("Parse(%q)\n got %+v, %v\nwant %+v", c.line, got, ok, c.want)
 		}
 	}
@@ -108,5 +109,28 @@ func TestParsePlayers(t *testing.T) {
 	}
 	if !Stamp("no time here").IsZero() {
 		t.Fatal("line without time must give zero")
+	}
+}
+
+// Linhas reais (13/11/2026): o servidor recusou o Ultralethal no Checkpoint (com e sem o Bullet Sponge), sem dizer o
+// motivo.
+func TestMutatorLines(t *testing.T) {
+	ev, ok := Parse(`[2026.11.13-02.05.53:100][  1]LogGameMode: Display: Attempting to initialize mutators from list: NoRestrictedArea, BulletSponge, SoldierOfFortune, AllYouCanEat, Vampirism, FastMovement, Ultralethal`)
+	if !ok || ev.Kind != MutatorList || len(ev.Mutators) != 7 || ev.Mutators[0] != "NoRestrictedArea" || ev.Mutators[6] != "Ultralethal" {
+		t.Fatalf("lista: %+v", ev)
+	}
+	ev, ok = Parse(`[2026.11.13-02.05.53:178][  1]LogGameMode: Warning: Cannot use mutator '/Script/Insurgency.Mutator_Ultralethal'`)
+	if !ok || ev.Kind != MutatorRefused || ev.Mutator != "Ultralethal" {
+		t.Fatalf("recusado: %+v", ev)
+	}
+	for in, want := range map[string]string{
+		"/Script/Insurgency.Mutator_BulletSponge":                    "BulletSponge",
+		"/NoRestricted/Mutators/NoRestrictedArea.NoRestrictedArea_C": "NoRestrictedArea",
+		" FastMovement ": "FastMovement",
+		"bad name; quit": "",
+	} {
+		if got := MutatorName(in); got != want {
+			t.Errorf("%q = %q, want %q", in, got, want)
+		}
 	}
 }

@@ -201,3 +201,28 @@ func TestLogRetention(t *testing.T) {
 		t.Fatalf("%+v %v", st, err)
 	}
 }
+
+// Regras que o servidor já tem (ADR-040): a aba Regras oferece usá-las quando o app ainda não cuida delas.
+func TestServerRules(t *testing.T) {
+	dir := t.TempDir()
+	srv := filepath.Join(dir, "sandstorm_server")
+	s := Open(filepath.Join(dir, "config.json"), &memVault{})
+	if r := s.ServerRules(); r != nil {
+		t.Fatalf("sem pasta: %v", r)
+	}
+	if _, err := s.SetServerDir(srv); err != nil {
+		t.Fatal(err)
+	}
+	if r := s.ServerRules(); r != nil {
+		t.Fatalf("sem Game.ini: %v", r)
+	}
+	writeFile(t, filepath.Join(srv, GameIni), "[/Script/Insurgency.INSCoopMode]\r\nAIDifficulty=0.1\r\n"+
+		"MinimumEnemies=8\r\n[Rcon]\r\nbEnabled=True\r\n")
+	r := s.ServerRules()
+	if len(r) != 2 || r["aiDifficulty"] != "0.1" || r["minimumEnemies"] != "8" {
+		t.Fatalf("regras: %v", r)
+	}
+	if s.Profile().Rules != nil {
+		t.Fatal("ler não pode mudar o perfil")
+	}
+}

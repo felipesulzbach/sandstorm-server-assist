@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-11 (0.2.1 published).
+> Living document, updated at each step. Last update: 2026-11-12 (0.2.2 in progress).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -30,6 +30,9 @@
 | 29. Delete a mod (0.2.1)             | Delete a downloaded mod so the server downloads it again, now or on the next start (ADR-037)               | ✅ Done |
 | 30. Download new mods now (0.2.1)    | Subscribed mods not on disk: start or restart the server to download them (ADR-038)                        | ✅ Done |
 | 31. Mods with problems (0.2.1)       | Conflicts between mods, mod of a crash message, server error names the mod (ADR-039)                       | ✅ Done |
+| 32. Every player listed (0.2.2)      | `listplayers` read as one row of records; players by score, bots folded                                    | ✅ Done |
+| 33. Server rules offered (0.2.2)     | Game rules tab offers the rules the server's Game.ini already sets (ADR-040)                               | ✅ Done |
+| 34. Refused mutators (0.2.2)         | Warn when the server refuses a mutator on the current map, read from its log (ADR-041)                     | ✅ Done |
 
 Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](../../CHANGELOG.md).
 
@@ -91,6 +94,27 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
 
 - **0.2.1 published** on 2026-11-11: GitHub Release `v0.2.1` and the bridge server; both `latest.json` serve the
   same installer (SHA-256 checked after download).
+
+## Phase 32 · Every player listed (0.2.2)
+
+- The server sends `listplayers` with every player on one line, one 5-cell record after another; the app read one
+  player per line and showed only the first. `admin.ParsePlayers` now reads the cells as one sequence and starts a
+  record at each numeric ID (one player per line still works).
+- Players card: players by score, the bots folded in one row ("Show the 19 bots").
+- Verified: parser test with the real one-line shape, screen test, and the real server's answer read by the app
+  (3 players and 19 bots).
+
+## Phase 33 · Server rules offered (0.2.2)
+
+- `config.ServerRules` and `ConfigAPI.ServerRules` (read the rules of `Game.ini`/`Engine.ini`); the Game rules tab,
+  with the option off, shows how many the server sets and **Use the server rules**. ADR-040.
+- Verified: config test (no folder, no file, two rules, profile unchanged) and screen tests.
+
+## Phase 34 · Refused mutators (0.2.2)
+
+- `logparse` `MutatorList`/`MutatorRefused` and `MutatorName`; runner `Status.RefusedMutators`; warning on the
+  Dashboard and in the mutator picker, with the refused ones marked. ADR-041.
+- Verified: parser and runner tests with the real lines, a real log replayed (Ultralethal refused), screen test.
 
 ## Bridge from the old download server
 

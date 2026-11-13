@@ -40,8 +40,10 @@ Abre **Servidor**. Las pestañas son:
 - **General:** nombre del servidor, máximo de jugadores y puertos.
 - **Mapas:** mapa inicial, mapa del mod (el mapa que abre el servidor tras cargar los mods), rotación de mapas, día o
   noche y mutators (la app encuentra los mutators de tus mods instalados).
+  Si el servidor rechaza un mutator, el Panel y esta lista dicen cuál.
 - **Reglas del juego:** bots y dificultad, tiempos, fuego amigo, chat y voz, votaciones y más. Déjalo desactivado
   para mantener los archivos como están.
+  Si el servidor ya define reglas, la pestaña ofrece **Usar las reglas del servidor**.
 - **Administradores:** el SteamID64 de cada administrador (la guía muestra cómo encontrarlo).
 - **Contraseñas y tokens:** contraseña de entrada, contraseña RCON, token de servidor de juego de Steam (GSLT) y token
   de GameStats. Se guardan en una caja fuerte cifrada por Windows, nunca en los archivos del servidor.
