@@ -279,6 +279,12 @@ export const esES: Messages = {
     mapCycle: 'Rotación de mapas (MapCycle.txt)',
     mapCycleHint:
       'Una entrada por línea. Déjalo vacío para mantener el archivo que ya tiene el servidor.',
+    cycleDefault: {
+      button: 'Usar la rotación predeterminada ({n} mapas del juego)',
+      filled:
+        'Rellenada con la rotación predeterminada: {n} mapas del juego en el modo del mapa inicial. Pulsa Guardar para usarla, o edita la lista.',
+      replace: '¿Sustituir la rotación actual por la predeterminada?',
+    },
     admins: {
       title: 'Administradores',
       text: 'Los administradores pueden expulsar, banear y cambiar de mapa en el juego. Se identifican por su SteamID64.',

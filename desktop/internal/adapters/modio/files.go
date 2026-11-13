@@ -20,7 +20,7 @@ type ModFiles struct {
 // tamanho de cada um.
 func InstalledFiles(root string) ModFiles {
 	out := ModFiles{Mods: []modcheck.Mod{}, Unreadable: []modcheck.ModRef{}}
-	list, err := ReadInstalled(root)
+	list, err := ServerInstalled(root)
 	if err != nil {
 		return out
 	}

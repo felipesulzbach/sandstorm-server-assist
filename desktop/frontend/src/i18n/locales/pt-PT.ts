@@ -278,6 +278,12 @@ export const ptPT: Messages = {
     mapCycle: 'Rotação de mapas (MapCycle.txt)',
     mapCycleHint:
       'Uma entrada por linha. Deixe vazio para manter o ficheiro que o servidor já tem.',
+    cycleDefault: {
+      button: 'Usar a rotação padrão ({n} mapas do jogo)',
+      filled:
+        'Preenchida com a rotação padrão: {n} mapas do jogo no modo do mapa inicial. Clique em Guardar para a usar, ou edite a lista.',
+      replace: 'Substituir a rotação atual pela padrão?',
+    },
     admins: {
       title: 'Administradores',
       text: 'Os administradores podem expulsar, banir e mudar de mapa no jogo. São identificados pelo SteamID64.',

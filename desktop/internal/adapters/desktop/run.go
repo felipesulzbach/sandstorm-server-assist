@@ -191,7 +191,7 @@ func newApp() *app {
 			}
 		},
 		InstalledMods: func() []int {
-			list, err := modio.ReadInstalled(modio.RootDir())
+			list, err := modio.ServerInstalled(modio.RootDir())
 			if err != nil {
 				return nil
 			}
@@ -339,7 +339,7 @@ func (c *modCache) info(id int) (string, int64, int64) {
 	c.mu.Lock()
 	if time.Since(c.at) > 5*time.Second {
 		c.byID = map[int]modio.Installed{}
-		if list, err := modio.ReadInstalled(root); err == nil {
+		if list, err := modio.ServerInstalled(root); err == nil {
 			for _, m := range list {
 				c.byID[m.ID] = m
 			}

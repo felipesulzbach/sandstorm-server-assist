@@ -123,6 +123,17 @@ Short notes of each development session, newest last. They help a new session pi
   them, and the SteamCMD warning becomes the new `folders-nested` problem.
 - Published the same day as `v0.2.3` (GitHub and the bridge server).
 
+## 2026-11-13 · 0.2.4 (error card layout)
+
+- The maintainer saw the new `folders-nested` card overflow its column (horizontal scroll). Cause: long paths
+  without spaces in the text and a grid column that would not shrink. Fixed in CSS and checked in the dev app at
+  two window widths.
+
+- Also in 0.2.4: a fresh install showed NoRestrictedArea among the mutators before mod.io was set up. The mod.io
+  folder is shared with the game on that PC; `state.json` lists the subscribed accounts of each mod, so the app
+  now keeps only the server account's mods (ADR-043). The maintainer also asked for a default map rotation:
+  a new server now starts with the game maps in the mode of the start map.
+
 ## Cautions for future sessions
 
 - The maintainer's real server folder has secrets in plain text (`Game.ini`, notes next to the `.bat`) and the mod.io

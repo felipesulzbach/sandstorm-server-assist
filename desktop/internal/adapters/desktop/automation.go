@@ -287,3 +287,26 @@ func (s *SystemAPI) CreateFirewallRule() (FirewallInfo, error) {
 	s.a.log.Add("app", "Windows Firewall rules created for the server", "info")
 	return s.Firewall(), nil
 }
+
+// CycleDefault é a rotação padrão com os mapas do jogo (ADR-043).
+type CycleDefault struct {
+	Lines []string `json:"lines"`
+	// ServerHasFile: o servidor já tem um MapCycle.txt (com a rotação vazia no app, o app o mantém).
+	ServerHasFile bool `json:"serverHasFile"`
+}
+
+// DefaultMapCycle monta a rotação padrão no modo do mapa inicial, com os cenários lidos dos .pak do servidor (ou a
+// lista de mapas do app, sem o servidor instalado).
+func (c *ConfigAPI) DefaultMapCycle() CycleDefault {
+	p := c.a.cfg.Profile()
+	var base []string
+	if p.ServerDir != "" {
+		base = modio.BaseScenarios(filepath.Join(p.ServerDir, "Insurgency", "Content", "Paks"))
+	}
+	out := CycleDefault{Lines: server.DefaultMapCycle(p.StartScenario, base)}
+	if out.Lines == nil {
+		out.Lines = []string{}
+	}
+	out.ServerHasFile = p.ServerDir != "" && fsx.Exists(filepath.Join(p.ServerDir, config.MapCycleTxt))
+	return out
+}

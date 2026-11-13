@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-13 (0.2.3 published).
+> Living document, updated at each step. Last update: 2026-11-13 (0.2.4 prepared).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -131,6 +131,24 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
 
 - **0.2.3 published** on 2026-11-13: GitHub Release `v0.2.3` and the bridge server; both `latest.json` serve the
   same installer (SHA-256 checked after download).
+
+## 0.2.4 · Server mods only, default rotation (ADR-043)
+
+- `modio.ReadInstalled` keeps `SubscriptionCount` (`Subscribers`); `modio.ServerUserID` reads only the id of the
+  server account; `ForServer`/`ServerInstalled` keep the mods of that account (none before mod.io is authorized;
+  mods without the list stay). Every server-side reader uses `ServerInstalled`.
+- `server.DefaultMapCycle` (mode of the start map, both sides in Checkpoint, from the server `.pak` scenarios or
+  the `Maps` list); `ConfigAPI.DefaultMapCycle`; `DefaultCycle` on the Maps tab fills a new server once and offers
+  the default rotation with a confirmation.
+- Verified: unit tests; on the maintainer's PC the game's 42 mods are hidden (all subscribed by the player account)
+  and the default rotation from the real server files has 20 maps (40 lines, Hold and Trainyard included).
+
+## 0.2.4 · Error card layout
+
+- The `folders-nested` card overflowed its column with a horizontal scroll: the long paths in its text have no
+  spaces and the `1fr` column would not shrink below them. `.errorcard` wraps anywhere and is a size container;
+  its grid uses `minmax(0, 1fr)` and stacks labels over the text below 520 px; grid items and cards get
+  `min-width: 0`; `.grid--2` columns are at most 100% wide. Checked in the dev app at 1060 and 800 px.
 
 ## Bridge from the old download server
 

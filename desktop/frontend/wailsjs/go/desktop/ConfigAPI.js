@@ -18,6 +18,10 @@ export function CreateProfile(arg1, arg2) {
   return window['go']['desktop']['ConfigAPI']['CreateProfile'](arg1, arg2);
 }
 
+export function DefaultMapCycle() {
+  return window['go']['desktop']['ConfigAPI']['DefaultMapCycle']();
+}
+
 export function DefaultProfile() {
   return window['go']['desktop']['ConfigAPI']['DefaultProfile']();
 }

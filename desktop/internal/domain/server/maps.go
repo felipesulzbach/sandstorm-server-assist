@@ -1,5 +1,10 @@
 package server
 
+import (
+	"sort"
+	"strings"
+)
+
 // Map é um mapa do jogo base: o nome que vai na URL de início e o nome usado nos cenários.
 type Map struct {
 	Label string `json:"label"`
@@ -52,4 +57,47 @@ func IsKnownMap(name string) bool {
 		}
 	}
 	return false
+}
+
+// DefaultMapCycle é a rotação padrão com os mapas do jogo (ADR-043), no modo do mapa inicial: o mesmo modo e, em
+// Checkpoint, os dois lados. base são os cenários do jogo lidos dos .pak do servidor (incluem mapas que a lista
+// Maps não tem); sem eles, usa a lista Maps. Ordem: mapa e depois modo.
+func DefaultMapCycle(startScenario string, base []string) []string {
+	_, mode := SplitScenario(startScenario)
+	if mode == "" {
+		mode = "Checkpoint_Security"
+	}
+	modes := []string{mode}
+	if strings.HasPrefix(mode, "Checkpoint_") {
+		modes = []string{"Checkpoint_Security", "Checkpoint_Insurgents"}
+	}
+	wanted := map[string]bool{}
+	for _, m := range modes {
+		wanted[m] = true
+	}
+	var out []string
+	seen := map[string]bool{}
+	if len(base) > 0 {
+		for _, id := range base {
+			if _, md := SplitScenario(id); wanted[md] && scenarioRe.MatchString(id) && !seen[id] {
+				seen[id] = true
+				out = append(out, id)
+			}
+		}
+	} else {
+		for _, m := range Maps {
+			for _, md := range modes {
+				out = append(out, "Scenario_"+m.Scenario+"_"+md)
+			}
+		}
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		mi, di := SplitScenario(out[i])
+		mj, dj := SplitScenario(out[j])
+		if !strings.EqualFold(mi, mj) {
+			return strings.ToLower(mi) < strings.ToLower(mj)
+		}
+		return di > dj // Security antes de Insurgents
+	})
+	return out
 }

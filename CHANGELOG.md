@@ -3,6 +3,23 @@
 All notable changes to Sandstorm Server Assist. Versions follow `MAJOR.MINOR.PATCH`. The GitHub release notes of
 each version come from its section here (`npm run release:publish`).
 
+## [0.2.4] - 2026-11-13
+
+### Added
+
+- **Default map rotation:** a new server (empty rotation, no `MapCycle.txt` yet) starts with the game maps in the
+  mode of the start map, read from the server files (Checkpoint: both sides, 20 maps). **Use the default rotation**
+  on Server › Maps fills it again at any time.
+
+### Fixed
+
+- **Mods of the game showed as server mods.** The mod.io folder is shared by the game and the server on the same PC;
+  the app listed every installed mod, even before the server had a mod.io account. Now only the mods of the
+  server's mod.io account show (mutators, mod maps, Mods list, conflict checks).
+- **Error cards no longer overflow the screen.** Long paths and names without spaces (such as
+  `steamcmd\steamapps\common\sandstorm_server`) now wrap inside the card; in a narrow card the labels go above the
+  text. Cards in a grid no longer grow wider than their column.
+
 ## [0.2.3] - 2026-11-13
 
 ### Fixed

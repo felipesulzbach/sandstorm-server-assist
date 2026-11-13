@@ -7,7 +7,7 @@ import { useAction } from '../../shared/hooks';
 import { fieldError, toAppError } from '../../shared/problem';
 import { useExistingSync } from '../sync/ExistingSync';
 import { AutomationTab } from './AutomationTab';
-import { CycleLighting, ModMapPicker, MutatorPicker } from './MapsExtras';
+import { CycleLighting, DefaultCycle, ModMapPicker, MutatorPicker } from './MapsExtras';
 import { BindIpField, FirewallCard } from './NetworkExtras';
 import { PortCheck } from './PortCheck';
 import { ProfileBar } from './ProfileBar';
@@ -556,6 +556,11 @@ function MapsTab({
         />
       </Field>
       <div className="field--wide">
+        <DefaultCycle
+          lines={form.mapCycle ?? []}
+          startScenario={form.startScenario}
+          onFill={(l) => set('mapCycle', l)}
+        />
         <CycleLighting lines={form.mapCycle ?? []} onChange={(l) => set('mapCycle', l)} />
       </div>
     </div>

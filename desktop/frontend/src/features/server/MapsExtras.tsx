@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
-import { AlertTriangle, Moon, Sun } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { AlertTriangle, ListRestart, Moon, Sun } from 'lucide-react';
 import { useI18n } from '../../i18n';
 import {
   backend,
+  type CycleDefault,
   type CycleLine,
   type Lighting,
   type ModMutator,
@@ -322,5 +323,86 @@ export function ModMapPicker({
         </>
       )}
     </>
+  );
+}
+
+/**
+ * Rotação padrão com os mapas do jogo, no modo do mapa inicial (ADR-043). Numa rotação vazia de um servidor sem
+ * MapCycle.txt (instalação nova), preenche sozinha uma vez; o botão troca a rotação a qualquer momento, com
+ * confirmação se ela já tem linhas. Só muda o formulário: vale ao Guardar.
+ */
+export function DefaultCycle({
+  lines,
+  startScenario,
+  onFill,
+}: {
+  lines: string[];
+  startScenario: string;
+  onFill: (lines: string[]) => void;
+}) {
+  const { t } = useI18n();
+  const [def, setDef] = useState<CycleDefault | null>(null);
+  const [auto, setAuto] = useState(false);
+  const [ask, setAsk] = useState(false);
+  const filled = useRef(false);
+  const current = useRef({ lines, onFill });
+  current.current = { lines, onFill };
+
+  useEffect(() => {
+    let alive = true;
+    backend
+      .defaultMapCycle()
+      .then((d) => {
+        if (!alive) return;
+        setDef(d);
+        const next = d.lines ?? [];
+        if (
+          !filled.current &&
+          current.current.lines.length === 0 &&
+          !d.serverHasFile &&
+          next.length > 0
+        ) {
+          filled.current = true;
+          setAuto(true);
+          current.current.onFill(next);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [startScenario]);
+
+  const next = def?.lines ?? [];
+  if (next.length === 0) return null;
+  const fill = () => {
+    onFill(next);
+    setAsk(false);
+    setAuto(false);
+  };
+  return (
+    <div className="defaultcycle">
+      {auto && <p className="hint">{t('server.cycleDefault.filled', { n: next.length })}</p>}
+      {ask ? (
+        <div className="row row--wrap">
+          <span>{t('server.cycleDefault.replace')}</span>
+          <button type="button" className="btn btn--small btn--primary" onClick={fill}>
+            {t('common.yes')}
+          </button>
+          <button type="button" className="btn btn--small btn--ghost" onClick={() => setAsk(false)}>
+            {t('common.cancel')}
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="btn btn--small"
+          onClick={() => (lines.length > 0 ? setAsk(true) : fill())}
+        >
+          <ListRestart size={14} aria-hidden />{' '}
+          {t('server.cycleDefault.button', { n: next.length })}
+        </button>
+      )}
+    </div>
   );
 }

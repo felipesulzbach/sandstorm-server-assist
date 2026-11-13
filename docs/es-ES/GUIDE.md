@@ -41,6 +41,9 @@ Abre **Servidor**. Las pestañas son:
 - **Mapas:** mapa inicial, mapa del mod (el mapa que abre el servidor tras cargar los mods), rotación de mapas, día o
   noche y mutators (la app encuentra los mutators de tus mods instalados).
   Si el servidor rechaza un mutator, el Panel y esta lista dicen cuál.
+  Un servidor nuevo empieza con la rotación predeterminada de los mapas del juego, en el modo del mapa inicial;
+  **Usar la rotación predeterminada** la vuelve a rellenar cuando quieras. Solo aparecen los mods de la cuenta de
+  mod.io del servidor.
 - **Reglas del juego:** bots y dificultad, tiempos, fuego amigo, chat y voz, votaciones y más. Déjalo desactivado
   para mantener los archivos como están.
   Si el servidor ya define reglas, la pestaña ofrece **Usar las reglas del servidor**.

@@ -273,6 +273,12 @@ export const enUS = {
     mutators: 'Mutators',
     mapCycle: 'Map rotation (MapCycle.txt)',
     mapCycleHint: 'One entry per line. Leave empty to keep the file the server already has.',
+    cycleDefault: {
+      button: 'Use the default rotation ({n} game maps)',
+      filled:
+        'Filled with the default rotation: {n} game maps in the mode of the start map. Click Save to use it, or edit the list.',
+      replace: 'Replace the current rotation with the default one?',
+    },
     admins: {
       title: 'Administrators',
       text: 'Administrators can kick, ban and change maps in game. They are identified by the SteamID64.',

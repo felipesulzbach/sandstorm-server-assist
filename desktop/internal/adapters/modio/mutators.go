@@ -37,7 +37,7 @@ type installedMod struct {
 
 // scanMods lê o índice dos .pak de cada mod instalado (só o rodapé e os índices, nunca o arquivo inteiro).
 func scanMods(root string) []installedMod {
-	list, err := ReadInstalled(root)
+	list, err := ServerInstalled(root)
 	if err != nil {
 		return nil
 	}

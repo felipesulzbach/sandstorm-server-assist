@@ -147,6 +147,7 @@ type userFile struct {
 		Token  string `json:"token"`
 	} `json:"OAuth"`
 	Profile struct {
+		ID       int    `json:"id"`
 		Username string `json:"username"`
 	} `json:"Profile"`
 }
@@ -213,6 +214,8 @@ type Installed struct {
 	// Tags do mod no mod.io ("Mutator", "Checkpoint"...) e o metadata_blob do arquivo (PluginName:...).
 	Tags []string `json:"-"`
 	Blob string   `json:"-"`
+	// Subscribers são as contas do mod.io inscritas no mod (state.json, "SubscriptionCount").
+	Subscribers []int `json:"-"`
 }
 
 // ReadInstalled lê o state.json da pasta de mods.
@@ -234,6 +237,8 @@ func ReadInstalled(root string) ([]Installed, error) {
 			SizeOnDisk int64  `json:"SizeOnDisk"`
 			State      int    `json:"State"`
 			Profile    apiMod `json:"Profile"`
+			// Contas do mod.io inscritas no mod (a pasta é dividida entre o jogo e o servidor desta máquina).
+			SubscriptionCount []int `json:"SubscriptionCount"`
 		} `json:"Mods"`
 	}
 	if err := json.Unmarshal(b, &st); err != nil {
@@ -243,7 +248,8 @@ func ReadInstalled(root string) ([]Installed, error) {
 	for _, m := range st.Mods {
 		mod := m.Profile.toMod()
 		mod.ID = m.ID
-		in := Installed{Mod: mod, Path: m.PathOnDisk, SizeOnDisk: m.SizeOnDisk, State: m.State, Blob: m.Profile.Modfile.MetadataBlob}
+		in := Installed{Mod: mod, Path: m.PathOnDisk, SizeOnDisk: m.SizeOnDisk, State: m.State,
+			Blob: m.Profile.Modfile.MetadataBlob, Subscribers: m.SubscriptionCount}
 		for _, t := range m.Profile.Tags {
 			in.Tags = append(in.Tags, t.Name)
 		}
@@ -265,4 +271,52 @@ func FindAPIKey(logText string) string {
 		return m[1]
 	}
 	return ""
+}
+
+// ServerUserID é o id da conta do mod.io do servidor (user.json do ModServer); 0 se o servidor não foi autorizado.
+// Só lê o id: o token continua só com ReadSession.
+func ServerUserID() int {
+	path, err := UserFile()
+	if err != nil {
+		return 0
+	}
+	b, err := fsx.ReadLimited(path, 1<<20)
+	if err != nil {
+		return 0
+	}
+	var u userFile
+	if json.Unmarshal(b, &u) != nil {
+		return 0
+	}
+	return u.Profile.ID
+}
+
+// ForServer deixa só os mods do servidor (ADR-043). A pasta de mods é dividida entre o jogo e o servidor da mesma
+// máquina, e o state.json diz quais contas estão inscritas em cada mod. Fica o mod em que a conta do servidor está
+// inscrita; sem a conta (servidor não autorizado), nenhum. Mod sem a lista de contas (versões antigas do mod.io)
+// fica, como antes.
+func ForServer(list []Installed, serverID int) []Installed {
+	out := make([]Installed, 0, len(list))
+	for _, m := range list {
+		if len(m.Subscribers) == 0 {
+			out = append(out, m)
+			continue
+		}
+		for _, id := range m.Subscribers {
+			if serverID != 0 && id == serverID {
+				out = append(out, m)
+				break
+			}
+		}
+	}
+	return out
+}
+
+// ServerInstalled são os mods instalados da conta do servidor (ForServer sobre ReadInstalled).
+func ServerInstalled(root string) ([]Installed, error) {
+	list, err := ReadInstalled(root)
+	if err != nil {
+		return nil, err
+	}
+	return ForServer(list, ServerUserID()), nil
 }

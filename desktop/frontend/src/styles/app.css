@@ -306,7 +306,13 @@ code {
 }
 
 .grid--2 {
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr));
+}
+
+/* Itens de grade não esticam além da coluna por causa de um conteúdo largo. */
+.grid > *,
+.card {
+  min-width: 0;
 }
 
 .stack {
@@ -720,6 +726,8 @@ code {
 
 /* ---- erro do catálogo ---- */
 .errorcard {
+  container-type: inline-size;
+  width: 100%;
   border: 1px solid var(--danger);
   background: var(--danger-soft);
   border-radius: var(--radius);
@@ -727,6 +735,9 @@ code {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  /* Caminhos e nomes longos (sem espaço) quebram em vez de esticar o cartão. */
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .errorcard__head {
@@ -742,9 +753,20 @@ code {
 
 .errorcard__body {
   display: grid;
-  grid-template-columns: 150px 1fr;
+  grid-template-columns: 150px minmax(0, 1fr);
   gap: 6px 14px;
   margin: 0;
+}
+
+/* Cartão estreito (coluna de uma grade): o rótulo fica em cima do texto. */
+@container (max-width: 520px) {
+  .errorcard__body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+  .errorcard__body dd {
+    margin-bottom: 8px;
+  }
 }
 
 .errorcard__body dt {
@@ -1928,4 +1950,11 @@ code {
 }
 .modhealth__crash code {
   word-break: break-all;
+}
+
+/* Rotação padrão (ADR-043) */
+.defaultcycle {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 10px;
 }

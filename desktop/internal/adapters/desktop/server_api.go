@@ -144,7 +144,7 @@ func (s *ServerAPI) Mods() ModsView {
 		rows[id] = r
 		return r
 	}
-	if inst, err := modio.ReadInstalled(root); err == nil {
+	if inst, err := modio.ServerInstalled(root); err == nil {
 		for _, m := range inst {
 			r := get(m.ID)
 			r.Name, r.Size, r.Installed, r.OnDisk = m.Name, m.Size, true, m.SizeOnDisk

@@ -41,6 +41,8 @@ Abra **Servidor**. Os separadores são:
 - **Mapas:** mapa inicial, mapa do mod (o mapa que o servidor abre depois de carregar os mods), rotação de mapas, dia
   ou noite e mutators (a app encontra os mutators dos mods instalados).
   Se o servidor recusar um mutator, o Painel e esta lista dizem qual.
+  Um servidor novo começa com a rotação padrão dos mapas do jogo, no modo do mapa inicial; **Usar a rotação
+  padrão** volta a preenchê-la a qualquer momento. Só aparecem os mods da conta do mod.io do servidor.
 - **Regras do jogo:** bots e dificuldade, tempos, fogo amigo, chat e voz, votações e mais. Deixe desligado para
   manter os ficheiros como estão.
   Se o servidor já define regras, a aba oferece **Usar as regras do servidor**.

@@ -38,6 +38,8 @@ Open **Server**. The tabs are:
 - **Maps:** start map, mod map (the map the server opens after loading the mods), map cycle, day or night, and
   mutators (the app finds the mutators of your installed mods).
   If the server refuses a mutator, the Dashboard and this list say which one.
+  A new server starts with the default rotation of the game maps, in the mode of the start map; **Use the default
+  rotation** fills it again at any time. Only mods of the server's mod.io account are listed.
 - **Game rules:** bots and difficulty, timers, friendly fire, chat and voice, votes and more. Leave it off to keep
   the files as they are.
   If the server already sets rules, the tab offers **Use the server rules**.

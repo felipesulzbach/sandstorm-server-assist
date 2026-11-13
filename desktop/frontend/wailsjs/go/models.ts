@@ -301,6 +301,20 @@ export namespace desktop {
 		    return a;
 		}
 	}
+	export class CycleDefault {
+	    lines: string[];
+	    serverHasFile: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new CycleDefault(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.lines = source["lines"];
+	        this.serverHasFile = source["serverHasFile"];
+	    }
+	}
 	export class CycleLine {
 	    scenario: string;
 	    lighting: string;

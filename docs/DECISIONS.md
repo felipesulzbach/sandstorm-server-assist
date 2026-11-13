@@ -543,3 +543,20 @@ one, the older one says so.
     not retried.
 - **Consequence:** a server already downloaded into `steamcmd\steamapps\common` is left as it is; the problem text
   says it can be deleted to free about 5 GB.
+
+## ADR-043 · Only the server's mods, and a default map rotation
+
+- **Context:** on a PC where the maintainer also plays, a fresh install listed a game mod (NoRestrictedArea) among
+  the mutators before the server had a mod.io account. The mod.io folder (`C:\Users\Public\mod.io`) is shared by
+  the game and the server; `254/metadata/state.json` says which mod.io accounts are subscribed to each mod
+  (`SubscriptionCount`). The maintainer also asked for the map rotation of a new server to come filled with the
+  game maps.
+- **Decision:**
+  - Server-side readers (mutators, mod maps, Mods list, mod checks, mod progress) use `modio.ServerInstalled`: only
+    mods whose subscribers include the server account (`Profile.id` of the ModServer `user.json`, read without the
+    token). Before mod.io is authorized, none. A mod without the subscriber list (older mod.io) stays, as before.
+  - `server.DefaultMapCycle`: the scenarios of the start map's mode (both sides in Checkpoint), read from the server
+    `.pak` files, or from the `Maps` list when the server is not installed; sorted by map.
+  - The Maps tab fills an empty rotation once when the server has no `MapCycle.txt` (a new server); it only changes
+    the form, saved with **Save**. **Use the default rotation** replaces it at any time, asking first when the
+    rotation has lines. A server with its own `MapCycle.txt` keeps it while the rotation in the app is empty.
