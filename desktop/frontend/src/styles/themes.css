@@ -85,7 +85,7 @@
 
 /* Compacta: só ícones na lateral (o nome aparece ao passar o mouse). */
 [data-skin='compact'] .app {
-  grid-template-columns: 64px 1fr;
+  grid-template-columns: 64px minmax(0, 1fr);
 }
 
 [data-skin='compact'] .nav__item {

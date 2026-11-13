@@ -145,6 +145,13 @@ Short notes of each development session, newest last. They help a new session pi
   (ADR-044).
 - Published the same day as `v0.2.5` (GitHub and the bridge server).
 
+## 2026-11-13 · 0.2.6 (layout)
+
+- The maintainer saw the Dashboard start-up steps and the scenario name go past the status card. Cause: grid
+  columns sized `1fr` (minimum = content) and a fixed 5-column step grid. Fixed in every screen, not only the
+  Dashboard, and checked with a scan script that walks all screens and tabs through the DevTools protocol and
+  reports any element outside its card (kept outside the repository, with demo data only).
+
 ## Cautions for future sessions
 
 - The maintainer's real server folder has secrets in plain text (`Game.ini`, notes next to the `.bat`) and the mod.io

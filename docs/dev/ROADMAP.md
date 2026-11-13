@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-13 (0.2.5 published).
+> Living document, updated at each step. Last update: 2026-11-13 (0.2.6 prepared).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -163,6 +163,15 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
 
 - **0.2.5 published** on 2026-11-13: GitHub Release `v0.2.5` and the bridge server; both `latest.json` serve the
   same installer (SHA-256 checked after download).
+
+## 0.2.6 · layout on narrow windows
+
+- Grid columns use `minmax(0, 1fr)` (app shell, dashboard facts, lists, log lines, sync rows); auto-fill grids
+  use `min(<size>, 100%)`; the start-up steps wrap (`auto-fit`); cards break long words; fixed minimum widths are
+  capped at 100%; the mod and player tables sit in `.table-scroll` and mod names break.
+- Verified: a headless scan of every screen and tab (demo data with long names) at 1280, 1060, 900 and 780 px,
+  in pt-PT and ru and in the four layout skins, finds no element past its card or page. The same scan on the old
+  CSS finds the reported Dashboard break and a Mods table overflow.
 
 ## Bridge from the old download server
 

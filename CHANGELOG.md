@@ -3,6 +3,15 @@
 All notable changes to Sandstorm Server Assist. Versions follow `MAJOR.MINOR.PATCH`. The GitHub release notes of
 each version come from its section here (`npm run release:publish`).
 
+## [0.2.6] - 2026-11-13
+
+### Fixed
+
+- **Layout on narrow windows.** On the Dashboard, the start-up steps and long values (such as the scenario name)
+  went past the card and under the next column. The steps now wrap to a new line and long text breaks inside the
+  card. The same kind of fix was applied to every screen: forms, mod and player tables (they scroll inside the
+  card), mutators, sync rows and fixed-width fields.
+
 ## [0.2.5] - 2026-11-13
 
 ### Fixed

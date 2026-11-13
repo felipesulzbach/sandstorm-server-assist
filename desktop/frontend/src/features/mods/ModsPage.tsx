@@ -206,31 +206,33 @@ export function ModsPage({ status }: { status: Status | null }) {
         {!view?.mods?.length ? (
           <p className="muted">{t('mods.list.empty')}</p>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>{t('mods.list.name')}</th>
-                <th>{t('mods.list.size')}</th>
-                <th>{t('mods.list.status')}</th>
-                <th>
-                  <span className="sr-only">{t('mods.delete.column')}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {view.mods.map((m) => (
-                <ModLine
-                  key={m.id}
-                  m={m}
-                  hasSubs={
-                    !!view.subscribedAt && date(view.subscribedAt as unknown as string) !== '—'
-                  }
-                  running={running}
-                  onDeleted={load}
-                />
-              ))}
-            </tbody>
-          </table>
+          <div className="table-scroll">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>{t('mods.list.name')}</th>
+                  <th>{t('mods.list.size')}</th>
+                  <th>{t('mods.list.status')}</th>
+                  <th>
+                    <span className="sr-only">{t('mods.delete.column')}</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {view.mods.map((m) => (
+                  <ModLine
+                    key={m.id}
+                    m={m}
+                    hasSubs={
+                      !!view.subscribedAt && date(view.subscribedAt as unknown as string) !== '—'
+                    }
+                    running={running}
+                    onDeleted={load}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
         <p className="hint">{t('mods.list.conflict')}</p>
       </section>

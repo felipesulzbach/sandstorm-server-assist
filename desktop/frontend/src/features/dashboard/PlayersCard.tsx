@@ -86,79 +86,81 @@ export function PlayersCard({ status }: { status: Status | null }) {
           {view.players.length === 0 ? (
             <p className="hint">{t('players.empty')}</p>
           ) : (
-            <table className="players">
-              <thead>
-                <tr>
-                  <th>{t('players.name')}</th>
-                  <th>{t('players.score')}</th>
-                  <th aria-label={t('players.actions')} />
-                </tr>
-              </thead>
-              <tbody>
-                {humans.length === 0 && (
+            <div className="table-scroll">
+              <table className="players">
+                <thead>
                   <tr>
-                    <td colSpan={3} className="muted">
-                      {t('players.noHumans')}
-                    </td>
+                    <th>{t('players.name')}</th>
+                    <th>{t('players.score')}</th>
+                    <th aria-label={t('players.actions')} />
                   </tr>
-                )}
-                {humans.map((p) => (
-                  <tr key={`${p.id}-${p.netId}`}>
-                    <td>
-                      {p.name || '—'}
-                      {p.bot && <span className="pill">{t('players.bot')}</span>}
-                    </td>
-                    <td>{p.score}</td>
-                    <td className="players__actions">
-                      {!p.bot && (
-                        <>
-                          <button
-                            type="button"
-                            className="btn btn--small"
-                            disabled={action.busy}
-                            onClick={() => setTarget({ player: p, kind: 'kick' })}
-                          >
-                            <UserX size={14} aria-hidden /> {t('players.kick')}
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn--small btn--danger"
-                            disabled={action.busy}
-                            onClick={() => setTarget({ player: p, kind: 'ban' })}
-                          >
-                            <BanIcon size={14} aria-hidden /> {t('players.ban')}
-                          </button>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-                {bots.length > 0 && (
-                  <tr className="players__bots">
-                    <td colSpan={3}>
-                      <button
-                        type="button"
-                        className="link"
-                        aria-expanded={showBots}
-                        onClick={() => setShowBots((v) => !v)}
-                      >
-                        {t(showBots ? 'players.hideBots' : 'players.showBots', { n: bots.length })}
-                      </button>
-                    </td>
-                  </tr>
-                )}
-                {showBots &&
-                  bots.map((p) => (
-                    <tr key={`${p.id}-bot`} className="players__bot">
+                </thead>
+                <tbody>
+                  {humans.length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="muted">
+                        {t('players.noHumans')}
+                      </td>
+                    </tr>
+                  )}
+                  {humans.map((p) => (
+                    <tr key={`${p.id}-${p.netId}`}>
                       <td>
-                        {p.name || '—'} <span className="pill">{t('players.bot')}</span>
+                        {p.name || '—'}
+                        {p.bot && <span className="pill">{t('players.bot')}</span>}
                       </td>
                       <td>{p.score}</td>
-                      <td />
+                      <td className="players__actions">
+                        {!p.bot && (
+                          <>
+                            <button
+                              type="button"
+                              className="btn btn--small"
+                              disabled={action.busy}
+                              onClick={() => setTarget({ player: p, kind: 'kick' })}
+                            >
+                              <UserX size={14} aria-hidden /> {t('players.kick')}
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn--small btn--danger"
+                              disabled={action.busy}
+                              onClick={() => setTarget({ player: p, kind: 'ban' })}
+                            >
+                              <BanIcon size={14} aria-hidden /> {t('players.ban')}
+                            </button>
+                          </>
+                        )}
+                      </td>
                     </tr>
                   ))}
-              </tbody>
-            </table>
+                  {bots.length > 0 && (
+                    <tr className="players__bots">
+                      <td colSpan={3}>
+                        <button
+                          type="button"
+                          className="link"
+                          aria-expanded={showBots}
+                          onClick={() => setShowBots((v) => !v)}
+                        >
+                          {t(showBots ? 'players.hideBots' : 'players.showBots', { n: bots.length })}
+                        </button>
+                      </td>
+                    </tr>
+                  )}
+                  {showBots &&
+                    bots.map((p) => (
+                      <tr key={`${p.id}-bot`} className="players__bot">
+                        <td>
+                          {p.name || '—'} <span className="pill">{t('players.bot')}</span>
+                        </td>
+                        <td>{p.score}</td>
+                        <td />
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
           )}
 
           {target && (
