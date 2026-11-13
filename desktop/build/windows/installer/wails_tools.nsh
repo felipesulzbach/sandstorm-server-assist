@@ -14,7 +14,7 @@
     !define INFO_PRODUCTNAME "Sandstorm Server Assist"
 !endif
 !ifndef INFO_PRODUCTVERSION
-    !define INFO_PRODUCTVERSION "0.2.4"
+    !define INFO_PRODUCTVERSION "0.2.5"
 !endif
 !ifndef INFO_COPYRIGHT
     !define INFO_COPYRIGHT "Copyright 2026 Felipe Sulzbach and contributors. Apache License 2.0."
