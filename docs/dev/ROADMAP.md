@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-13 (0.2.6 prepared).
+> Living document, updated at each step. Last update: 2026-11-13 (0.2.6 published).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -172,6 +172,9 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
 - Verified: a headless scan of every screen and tab (demo data with long names) at 1280, 1060, 900 and 780 px,
   in pt-PT and ru and in the four layout skins, finds no element past its card or page. The same scan on the old
   CSS finds the reported Dashboard break and a Mods table overflow.
+
+- **0.2.6 published** on 2026-11-13: GitHub Release `v0.2.6` and the bridge server; both `latest.json` serve the
+  same installer (SHA-256 checked after download).
 
 ## Bridge from the old download server
 
