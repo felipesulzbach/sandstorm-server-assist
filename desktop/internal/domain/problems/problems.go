@@ -30,6 +30,8 @@ const (
 	SteamCMDDownload   = "steamcmd-download"
 	SteamCMDSignature  = "steamcmd-signature"
 	SteamCMDFailed     = "steamcmd-failed"
+	// FoldersNested: a pasta do SteamCMD está dentro da pasta do servidor, ou o contrário; ADR-042.
+	FoldersNested      = "folders-nested"
 	DiskFull           = "disk-full"
 	NoInternet         = "no-internet"
 	InvalidField       = "invalid-field"
@@ -72,7 +74,7 @@ var links = map[string][]string{
 var Codes = []string{
 	Unknown, ServerNotInstalled, ServerDirInvalid, ServerRunning, ServerNotRunning, ServerStartFailed,
 	ServerCrashed, ServerStopFailed, PortInUse, ModConflict, ModioCodeInvalid, ModioNotAuthorized,
-	ModioRequestFailed, ModioEmailInvalid, ModioNoAPIKey, SteamCMDDownload, SteamCMDSignature, SteamCMDFailed,
+	ModioRequestFailed, ModioEmailInvalid, ModioNoAPIKey, SteamCMDDownload, SteamCMDSignature, SteamCMDFailed, FoldersNested,
 	DiskFull, NoInternet, InvalidField, VaultUnavailable, BackupPassword, BackupCorrupt, BackupWrite,
 	ConfigWrite, Busy, Canceled, UpdateFailed, ModsNotMounted, LogDelete,
 	RconOff, RconFailed, RconAuth, MapChangeFailed,

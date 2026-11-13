@@ -711,6 +711,7 @@ export namespace installer {
 	    buildId: string;
 	    sizeOnDisk: number;
 	    lastUpdated: number;
+	    foldersNested: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Info(source);
@@ -723,6 +724,7 @@ export namespace installer {
 	        this.buildId = source["buildId"];
 	        this.sizeOnDisk = source["sizeOnDisk"];
 	        this.lastUpdated = source["lastUpdated"];
+	        this.foldersNested = source["foldersNested"];
 	    }
 	}
 	export class State {

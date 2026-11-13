@@ -1,11 +1,13 @@
 package config
 
 import (
+	"errors"
 	"path/filepath"
 	"testing"
 	"time"
 
 	"sandstorm-server-assist/desktop/internal/domain/legal"
+	"sandstorm-server-assist/desktop/internal/domain/problems"
 	"sandstorm-server-assist/desktop/internal/domain/server"
 )
 
@@ -83,5 +85,29 @@ func TestAcceptTerms(t *testing.T) {
 	// Fica gravado.
 	if got := Open(path, &memVault{}).Settings().TermsAccepted; got != legal.Version {
 		t.Fatalf("not saved: %q", got)
+	}
+}
+
+// A pasta do SteamCMD não pode ficar dentro da do servidor, nem o contrário (ADR-042).
+func TestRefusesNestedSteamCMDDir(t *testing.T) {
+	dir := t.TempDir()
+	s := Open(filepath.Join(dir, "config.json"), &memVault{})
+	srv := filepath.Join(dir, "servers")
+	if _, err := s.SetServerDir(srv); err != nil {
+		t.Fatal(err)
+	}
+	_, err := s.SetSteamCMDDir(filepath.Join(srv, "steamcmd"))
+	var pe *problems.Error
+	if !errors.As(err, &pe) || pe.Code != problems.FoldersNested {
+		t.Fatalf("nested steamcmd accepted: %v", err)
+	}
+	if _, err := s.SetSteamCMDDir(filepath.Join(dir, "steamcmd")); err != nil {
+		t.Fatalf("sibling refused: %v", err)
+	}
+	if _, err := s.SetServerDir(filepath.Join(dir, "steamcmd", "server")); !errors.As(err, &pe) {
+		t.Fatalf("server inside steamcmd accepted: %v", err)
+	}
+	if s.Profile().ServerDir != srv {
+		t.Fatalf("server dir changed to %q", s.Profile().ServerDir)
 	}
 }

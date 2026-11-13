@@ -527,3 +527,19 @@ one, the older one says so.
   into the `-mutators` name); the runner keeps `RefusedMutators` for the current map (reset at each list, never
   null). The Dashboard and the mutator picker in Server › Maps warn and mark the refused ones, saying the game gives
   no reason and naming the case seen.
+
+## ADR-042 · Keep the SteamCMD folder out of the server folder
+
+- **Context:** with the server folder `X` and the SteamCMD folder `X\steamcmd`, SteamCMD printed "Please set the
+  game install path to something other than the Steam install folder", ignored `+force_install_dir` and installed
+  the server in its own `steamapps\common`. It still ended with "Success!", so the app relied on the missing
+  `InsurgencyServer.exe` and showed a generic SteamCMD error.
+- **Decision:**
+  - `steamcmd.NestedDirs`: the two folders cannot be the same or one inside the other (Windows comparison, no case).
+  - Choosing a folder that breaks this is refused with the new problem `folders-nested` (`config.SetServerDir`,
+    `SetSteamCMDDir`); `installer.Install` checks again, for configurations saved before.
+  - The Installation screen warns when the saved folders are nested (`installer.Info.foldersNested`).
+  - If SteamCMD prints that warning anyway, the install ends with `folders-nested`, even after "Success!", and is
+    not retried.
+- **Consequence:** a server already downloaded into `steamcmd\steamapps\common` is left as it is; the problem text
+  says it can be deleted to free about 5 GB.

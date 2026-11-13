@@ -103,3 +103,25 @@ func Args(installDir string, appID int, validate bool) []string {
 	}
 	return append(args, "+quit")
 }
+
+// reWrongDir é o aviso do SteamCMD quando a pasta de instalação contém a pasta dele: ele ignora a pasta pedida e
+// instala em steamapps\common (ADR-042).
+var reWrongDir = regexp.MustCompile(`(?i)set the game install path to something other than the Steam install folder`)
+
+// WrongInstallDir diz se a linha é esse aviso.
+func WrongInstallDir(line string) bool { return reWrongDir.MatchString(line) }
+
+// NestedDirs diz se a pasta do servidor e a do SteamCMD são a mesma ou uma está dentro da outra (comparação do
+// Windows, sem diferenciar maiúsculas). O SteamCMD não instala numa pasta que contém a dele.
+func NestedDirs(serverDir, steamcmdDir string) bool {
+	norm := func(p string) string {
+		p = strings.ToLower(strings.ReplaceAll(strings.TrimSpace(p), "/", `\`))
+		p = strings.TrimRight(p, `\`)
+		return p
+	}
+	a, b := norm(serverDir), norm(steamcmdDir)
+	if a == "" || b == "" {
+		return false
+	}
+	return a == b || strings.HasPrefix(b, a+`\`) || strings.HasPrefix(a, b+`\`)
+}

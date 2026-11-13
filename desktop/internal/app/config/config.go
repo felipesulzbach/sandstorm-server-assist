@@ -21,6 +21,7 @@ import (
 	"sandstorm-server-assist/desktop/internal/domain/problems"
 	"sandstorm-server-assist/desktop/internal/domain/server"
 	"sandstorm-server-assist/desktop/internal/domain/serverlogs"
+	"sandstorm-server-assist/desktop/internal/domain/steamcmd"
 )
 
 // Languages são os idiomas da tela (ADR-009). O primeiro é o padrão.
@@ -167,6 +168,9 @@ func (s *Service) SetServerDir(dir string) (server.Profile, error) {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if steamcmd.NestedDirs(filepath.Clean(dir), s.data.Profile.SteamCMDDir) {
+		return s.data.Profile, problems.New(problems.FoldersNested, "")
+	}
 	s.data.Profile.ServerDir = filepath.Clean(dir)
 	return s.data.Profile, s.save()
 }
@@ -178,6 +182,9 @@ func (s *Service) SetSteamCMDDir(dir string) (server.Profile, error) {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if steamcmd.NestedDirs(s.data.Profile.ServerDir, filepath.Clean(dir)) {
+		return s.data.Profile, problems.New(problems.FoldersNested, "")
+	}
 	s.data.Profile.SteamCMDDir = filepath.Clean(dir)
 	return s.data.Profile, s.save()
 }

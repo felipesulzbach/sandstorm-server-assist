@@ -166,6 +166,8 @@ export const enUS = {
       'Needs about 25 GB free, plus the mods (map mods can be 5 GB each). Avoid system folders.',
     steamcmdDir: 'SteamCMD folder',
     steamcmdDirHint: 'If empty, the app uses a "steamcmd" folder next to the server folder.',
+    foldersNested:
+      'The SteamCMD folder is inside the server folder (or the other way around). SteamCMD does not install there: it would put the server in its own folder. Choose a SteamCMD folder next to the server folder, not inside it.',
     steamcmd: {
       title: 'SteamCMD',
       text: "Valve's command-line tool that downloads the server. The app checks Valve's digital signature before running it.",
@@ -1602,6 +1604,17 @@ export const enUS = {
       solution: [
         'Try again: "Missing configuration" usually passes the second time.',
         'Check free disk space and that the folder is not protected.',
+      ],
+    },
+    'folders-nested': {
+      title: 'SteamCMD folder inside the server folder',
+      what: 'SteamCMD does not install the server into a folder that contains SteamCMD itself. It installs it in its own folder (steamapps\\common) instead, so the app does not find the server.',
+      cause:
+        'The SteamCMD folder is inside the server folder, or the server folder is inside the SteamCMD folder.',
+      solution: [
+        'Keep the two folders side by side, for example D:\\Servers\\Sandstorm for the server and D:\\Servers\\steamcmd for SteamCMD.',
+        'In Installation, choose the folders again and click Install server.',
+        'If SteamCMD already downloaded the server into its own folder (steamcmd\\steamapps\\common\\sandstorm_server), you can delete that folder to free about 5 GB.',
       ],
     },
     'disk-full': {

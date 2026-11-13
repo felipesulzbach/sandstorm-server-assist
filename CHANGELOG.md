@@ -3,6 +3,16 @@
 All notable changes to Sandstorm Server Assist. Versions follow `MAJOR.MINOR.PATCH`. The GitHub release notes of
 each version come from its section here (`npm run release:publish`).
 
+## [0.2.3] - 2026-11-13
+
+### Fixed
+
+- **Server not installed when the SteamCMD folder is inside the server folder.** SteamCMD does not install into a
+  folder that contains SteamCMD itself: it put the server in its own folder (`steamcmd\steamapps\common`) and the
+  app showed a generic "SteamCMD could not install" error. The app now refuses this folder choice with a clear
+  message, warns on the Installation screen when the folders are already set that way, and recognises the
+  SteamCMD warning if it still happens.
+
 ## [0.2.2] - 2026-11-12
 
 ### Added

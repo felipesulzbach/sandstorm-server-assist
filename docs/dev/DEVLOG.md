@@ -112,6 +112,16 @@ Short notes of each development session, newest last. They help a new session pi
   again, so Bullet Sponge was not the cause.
 - Published on 2026-11-13 as `v0.2.2` (GitHub and the bridge server).
 
+## 2026-11-13 · 0.2.3 (SteamCMD folder)
+
+- On a new PC the maintainer chose the server folder and, inside it, the SteamCMD folder. "Install server" ended
+  with "SteamCMD could not install". The SteamCMD log said "Please set the game install path to something other
+  than the Steam install folder", then "Missing configuration" (first try) and, on the automatic second try,
+  "Success!", but into `steamcmd\steamapps\common\sandstorm_server`. The app did not find the server in its
+  folder and showed the generic error.
+- Fixed (ADR-042): nested folders are refused when chosen and before installing, the Installation screen warns about
+  them, and the SteamCMD warning becomes the new `folders-nested` problem.
+
 ## Cautions for future sessions
 
 - The maintainer's real server folder has secrets in plain text (`Game.ini`, notes next to the `.bat`) and the mod.io

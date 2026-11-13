@@ -167,6 +167,8 @@ export const ptPT: Messages = {
     steamcmdDir: 'Pasta do SteamCMD',
     steamcmdDirHint:
       'Se ficar vazia, a aplicação usa uma pasta "steamcmd" ao lado da pasta do servidor.',
+    foldersNested:
+      'A pasta do SteamCMD está dentro da pasta do servidor (ou o contrário). O SteamCMD não instala aí: poria o servidor na pasta dele. Escolha uma pasta do SteamCMD ao lado da pasta do servidor, não dentro dela.',
     steamcmd: {
       title: 'SteamCMD',
       text: 'Ferramenta de linha de comandos da Valve que transfere o servidor. A aplicação confirma a assinatura digital da Valve antes de o executar.',
@@ -1613,6 +1615,17 @@ export const ptPT: Messages = {
       solution: [
         'Tente de novo: "Missing configuration" costuma passar à segunda.',
         'Confirme o espaço livre no disco e que a pasta não está protegida.',
+      ],
+    },
+    'folders-nested': {
+      title: 'Pasta do SteamCMD dentro da pasta do servidor',
+      what: 'O SteamCMD não instala o servidor numa pasta que contém o próprio SteamCMD. Em vez disso, instala-o na pasta dele (steamapps\\common), e a app não encontra o servidor.',
+      cause:
+        'A pasta do SteamCMD está dentro da pasta do servidor, ou a pasta do servidor está dentro da pasta do SteamCMD.',
+      solution: [
+        'Deixe as duas pastas lado a lado, por exemplo D:\\Servers\\Sandstorm para o servidor e D:\\Servers\\steamcmd para o SteamCMD.',
+        'Em Instalação, escolha as pastas de novo e clique em Instalar servidor.',
+        'Se o SteamCMD já transferiu o servidor para a pasta dele (steamcmd\\steamapps\\common\\sandstorm_server), pode apagar essa pasta para libertar cerca de 5 GB.',
       ],
     },
     'disk-full': {

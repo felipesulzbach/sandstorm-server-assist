@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-13 (0.2.2 published).
+> Living document, updated at each step. Last update: 2026-11-13 (0.2.3 prepared).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -33,6 +33,7 @@
 | 32. Every player listed (0.2.2)      | `listplayers` read as one row of records; players by score, bots folded                                    | ✅ Done |
 | 33. Server rules offered (0.2.2)     | Game rules tab offers the rules the server's Game.ini already sets (ADR-040)                               | ✅ Done |
 | 34. Refused mutators (0.2.2)         | Warn when the server refuses a mutator on the current map, read from its log (ADR-041)                     | ✅ Done |
+| 35. SteamCMD folder (0.2.3)          | Refuse a SteamCMD folder inside the server folder, and the other way around (ADR-042)                      | ✅ Done |
 
 Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](../../CHANGELOG.md).
 
@@ -118,6 +119,15 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
 
 - **0.2.2 published** on 2026-11-13: GitHub Release `v0.2.2` and the bridge server; both `latest.json` serve the
   same installer (SHA-256 checked after download).
+
+## Phase 35 · SteamCMD folder inside the server folder (0.2.3)
+
+- `steamcmd.NestedDirs` and `steamcmd.WrongInstallDir`; `config.SetServerDir`/`SetSteamCMDDir` refuse nested
+  folders, `installer.Install` checks again before running, `runSteamCMD` turns the SteamCMD warning into the
+  problem even when SteamCMD then says "Success!", and there is no second attempt for it. `installer.Info` has
+  `foldersNested` for a warning on the Installation screen. New problem `folders-nested`. ADR-042.
+- Verified: domain, config and installer tests; the maintainer's real SteamCMD log shows the warning followed by a
+  successful install into `steamcmd\steamapps\common`.
 
 ## Bridge from the old download server
 

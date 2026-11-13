@@ -169,6 +169,8 @@ export const esES: Messages = {
     steamcmdDir: 'Carpeta de SteamCMD',
     steamcmdDirHint:
       'Si está vacía, la aplicación usa una carpeta "steamcmd" junto a la carpeta del servidor.',
+    foldersNested:
+      'La carpeta de SteamCMD está dentro de la carpeta del servidor (o al revés). SteamCMD no instala ahí: pondría el servidor en su propia carpeta. Elige una carpeta de SteamCMD al lado de la del servidor, no dentro.',
     steamcmd: {
       title: 'SteamCMD',
       text: 'Herramienta de línea de comandos de Valve que descarga el servidor. La aplicación comprueba la firma digital de Valve antes de ejecutarla.',
@@ -1619,6 +1621,17 @@ export const esES: Messages = {
       solution: [
         'Vuelve a intentarlo: "Missing configuration" suele pasar a la segunda.',
         'Comprueba el espacio libre en disco y que la carpeta no esté protegida.',
+      ],
+    },
+    'folders-nested': {
+      title: 'Carpeta de SteamCMD dentro de la carpeta del servidor',
+      what: 'SteamCMD no instala el servidor en una carpeta que contiene al propio SteamCMD. En su lugar lo instala en su propia carpeta (steamapps\\common), y la app no encuentra el servidor.',
+      cause:
+        'La carpeta de SteamCMD está dentro de la carpeta del servidor, o la carpeta del servidor está dentro de la de SteamCMD.',
+      solution: [
+        'Deja las dos carpetas una al lado de la otra, por ejemplo D:\\Servers\\Sandstorm para el servidor y D:\\Servers\\steamcmd para SteamCMD.',
+        'En Instalación, elige de nuevo las carpetas y pulsa Instalar servidor.',
+        'Si SteamCMD ya descargó el servidor en su propia carpeta (steamcmd\\steamapps\\common\\sandstorm_server), puedes borrar esa carpeta para liberar unos 5 GB.',
       ],
     },
     'disk-full': {

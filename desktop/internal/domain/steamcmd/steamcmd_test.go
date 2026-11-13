@@ -36,3 +36,32 @@ func TestArgs(t *testing.T) {
 		t.Fatalf("%v", got)
 	}
 }
+
+func TestNestedDirs(t *testing.T) {
+	cases := []struct {
+		server, steamcmd string
+		want             bool
+	}{
+		{`D:\Servers`, `D:\Servers\steamcmd`, true},
+		{`D:\Servers\`, `d:\servers\SteamCMD\`, true},
+		{`D:\Servers\steamcmd\x`, `D:\Servers\steamcmd`, true},
+		{`D:\Servers\Sandstorm`, `D:\Servers\Sandstorm`, true},
+		{`D:\Servers\Sandstorm`, `D:\Servers\steamcmd`, false},
+		{`D:\Servers\Sand`, `D:\Servers\Sandstorm\steamcmd`, false},
+		{`D:\Servers`, ``, false},
+	}
+	for _, c := range cases {
+		if got := NestedDirs(c.server, c.steamcmd); got != c.want {
+			t.Errorf("NestedDirs(%q, %q) = %v", c.server, c.steamcmd, got)
+		}
+	}
+}
+
+func TestWrongInstallDir(t *testing.T) {
+	if !WrongInstallDir("[2026-11-13 18:00:18] Please set the game install path to something other than the Steam install folder") {
+		t.Fatal("did not see the warning")
+	}
+	if WrongInstallDir("Success! App '581330' fully installed.") {
+		t.Fatal("false positive")
+	}
+}

@@ -70,6 +70,9 @@ type Info struct {
 	BuildID         string `json:"buildId"`
 	SizeOnDisk      int64  `json:"sizeOnDisk"`
 	LastUpdated     int64  `json:"lastUpdated"`
+	// FoldersNested: a pasta do SteamCMD está dentro da do servidor, ou o contrário; o SteamCMD não instalaria na
+	// pasta do servidor (ADR-042).
+	FoldersNested bool `json:"foldersNested"`
 }
 
 // Service faz uma tarefa por vez.
@@ -209,6 +212,7 @@ func SteamCMDExe(dir string) string { return filepath.Join(dir, "steamcmd.exe") 
 // Inspect diz o que está instalado.
 func Inspect(p server.Profile) Info {
 	var in Info
+	in.FoldersNested = steamcmd.NestedDirs(p.ServerDir, p.SteamCMDDir)
 	if p.SteamCMDDir != "" {
 		in.SteamCMDFound = fsx.Exists(SteamCMDExe(p.SteamCMDDir))
 	}
@@ -341,6 +345,10 @@ func (s *Service) Install(steamcmdDir, serverDir string, validate bool) error {
 	if !fsx.SafeDir(serverDir) {
 		return problems.New(problems.ServerDirInvalid, serverDir)
 	}
+	// O SteamCMD não instala numa pasta que contém a dele: instalaria o servidor em steamapps\common (ADR-042).
+	if steamcmd.NestedDirs(serverDir, steamcmdDir) {
+		return problems.New(problems.FoldersNested, "")
+	}
 	if err := trust.VerifySigner(exe, "Valve"); err != nil {
 		return problems.Wrap(problems.SteamCMDSignature, err)
 	}
@@ -361,7 +369,8 @@ func (s *Service) install(ctx context.Context, exe, serverDir string, validate b
 	var last error
 	for attempt := 1; attempt <= 2; attempt++ {
 		last = s.runSteamCMD(ctx, exe, serverDir, args)
-		if last == nil || ctx.Err() != nil {
+		var pe *problems.Error
+		if last == nil || ctx.Err() != nil || (errors.As(last, &pe) && pe.Code == problems.FoldersNested) {
 			break
 		}
 		s.logf("SteamCMD failed, retrying (" + strconv.Itoa(attempt) + ")")
@@ -391,7 +400,7 @@ func (s *Service) runSteamCMD(ctx context.Context, exe, serverDir string, args [
 	defer close(pollDone)
 
 	var failure string
-	success := false
+	success, wrongDir := false, false
 	sc := bufio.NewScanner(out)
 	sc.Buffer(make([]byte, 64<<10), 1<<20)
 	sc.Split(splitCRLF)
@@ -401,6 +410,9 @@ func (s *Service) runSteamCMD(ctx context.Context, exe, serverDir string, args [
 			continue
 		}
 		s.log.Add("steamcmd", line, "")
+		if steamcmd.WrongInstallDir(line) {
+			wrongDir = true
+		}
 		l, ok := steamcmd.Parse(line)
 		if !ok {
 			continue
@@ -426,6 +438,10 @@ func (s *Service) runSteamCMD(ctx context.Context, exe, serverDir string, args [
 			}
 		}
 		return ctx.Err()
+	}
+	// O SteamCMD recusou a pasta e instalou em outro lugar: o "Success!" não vale para a pasta do servidor.
+	if wrongDir {
+		return problems.New(problems.FoldersNested, "SteamCMD ignored the install folder")
 	}
 	if success {
 		return nil

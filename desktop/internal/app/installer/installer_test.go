@@ -2,11 +2,13 @@ package installer
 
 import (
 	"bufio"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"sandstorm-server-assist/desktop/internal/domain/problems"
 	"sandstorm-server-assist/desktop/internal/domain/server"
 )
 
@@ -86,5 +88,25 @@ func TestRefusesUnsafeDirs(t *testing.T) {
 	}
 	if err := s.Install(t.TempDir(), "relativo", false); err == nil {
 		t.Error("sem steamcmd/pasta relativa aceita")
+	}
+}
+
+// Com a pasta do SteamCMD dentro da do servidor, nem tenta instalar (ADR-042).
+func TestInstallRefusesNestedFolders(t *testing.T) {
+	srv := t.TempDir()
+	steam := filepath.Join(srv, "steamcmd")
+	if err := os.MkdirAll(steam, 0o750); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(SteamCMDExe(steam), []byte("x"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	err := New(nil).Install(steam, srv, false)
+	var pe *problems.Error
+	if !errors.As(err, &pe) || pe.Code != problems.FoldersNested {
+		t.Fatalf("got %v", err)
+	}
+	if in := Inspect(server.Profile{ServerDir: srv, SteamCMDDir: steam}); !in.FoldersNested {
+		t.Fatal("Inspect did not flag nested folders")
 	}
 }

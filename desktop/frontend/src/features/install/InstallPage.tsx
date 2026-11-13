@@ -113,6 +113,11 @@ export function InstallPage({ status }: { status: Status | null }) {
             {t('common.choose')}
           </button>
         </div>
+        {info?.foldersNested && (
+          <p className="banner banner--warn" role="alert">
+            {t('install.foldersNested')}
+          </p>
+        )}
       </section>
 
       <div className="grid grid--2">
