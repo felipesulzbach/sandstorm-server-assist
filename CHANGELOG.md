@@ -3,6 +3,15 @@
 All notable changes to Sandstorm Server Assist. Versions follow `MAJOR.MINOR.PATCH`. The GitHub release notes of
 each version come from its section here (`npm run release:publish`).
 
+## [0.2.5] - 2026-11-13
+
+### Fixed
+
+- **mod.io "Invalid security code" on a new server.** mod.io only accepts the code with the same API key that
+  requested it, and the server exchanges it with the game's own key. The app requested the code with the key typed
+  in Mods, so the authorization always failed on a new install. The app now reads the game's mod.io key from the
+  installed server and requests the code with it; you no longer need a key of your own.
+
 ## [0.2.4] - 2026-11-13
 
 ### Added

@@ -11,6 +11,8 @@ import (
 type File struct {
 	Path string
 	Size int64
+	// Offset é onde começa o registro do arquivo dentro do .pak (cabeçalho FPakEntry e depois os dados).
+	Offset int64
 }
 
 // FooterAny é ParseFooter aceitando também as versões 8 e 9 (mods feitos para versões antigas do jogo).
@@ -44,11 +46,11 @@ func cleanPath(mount, dir, name string) string {
 }
 
 // legacyEntry lê um FPakEntry no formato antigo (índice das versões 8 e 9 e arquivos não codificados das 10 e 11)
-// e devolve o tamanho sem compressão. methodSize é 4 (padrão) ou 1 (pacotes do UE 4.22, versão 8).
-func (r *reader) legacyEntry(methodSize int) int64 {
-	r.skip(8) // posição
+// e devolve a posição e o tamanho sem compressão. methodSize é 4 (padrão) ou 1 (pacotes do UE 4.22, versão 8).
+func (r *reader) legacyEntry(methodSize int) (offset, size int64) {
+	offset = r.i64()
 	r.skip(8) // tamanho comprimido
-	size := r.i64()
+	size = r.i64()
 	var method uint32
 	if methodSize == 1 {
 		if r.need(1) {
@@ -63,15 +65,15 @@ func (r *reader) legacyEntry(methodSize int) int64 {
 		blocks := int(r.i32())
 		if blocks < 0 || blocks > maxEntries {
 			r.err = ErrFormat
-			return 0
+			return 0, 0
 		}
 		r.skip(16 * blocks)
 	}
 	r.skip(1 + 4) // flags, tamanho do bloco de compressão
-	if size < 0 {
+	if size < 0 || offset < 0 {
 		r.err = ErrFormat
 	}
-	return size
+	return offset, size
 }
 
 // LegacyFiles lê o índice das versões 8 e 9: ponto de montagem, número de arquivos e, para cada um, o nome e o
@@ -98,9 +100,9 @@ func legacyFiles(index []byte, methodSize int) ([]File, error) {
 	files := make([]File, 0, n)
 	for i := 0; i < n && r.err == nil; i++ {
 		name := r.str()
-		size := r.legacyEntry(methodSize)
+		off, size := r.legacyEntry(methodSize)
 		if r.err == nil {
-			files = append(files, File{Path: cleanPath(mount, "", name), Size: size})
+			files = append(files, File{Path: cleanPath(mount, "", name), Size: size, Offset: off})
 		}
 	}
 	if r.err != nil || r.off != len(r.b) {
@@ -129,14 +131,15 @@ func ModernFiles(primary, dirIndex []byte) ([]File, error) {
 	encoded := r.b[r.off : r.off+encLen]
 	r.off += encLen
 	// Entradas que não couberam no formato codificado, no formato antigo.
-	var plain []int64
+	var plain [][2]int64 // posição, tamanho
 	if r.off < len(r.b) {
 		n := int(r.i32())
 		if n < 0 || n > maxEntries {
 			return nil, ErrFormat
 		}
 		for i := 0; i < n && r.err == nil; i++ {
-			plain = append(plain, r.legacyEntry(4))
+			off, size := r.legacyEntry(4)
+			plain = append(plain, [2]int64{off, size})
 		}
 	}
 	if r.err != nil {
@@ -158,20 +161,20 @@ func ModernFiles(primary, dirIndex []byte) ([]File, error) {
 		for j := 0; j < n && d.err == nil; j++ {
 			name := d.str()
 			loc := int(d.i32())
-			size := int64(-1)
+			off, size := int64(-1), int64(-1)
 			switch {
 			case loc >= 0:
-				size = encodedSize(encoded, loc)
+				off, size = encodedEntry(encoded, loc)
 			case -loc-1 < len(plain):
-				size = plain[-loc-1]
+				off, size = plain[-loc-1][0], plain[-loc-1][1]
 			}
-			if size < 0 {
+			if size < 0 || off < 0 {
 				return nil, ErrFormat
 			}
 			if len(files) >= maxEntries {
 				return nil, ErrFormat
 			}
-			files = append(files, File{Path: cleanPath(mount, dir, name), Size: size})
+			files = append(files, File{Path: cleanPath(mount, dir, name), Size: size, Offset: off})
 		}
 	}
 	if d.err != nil {
@@ -180,29 +183,29 @@ func ModernFiles(primary, dirIndex []byte) ([]File, error) {
 	return files, nil
 }
 
-// encodedSize lê o tamanho sem compressão de uma entrada codificada (UE 4.26+): um campo de bits de 32 bits, o
-// tamanho do bloco (se não couber nos bits), a posição (32 ou 64 bits) e o tamanho (32 ou 64 bits). -1 se inválida.
-func encodedSize(enc []byte, at int) int64 {
+// encodedEntry lê a posição e o tamanho sem compressão de uma entrada codificada (UE 4.26+): um campo de bits de 32
+// bits, o tamanho do bloco (se não couber nos bits), a posição (32 ou 64 bits) e o tamanho (32 ou 64 bits). -1 se
+// inválida.
+func encodedEntry(enc []byte, at int) (offset, size int64) {
 	r := &reader{b: enc, off: at}
 	v := uint32(r.i32()) // #nosec G115 -- campo de bits do formato
 	if v&0x3f == 0x3f {
 		r.skip(4) // tamanho do bloco de compressão
 	}
 	if v&(1<<31) != 0 {
-		r.skip(4)
+		offset = int64(uint32(r.i32())) // #nosec G115 -- posição de 32 bits sem sinal
 	} else {
-		r.skip(8)
+		offset = r.i64()
 	}
-	var size int64
 	if v&(1<<30) != 0 {
 		size = int64(uint32(r.i32())) // #nosec G115 -- tamanho de 32 bits sem sinal
 	} else {
 		size = r.i64()
 	}
-	if r.err != nil || size < 0 {
-		return -1
+	if r.err != nil || size < 0 || offset < 0 {
+		return -1, -1
 	}
-	return size
+	return offset, size
 }
 
 // ContentsOf separa mutators, mapas e cenários de uma lista de arquivos (o mesmo que Scan faz no índice de pastas;

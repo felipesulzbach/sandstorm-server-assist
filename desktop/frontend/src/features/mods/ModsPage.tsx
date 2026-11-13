@@ -97,29 +97,33 @@ export function ModsPage({ status }: { status: Status | null }) {
                 isSet={secrets.modioEmail}
                 onChanged={setSecrets}
               />
-              <SecretField
-                name="modioApiKey"
-                label={t('mods.auth.apiKey')}
-                isSet={secrets.modioApiKey}
-                onChanged={setSecrets}
-              >
-                <div className="row row--wrap">
-                  <button
-                    type="button"
-                    className="btn btn--small"
-                    onClick={async () => {
-                      const found = await action.run(backend.detectApiKey);
-                      if (found === undefined) return;
-                      setNote(found ? t('mods.auth.detected') : t('mods.auth.notFound'));
-                      load();
-                    }}
-                  >
-                    <Search size={14} aria-hidden />
-                    {t('mods.auth.detect')}
-                  </button>
-                </div>
-                <Guide id="modioApiKey" links={['modio-api-access']} />
-              </SecretField>
+              {view?.gameKey ? (
+                <p className="hint">{t('mods.auth.gameKey')}</p>
+              ) : (
+                <SecretField
+                  name="modioApiKey"
+                  label={t('mods.auth.apiKey')}
+                  isSet={secrets.modioApiKey}
+                  onChanged={setSecrets}
+                >
+                  <div className="row row--wrap">
+                    <button
+                      type="button"
+                      className="btn btn--small"
+                      onClick={async () => {
+                        const found = await action.run(backend.detectApiKey);
+                        if (found === undefined) return;
+                        setNote(found ? t('mods.auth.detected') : t('mods.auth.notFound'));
+                        load();
+                      }}
+                    >
+                      <Search size={14} aria-hidden />
+                      {t('mods.auth.detect')}
+                    </button>
+                  </div>
+                  <Guide id="modioApiKey" links={['modio-api-access']} />
+                </SecretField>
+              )}
             </>
           )}
           {note && <p className="hint">{note}</p>}
@@ -127,7 +131,9 @@ export function ModsPage({ status }: { status: Status | null }) {
             <button
               type="button"
               className="btn"
-              disabled={action.busy || !secrets?.modioEmail || !secrets?.modioApiKey}
+              disabled={
+                action.busy || !secrets?.modioEmail || !(view?.gameKey || secrets?.modioApiKey)
+              }
               onClick={async () => {
                 const ok = await action.run(async () => {
                   await backend.requestCode();

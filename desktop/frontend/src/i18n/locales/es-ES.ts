@@ -501,6 +501,8 @@ export const esES: Messages = {
       text: 'Usa una cuenta de mod.io solo para el servidor (no la personal). Se hace una vez y dura alrededor de un año.',
       email: 'Correo de la cuenta del servidor',
       apiKey: 'Clave de la API de mod.io',
+      gameKey:
+        'La app usa la clave de mod.io del propio juego, leída de los archivos del servidor. No necesitas una clave propia.',
       detect: 'Buscar en los registros del servidor',
       detected: 'Clave encontrada en los registros del servidor y guardada en la caja fuerte.',
       notFound: 'Aún no hay clave en los registros. Pega una creada en mod.io (enlace en la guía).',
@@ -1565,8 +1567,8 @@ export const esES: Messages = {
       title: 'Código de mod.io no válido',
       what: 'mod.io respondió 401 "Invalid security code".',
       cause:
-        'El código de 5 caracteres solo funciona una vez y por poco tiempo. Este ya se usó o caducó.',
-      solution: ['En Mods, pide un código nuevo por correo y vuelve a autorizar.'],
+        'El código de 5 caracteres solo funciona una vez, por poco tiempo, y solo con la misma clave de API de mod.io que lo pidió. Este ya se usó, caducó o se pidió con otra clave (las versiones anteriores a la 0.2.5 usaban la clave escrita en Mods).',
+      solution: ['En Mods, pide un código nuevo por correo y autoriza justo después.'],
     },
     'modio-not-authorized': {
       title: 'Servidor no autorizado en mod.io',

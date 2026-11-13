@@ -73,3 +73,20 @@ func TestReadInstalledSubscribers(t *testing.T) {
 		t.Fatalf("list %+v err %v", list, err)
 	}
 }
+
+// TestGameAPIKeyReal lê a chave do mod.io do servidor instalado. Só com SSA_SERVER_DIR (não mostra a chave).
+func TestGameAPIKeyReal(t *testing.T) {
+	dir := os.Getenv("SSA_SERVER_DIR")
+	if dir == "" {
+		t.Skip("set SSA_SERVER_DIR to read the real server files")
+	}
+	start := time.Now()
+	key := GameAPIKey(dir)
+	t.Logf("found=%v length=%d in %v", key != "", len(key), time.Since(start))
+	start = time.Now()
+	_ = GameAPIKey(dir)
+	t.Logf("cached in %v", time.Since(start))
+	if key == "" {
+		t.Fatal("no key")
+	}
+}

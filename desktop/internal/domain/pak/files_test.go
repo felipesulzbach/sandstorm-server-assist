@@ -4,9 +4,9 @@ import (
 	"testing"
 )
 
-// encodedEntry monta uma entrada codificada sem compressão: campo de bits (posição e tamanho de 32 bits) + posição +
+// writeEncoded monta uma entrada codificada sem compressão: campo de bits (posição e tamanho de 32 bits) + posição +
 // tamanho.
-func encodedEntry(w *buf, size uint32) {
+func writeEncoded(w *buf, size uint32) {
 	bits := uint32(1<<31 | 1<<30 | 1<<29)
 	w.i32(int32(bits)) // #nosec G115 -- teste
 	w.i32(0)
@@ -16,8 +16,8 @@ func encodedEntry(w *buf, size uint32) {
 // modernIndex monta o índice principal e o de pastas da versão 11 com dois arquivos codificados e um não codificado.
 func modernIndex() (primary, dirIndex []byte) {
 	var enc buf
-	encodedEntry(&enc, 92328) // posição 0
-	encodedEntry(&enc, 1234)  // posição 12
+	writeEncoded(&enc, 92328) // posição 0
+	writeEncoded(&enc, 1234)  // posição 12
 	var p buf
 	p.str("../../../")
 	p.i32(3)

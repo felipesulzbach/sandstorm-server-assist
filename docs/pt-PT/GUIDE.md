@@ -61,9 +61,9 @@ Clique em **Guardar** depois de mudar um separador.
 
 O servidor transfere os mods subscritos pela conta do mod.io dele.
 
-1. Abra **Mods**. Use uma conta do mod.io só para o servidor, não a sua pessoal. Escreva o e-mail dela e a chave de
-   API do mod.io (**Procurar nos registos do servidor**, ou crie uma com o guia). Clique em
-   **Enviar código por e-mail**.
+1. Abra **Mods**. Use uma conta do mod.io só para o servidor, não a sua pessoal. Escreva o e-mail dela e clique em
+   **Enviar código por e-mail**. A app usa a chave do mod.io do próprio jogo, lida do servidor instalado; não precisa
+   de uma chave sua.
 2. Escreva o código de 5 caracteres e clique em **Autorizar**. O servidor é autorizado uma vez; a app volta sozinha
    ao modo normal.
 3. Subscreva mods no [site do mod.io](https://mod.io/g/insurgencysandstorm) com essa conta. A lista mostra cada mod e

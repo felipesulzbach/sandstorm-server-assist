@@ -135,6 +135,15 @@ Short notes of each development session, newest last. They help a new session pi
   a new server now starts with the game maps in the mode of the start map.
 - Published the same day as `v0.2.4` (GitHub and the bridge server).
 
+## 2026-11-13 · 0.2.5 (mod.io code)
+
+- On the new server, "Authorize" failed with mod.io 401 "Invalid security code" (`error_ref` 11014). mod.io's
+  documentation says the exchange must use the API key of the original request; the server exchanges with the
+  game's own key, but the app had requested the code with the key typed in Mods (the new mod.io plugin no longer
+  writes the key in the server log, so it could not be found there). The game key is in
+  `Insurgency/Config/DefaultGame.ini` inside `pakchunk0`; the app now reads it and requests the code with it
+  (ADR-044).
+
 ## Cautions for future sessions
 
 - The maintainer's real server folder has secrets in plain text (`Game.ini`, notes next to the `.bat`) and the mod.io

@@ -499,6 +499,8 @@ export const ptPT: Messages = {
       text: 'Use uma conta do mod.io só para o servidor (não a sua pessoal). Faz-se uma vez e dura cerca de um ano.',
       email: 'E-mail da conta do servidor',
       apiKey: 'Chave da API do mod.io',
+      gameKey:
+        'A app usa a chave do mod.io do próprio jogo, lida dos ficheiros do servidor. Não precisa de uma chave sua.',
       detect: 'Procurar nos registos do servidor',
       detected: 'Chave encontrada nos registos do servidor e guardada no cofre.',
       notFound: 'Ainda não há chave nos registos. Cole uma criada no mod.io (ligação no guia).',
@@ -1559,8 +1561,8 @@ export const ptPT: Messages = {
       title: 'Código do mod.io inválido',
       what: 'O mod.io respondeu 401 "Invalid security code".',
       cause:
-        'O código de 5 caracteres só funciona uma vez e por pouco tempo. Este já foi usado ou expirou.',
-      solution: ['Em Mods, peça um código novo por e-mail e autorize de novo.'],
+        'O código de 5 caracteres só funciona uma vez, por pouco tempo, e só com a mesma chave de API do mod.io que o pediu. Este já foi usado, expirou ou foi pedido com outra chave (versões antes da 0.2.5 usavam a chave escrita em Mods).',
+      solution: ['Em Mods, peça um código novo por e-mail e autorize logo a seguir.'],
     },
     'modio-not-authorized': {
       title: 'Servidor não autorizado no mod.io',

@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-13 (0.2.4 published).
+> Living document, updated at each step. Last update: 2026-11-13 (0.2.5 prepared).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -152,6 +152,14 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
 
 - **0.2.4 published** on 2026-11-13: GitHub Release `v0.2.4` and the bridge server; both `latest.json` serve the
   same installer (SHA-256 checked after download).
+
+## 0.2.5 · mod.io code requested with the game key (ADR-044)
+
+- `pak.File.Offset`, `pak.ParseEntry`, `pak.ReadData` (Zlib only, size-limited), `pak.Methods`,
+  `pak.ModioAPIKey`; fuzz tested. `modio.GameAPIKey` reads `Insurgency/Config/DefaultGame.ini` from the
+  server `pakchunk0` (cached by file date). `RequestCode` uses it first; the Mods screen hides the key field when
+  it is found (`ModsView.gameKey`).
+- Verified: unit and fuzz tests; on the maintainer's new server the key is found in about 40 ms (value never shown).
 
 ## Bridge from the old download server
 

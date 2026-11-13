@@ -62,8 +62,9 @@ Pulsa **Guardar** después de cambiar una pestaña.
 
 El servidor descarga los mods a los que está suscrita su cuenta de mod.io.
 
-1. Abre **Mods**. Usa una cuenta de mod.io solo para el servidor, no la personal. Escribe su correo y la clave de API
-   de mod.io (**Buscar en los registros del servidor**, o crea una con la guía). Pulsa **Enviar código por correo**.
+1. Abre **Mods**. Usa una cuenta de mod.io solo para el servidor, no la personal. Escribe su correo y pulsa **Enviar
+   código por correo**. La app usa la clave de mod.io del propio juego, leída del servidor instalado; no necesitas una
+   clave propia.
 2. Escribe el código de 5 caracteres y pulsa **Autorizar**. El servidor se autoriza una vez; la app vuelve sola al
    modo normal.
 3. Suscríbete a mods en la [web de mod.io](https://mod.io/g/insurgencysandstorm) con esa cuenta. La lista muestra cada

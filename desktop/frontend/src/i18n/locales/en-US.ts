@@ -492,6 +492,8 @@ export const enUS = {
       text: 'Use a mod.io account only for the server (not your personal one). Done once; it lasts about a year.',
       email: 'Server account e-mail',
       apiKey: 'mod.io API key',
+      gameKey:
+        "The app uses the game's own mod.io key, read from the server files. You do not need a key of your own.",
       detect: 'Find in server logs',
       detected: 'Key found in the server logs and saved in the vault.',
       notFound: 'No key in the logs yet. Paste one created at mod.io (link in the guide).',
@@ -1548,8 +1550,8 @@ export const enUS = {
       title: 'Invalid mod.io code',
       what: 'mod.io answered 401 "Invalid security code".',
       cause:
-        'The 5-character code works only once and for a short time. This one was used or expired.',
-      solution: ['In Mods, request a new code by e-mail and authorize again.'],
+        'The 5-character code works only once, for a short time, and only with the same mod.io API key that requested it. This one was used, expired, or was requested with another key (versions before 0.2.5 used the key typed in Mods).',
+      solution: ['In Mods, request a new code by e-mail and authorize right after.'],
     },
     'modio-not-authorized': {
       title: 'Server not authorized on mod.io',

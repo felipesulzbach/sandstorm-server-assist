@@ -578,6 +578,7 @@ export namespace desktop {
 	export class ModsView {
 	    session: modio.Session;
 	    hasApiKey: boolean;
+	    gameKey: boolean;
 	    hasEmail: boolean;
 	    root: string;
 	    mods: ModRow[];
@@ -592,6 +593,7 @@ export namespace desktop {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.session = this.convertValues(source["session"], modio.Session);
 	        this.hasApiKey = source["hasApiKey"];
+	        this.gameKey = source["gameKey"];
 	        this.hasEmail = source["hasEmail"];
 	        this.root = source["root"];
 	        this.mods = this.convertValues(source["mods"], ModRow);

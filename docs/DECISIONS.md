@@ -560,3 +560,17 @@ one, the older one says so.
   - The Maps tab fills an empty rotation once when the server has no `MapCycle.txt` (a new server); it only changes
     the form, saved with **Save**. **Use the default rotation** replaces it at any time, asking first when the
     rotation has lines. A server with its own `MapCycle.txt` keeps it while the rotation in the app is empty.
+
+## ADR-044 · Request the mod.io code with the game's own key
+
+- **Context:** the server exchanges the e-mail security code (`-SecurityCode=`) using the mod.io API key built into
+  the game, and mod.io accepts the exchange only with the key of the original request ("must be used from the
+  original request for a security code"). The app requested the code with the key in its vault: found in old server
+  logs (ADR-010) or typed by the user. Newer mod.io plugins no longer log the key, so on a new install the user typed
+  a personal key and the authorization always failed with 401 "Invalid security code".
+- **Decision:** the app reads the game's key from the installed server: `Insurgency/Config/DefaultGame.ini` in
+  `pakchunk0-*.pak`, section `[/Script/Modio.ModioSettings]`, `ApiKey` (32 hex characters) with `GameId=254`. Only that
+  file is read (its entry header and Zlib blocks, size-limited; encrypted or other compressions are refused). The
+  code is requested with this key; the vault key is used only if it is not found. The key never reaches the screen
+  or the logs, and it is not written in the repository (it ships with the game).
+- **Consequence:** the Mods screen no longer asks for an API key when the server is installed.

@@ -107,12 +107,15 @@ func (s *ServerAPI) CheckPorts() netcheck.Result {
 
 // ModsView é a tela de mods.
 type ModsView struct {
-	Session      modio.Session `json:"session"`
-	HasAPIKey    bool          `json:"hasApiKey"`
-	HasEmail     bool          `json:"hasEmail"`
-	Root         string        `json:"root"`
-	Mods         []ModRow      `json:"mods"`
-	SubscribedAt time.Time     `json:"subscribedAt"`
+	Session   modio.Session `json:"session"`
+	HasAPIKey bool          `json:"hasApiKey"`
+	// GameKey: a chave do mod.io do próprio jogo foi achada nos arquivos do servidor; o pedido do código usa ela e o
+	// usuário não precisa de chave própria (ADR-044).
+	GameKey      bool      `json:"gameKey"`
+	HasEmail     bool      `json:"hasEmail"`
+	Root         string    `json:"root"`
+	Mods         []ModRow  `json:"mods"`
+	SubscribedAt time.Time `json:"subscribedAt"`
 }
 
 // ModRow junta o que está instalado, o que está inscrito e o que acontece agora no servidor.
@@ -135,6 +138,7 @@ func (s *ServerAPI) Mods() ModsView {
 	v := ModsView{Session: modioSession(), Root: root}
 	sec, _ := s.a.cfg.SecretsState()
 	v.HasAPIKey, v.HasEmail = sec["modioApiKey"], sec["modioEmail"]
+	v.GameKey = modio.GameAPIKey(s.a.cfg.Profile().ServerDir) != ""
 	rows := map[int]*ModRow{}
 	get := func(id int) *ModRow {
 		if r, ok := rows[id]; ok {
@@ -228,7 +232,12 @@ func (s *ServerAPI) RequestCode() error {
 	if email == "" {
 		return problems.Field("modioEmail", "validation.email")
 	}
-	key, _ := s.a.cfg.Secret("modioApiKey")
+	// O servidor troca o código com a chave do próprio jogo, e o mod.io só aceita a troca com a mesma chave do pedido
+	// (ADR-044). A chave guardada no cofre só serve se a do jogo não for achada.
+	key := modio.GameAPIKey(s.a.cfg.Profile().ServerDir)
+	if key == "" {
+		key, _ = s.a.cfg.Secret("modioApiKey")
+	}
 	if key == "" {
 		return problems.New(problems.ModioNoAPIKey, "")
 	}

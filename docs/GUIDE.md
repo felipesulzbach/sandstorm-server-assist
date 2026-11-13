@@ -58,8 +58,8 @@ Click **Save** after changing a tab.
 
 The server downloads the mods its mod.io account is subscribed to.
 
-1. Open **Mods**. Use a mod.io account only for the server, not your personal one. Type its e-mail and the mod.io
-   API key (**Find in server logs**, or create one with the guide). Click **Send code by e-mail**.
+1. Open **Mods**. Use a mod.io account only for the server, not your personal one. Type its e-mail and click **Send code
+   by e-mail**. The app uses the game's own mod.io key, read from the installed server; no key of your own is needed.
 2. Type the 5-character code and click **Authorize**. The server is authorized once; the app returns to normal mode
    by itself.
 3. Subscribe to mods on the [mod.io website](https://mod.io/g/insurgencysandstorm) with that account. The list shows
