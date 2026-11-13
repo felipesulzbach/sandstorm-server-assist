@@ -143,6 +143,7 @@ Short notes of each development session, newest last. They help a new session pi
   writes the key in the server log, so it could not be found there). The game key is in
   `Insurgency/Config/DefaultGame.ini` inside `pakchunk0`; the app now reads it and requests the code with it
   (ADR-044).
+- Published the same day as `v0.2.5` (GitHub and the bridge server).
 
 ## Cautions for future sessions
 
