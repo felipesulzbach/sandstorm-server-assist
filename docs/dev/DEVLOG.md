@@ -133,6 +133,7 @@ Short notes of each development session, newest last. They help a new session pi
   folder is shared with the game on that PC; `state.json` lists the subscribed accounts of each mod, so the app
   now keeps only the server account's mods (ADR-043). The maintainer also asked for a default map rotation:
   a new server now starts with the game maps in the mode of the start map.
+- Published the same day as `v0.2.4` (GitHub and the bridge server).
 
 ## Cautions for future sessions
 

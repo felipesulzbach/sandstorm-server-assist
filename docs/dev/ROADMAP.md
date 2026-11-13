@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-13 (0.2.4 prepared).
+> Living document, updated at each step. Last update: 2026-11-13 (0.2.4 published).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -149,6 +149,9 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
   spaces and the `1fr` column would not shrink below them. `.errorcard` wraps anywhere and is a size container;
   its grid uses `minmax(0, 1fr)` and stacks labels over the text below 520 px; grid items and cards get
   `min-width: 0`; `.grid--2` columns are at most 100% wide. Checked in the dev app at 1060 and 800 px.
+
+- **0.2.4 published** on 2026-11-13: GitHub Release `v0.2.4` and the bridge server; both `latest.json` serve the
+  same installer (SHA-256 checked after download).
 
 ## Bridge from the old download server
 
