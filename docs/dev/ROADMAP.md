@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-13 (0.2.3 prepared).
+> Living document, updated at each step. Last update: 2026-11-13 (0.2.3 published).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -128,6 +128,9 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
   `foldersNested` for a warning on the Installation screen. New problem `folders-nested`. ADR-042.
 - Verified: domain, config and installer tests; the maintainer's real SteamCMD log shows the warning followed by a
   successful install into `steamcmd\steamapps\common`.
+
+- **0.2.3 published** on 2026-11-13: GitHub Release `v0.2.3` and the bridge server; both `latest.json` serve the
+  same installer (SHA-256 checked after download).
 
 ## Bridge from the old download server
 

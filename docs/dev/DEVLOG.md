@@ -121,6 +121,7 @@ Short notes of each development session, newest last. They help a new session pi
   folder and showed the generic error.
 - Fixed (ADR-042): nested folders are refused when chosen and before installing, the Installation screen warns about
   them, and the SteamCMD warning becomes the new `folders-nested` problem.
+- Published the same day as `v0.2.3` (GitHub and the bridge server).
 
 ## Cautions for future sessions
 
