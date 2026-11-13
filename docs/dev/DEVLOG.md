@@ -110,6 +110,7 @@ Short notes of each development session, newest last. They help a new session pi
   Ultralethal every time the two were together, without a reason; the app now warns about refused mutators, read
   from the log (ADR-041). The maintainer then started the server without Bullet Sponge: Ultralethal was refused
   again, so Bullet Sponge was not the cause.
+- Published on 2026-11-13 as `v0.2.2` (GitHub and the bridge server).
 
 ## Cautions for future sessions
 

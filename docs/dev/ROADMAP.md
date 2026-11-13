@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-12 (0.2.2 in progress).
+> Living document, updated at each step. Last update: 2026-11-13 (0.2.2 published).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -115,6 +115,9 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
 - `logparse` `MutatorList`/`MutatorRefused` and `MutatorName`; runner `Status.RefusedMutators`; warning on the
   Dashboard and in the mutator picker, with the refused ones marked. ADR-041.
 - Verified: parser and runner tests with the real lines, a real log replayed (Ultralethal refused), screen test.
+
+- **0.2.2 published** on 2026-11-13: GitHub Release `v0.2.2` and the bridge server; both `latest.json` serve the
+  same installer (SHA-256 checked after download).
 
 ## Bridge from the old download server
 
