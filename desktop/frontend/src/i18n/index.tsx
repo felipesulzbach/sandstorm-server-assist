@@ -1,6 +1,7 @@
 // Idiomas da tela (ADR-009). O inglês é a referência: os outros arquivos têm o mesmo formato (o TypeScript acusa
 // chave faltando). Sem biblioteca externa: t('chave.com.pontos', { param }) troca {param} no texto.
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { I18nCtx, type I18nValue, type Params } from './context';
 import { enUS, type Messages } from './locales/en-US';
 import { ptPT } from './locales/pt-PT';
 import { esES } from './locales/es-ES';
@@ -25,7 +26,7 @@ export const MESSAGES: Record<Lang, Messages> = {
   uk,
 };
 
-export type Params = Record<string, string | number>;
+export type { Params };
 
 /** Busca um valor pelo caminho com pontos ("server.tabs.general"). */
 export function lookup(messages: unknown, key: string): unknown {
@@ -70,16 +71,16 @@ export function isLang(v: string | null | undefined): v is Lang {
   return LANGUAGES.some((l) => l.id === v);
 }
 
-interface I18n {
-  lang: Lang;
-  setLang: (l: Lang) => void;
-  t: (key: string, params?: Params) => string;
-  tl: (key: string, params?: Params) => string[];
-  /** Data e hora no formato do idioma. */
-  date: (d: Date | string) => string;
-}
+type I18n = I18nValue<Lang>;
 
-const Ctx = createContext<I18n | null>(null);
+/** Fora do provedor (não deveria acontecer): inglês, sem trocar idioma. A tela de erro nunca quebra por isso. */
+const FALLBACK: I18n = {
+  lang: 'en-US',
+  setLang: () => {},
+  t: (key, params) => translate('en-US', key, params),
+  tl: (key, params) => translateList('en-US', key, params),
+  date: (d) => String(d),
+};
 
 export function I18nProvider({ initial, children }: { initial: Lang; children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(initial);
@@ -101,11 +102,9 @@ export function I18nProvider({ initial, children }: { initial: Lang; children: R
     }),
     [lang, setLang],
   );
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  return <I18nCtx.Provider value={value as I18nValue}>{children}</I18nCtx.Provider>;
 }
 
 export function useI18n(): I18n {
-  const v = useContext(Ctx);
-  if (!v) throw new Error('useI18n fora do I18nProvider');
-  return v;
+  return (useContext(I18nCtx) as I18n | null) ?? FALLBACK;
 }

@@ -1,13 +1,21 @@
 import { useEffect, useState } from 'react';
-import { Check, Circle, Loader2, Play, RotateCw, Square } from 'lucide-react';
+import { Check, Circle, Loader2, Play, RotateCw, Server, Square } from 'lucide-react';
 import type { PageId } from '../../App';
 import { useI18n } from '../../i18n';
 import { backend, type Connect, type Status, type Step } from '../../shared/backend';
 import { CopyButton, ErrorCard, PageHead } from '../../shared/components';
 import { useAction } from '../../shared/hooks';
+import { useServers } from '../../shared/servers';
 import { useLogs } from '../logs/LogDrawer';
 import { MapChangeCard } from './MapChangeCard';
 import { PlayersCard } from './PlayersCard';
+import { ServersCard } from './ServersCard';
+
+// Fases com o servidor rodando ou esperando a vez (o que Parar alcança).
+const ACTIVE = ['waiting', 'starting', 'modio', 'mods', 'traveling', 'ready'];
+
+// Fases com processo do servidor rodando (o que Reiniciar alcança).
+const RUNNING = ['starting', 'modio', 'mods', 'traveling', 'ready'];
 
 // Ordem das fases para a linha do tempo.
 const ORDER = ['starting', 'modio', 'mods', 'traveling', 'ready'];
@@ -25,6 +33,31 @@ export function DashboardPage({ go, status }: { go: (p: PageId) => void; status:
   const action = useAction();
   const [connect, setConnect] = useState<Connect | null>(null);
   const [steps, setSteps] = useState<Step[]>([]);
+
+  const servers = useServers();
+  // Com vários servidores, o botão principal age nos marcados na lista (ADR-048): Iniciar inicia os parados, Parar
+  // para os que rodam. Sem nenhum marcado nesse estado, age no servidor mostrado.
+  const multi = servers.list.length > 1;
+  const phaseOf = (id: string) => servers.list.find((s) => s.id === id)?.phase ?? '';
+  const toStart = multi
+    ? servers.checked.filter((id) => ['stopped', 'crashed'].includes(phaseOf(id)))
+    : [];
+  const toStop = multi ? servers.checked.filter((id) => ACTIVE.includes(phaseOf(id))) : [];
+  const startMain = () => (toStart.length > 0 ? backend.startServers(toStart) : backend.start());
+  const stopMain = () => (toStop.length > 0 ? backend.stopServers(toStop) : backend.stop());
+  // Reiniciar alcança os marcados que rodam de fato (com processo), não os que só esperam a vez.
+  const toRestart = multi ? servers.checked.filter((id) => RUNNING.includes(phaseOf(id))) : [];
+  const restartMain = () =>
+    toRestart.length > 0 ? backend.restartServers(toRestart) : backend.restart();
+
+  // Vários marcados: "Iniciar servidores (N)"; um só que não é o mostrado: o nome dele.
+  const label = (ids: string[], one: string, many: string, other: string) => {
+    if (ids.length > 1) return t(many, { n: ids.length });
+    if (ids.length === 1 && ids[0] !== servers.selected) {
+      return t(other, { name: servers.list.find((s) => s.id === ids[0])?.name ?? '' });
+    }
+    return t(one);
+  };
 
   const phase = status?.phase ?? 'stopped';
   const running = (status?.pids?.length ?? 0) > 0;
@@ -50,6 +83,7 @@ export function DashboardPage({ go, status }: { go: (p: PageId) => void; status:
   return (
     <div className="page">
       <PageHead title={t('dashboard.title')} subtitle={t('dashboard.subtitle')} />
+      <ServersCard go={go} />
 
       {action.error && (
         <ErrorCard
@@ -64,6 +98,15 @@ export function DashboardPage({ go, status }: { go: (p: PageId) => void; status:
 
       <div className="grid grid--2">
         <section className="card status">
+          {/* Com vários servidores, o cartão diz de qual servidor é o estado (o mostrado, ADR-048). */}
+          {servers.list.length > 1 && (
+            <p className="status__server">
+              <Server size={14} aria-hidden />
+              {t('dashboard.statusOf', {
+                name: servers.list.find((s) => s.id === servers.selected)?.name ?? '',
+              })}
+            </p>
+          )}
           <div className={`status__phase status__phase--${phase}`}>
             {busy ? (
               <Loader2 className="spin" size={22} aria-hidden />
@@ -81,11 +124,11 @@ export function DashboardPage({ go, status }: { go: (p: PageId) => void; status:
               <button
                 type="button"
                 className="btn btn--primary btn--large"
-                disabled={action.busy || phase === 'not-installed'}
-                onClick={() => action.run(backend.start)}
+                disabled={action.busy || (phase === 'not-installed' && toStart.length === 0)}
+                onClick={() => action.run(startMain)}
               >
                 <Play size={18} aria-hidden />
-                {t('dashboard.start')}
+                {label(toStart, 'dashboard.start', 'dashboard.startMany', 'dashboard.startOne')}
               </button>
             ) : (
               <>
@@ -93,19 +136,24 @@ export function DashboardPage({ go, status }: { go: (p: PageId) => void; status:
                   type="button"
                   className="btn btn--danger btn--large"
                   disabled={action.busy || phase === 'stopping'}
-                  onClick={() => action.run(backend.stop)}
+                  onClick={() => action.run(stopMain)}
                 >
                   <Square size={16} aria-hidden />
-                  {t('dashboard.stop')}
+                  {label(toStop, 'dashboard.stop', 'dashboard.stopMany', 'dashboard.stopOne')}
                 </button>
                 <button
                   type="button"
                   className="btn btn--large"
                   disabled={action.busy || phase === 'stopping'}
-                  onClick={() => action.run(backend.restart)}
+                  onClick={() => action.run(restartMain)}
                 >
                   <RotateCw size={16} aria-hidden />
-                  {t('dashboard.restart')}
+                  {label(
+                    toRestart,
+                    'dashboard.restart',
+                    'dashboard.restartMany',
+                    'dashboard.restartOne',
+                  )}
                 </button>
               </>
             )}

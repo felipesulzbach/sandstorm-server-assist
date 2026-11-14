@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Plus, RotateCcw, Save, ServerCog, Trash2 } from 'lucide-react';
 import { useI18n } from '../../i18n';
-import { backend, type MapsInfo, type Profile, type SecretKey } from '../../shared/backend';
+import {
+  backend,
+  type MapsInfo,
+  type PortConflict,
+  type Profile,
+  type SecretKey,
+} from '../../shared/backend';
 import { ErrorCard, Field, Guide, PageHead, SecretField } from '../../shared/components';
 import { useAction } from '../../shared/hooks';
 import { fieldError, toAppError } from '../../shared/problem';
@@ -14,6 +20,13 @@ import { BindIpField, FirewallCard } from './NetworkExtras';
 import { PortCheck } from './PortCheck';
 import { ProfileBar } from './ProfileBar';
 import { RulesTab } from './RulesTab';
+
+// Rótulo de cada campo de porta (aviso de porta usada por outro servidor).
+const PORT_LABELS: Record<string, string> = {
+  port: 'server.port',
+  queryPort: 'server.queryPort',
+  rconPort: 'server.secrets.rconPort',
+};
 
 type Tab =
   'general' | 'maps' | 'rules' | 'admins' | 'secrets' | 'network' | 'messages' | 'automation';
@@ -36,6 +49,7 @@ export function ServerPage() {
   const [maps, setMaps] = useState<MapsInfo | null>(null);
   const [okAt, setOkAt] = useState(0);
   const [syncedAt, setSyncedAt] = useState(0);
+  const [conflicts, setConflicts] = useState<PortConflict[]>([]);
   const action = useAction();
   const sync = useExistingSync((r) => {
     setSaved(r.profile);
@@ -53,6 +67,15 @@ export function ServerPage() {
       .then(setMaps)
       .catch(() => {});
   }, []);
+
+  // Portas que outro servidor do app também usa (ADR-048), do perfil salvo.
+  useEffect(() => {
+    if (!saved) return;
+    backend
+      .portConflicts()
+      .then((c) => setConflicts(c ?? []))
+      .catch(() => {});
+  }, [saved]);
 
   const dirty = useMemo(() => JSON.stringify(saved) !== JSON.stringify(form), [saved, form]);
   if (!form) return null;
@@ -174,14 +197,7 @@ export function ServerPage() {
         </button>
       </PageHead>
 
-      <ProfileBar
-        dirty={dirty}
-        onSwitched={(p) => {
-          setSaved(p);
-          setForm(p);
-          setSyncedAt(Date.now());
-        }}
-      />
+      <ProfileBar dirty={dirty} />
       <FreshStart
         checkKey={form.serverDir ?? ''}
         onDone={(p) => {
@@ -266,6 +282,38 @@ export function ServerPage() {
                 onChange={(e) => set('queryPort', Number(e.target.value))}
               />
             </Field>
+            {conflicts.length > 0 && (
+              <div className="field--wide portwarn" role="status">
+                <span className="hint hint--warn">{t('servers.conflictsText')}</span>
+                <ul className="hint">
+                  {conflicts.map((c) => (
+                    <li key={c.field}>
+                      {t(c.server ? 'servers.conflictLine' : 'servers.conflictOther', {
+                        field: t(PORT_LABELS[c.field] ?? 'server.port'),
+                        port: c.port,
+                        server: c.server,
+                      })}
+                    </li>
+                  ))}
+                </ul>
+                <div className="row row--wrap">
+                  <button
+                    type="button"
+                    className="btn btn--small"
+                    disabled={action.busy}
+                    onClick={async () => {
+                      const ports = await action.run(() => backend.freePorts());
+                      if (ports && ports.length === 3) {
+                        patch({ port: ports[0], queryPort: ports[1], rconPort: ports[2] });
+                      }
+                    }}
+                  >
+                    {t('servers.freePorts')}
+                  </button>
+                  <span className="hint">{t('servers.freePortsHint')}</span>
+                </div>
+              </div>
+            )}
             <label className="check check--block field--wide">
               <input
                 type="checkbox"

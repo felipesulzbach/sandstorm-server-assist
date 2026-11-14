@@ -126,6 +126,21 @@ The game server keeps running if you close the app. When you open the app again,
 While it runs you can **change the map**, open the **players panel** (kick, ban, message everyone) and read the
 **Logs** (the drawer at the bottom; passwords and tokens are masked).
 
+### Several servers
+
+You can run more than one server on the same PC, from the same server install.
+
+1. In **Server**, click **New server** (tick **Copy the current server** to start from its settings). The new
+   server gets free ports and its own config files and logs.
+2. The selector at the top chooses which server the Dashboard, Server, Mods and Logs show. You can switch while
+   servers are running.
+3. The **Servers** list on the Dashboard starts and stops each one. Tick several (or **Select all**) and click
+   **Start servers**, **Stop servers** or **Restart servers** to act on all of them at once.
+
+Each server has its own passwords, GSLT token (Steam accepts a token on one server at a time) and Discord webhook.
+The mod.io account and the downloaded mods are shared: a server that uses mods waits while another one is starting
+or loading mods. Open the new ports on the router too (section 5).
+
 ## 7. Backup
 
 Open **Backup** to create one file, protected by a password, with your settings, secrets and server config files.

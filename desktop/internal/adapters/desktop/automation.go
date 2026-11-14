@@ -4,7 +4,10 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 
 	"sandstorm-server-assist/desktop/internal/adapters/fsx"
 	"sandstorm-server-assist/desktop/internal/adapters/modio"
@@ -19,31 +22,38 @@ import (
 
 // ---- automação (ADR-022) ----
 
-// tickAutomation roda a cada segundo: avisos do Discord quando a fase muda, mensagens programadas e reinício
-// automático.
-func (a *app) tickAutomation() {
-	st := a.runner.Status()
-	prev := a.lastPhase
-	a.lastPhase = st.Phase
+// tickAutomation roda a cada segundo para cada servidor: avisos do Discord quando a fase muda, mensagens
+// programadas e reinício automático.
+func (a *app) tickAutomation(s *srv) {
+	st := s.runner.Status()
+	prev := s.lastPhase
+	s.lastPhase = st.Phase
 	if prev != "" && prev != st.Phase {
 		switch {
 		case st.Phase == runner.Ready && prev != runner.Ready:
-			a.notify.Event(notify.Ready, st.Map, "")
+			s.notify.Event(notify.Ready, st.Map, "")
 		case st.Phase == runner.Crashed:
-			a.notify.Event(notify.Crashed, st.Map, "")
-		case st.Phase == runner.Stopped && prev != runner.NotInstalled:
-			a.notify.Event(notify.Stopped, st.Map, "")
+			s.notify.Event(notify.Crashed, st.Map, "")
+		case st.Phase == runner.Stopped && prev != runner.NotInstalled && prev != runner.Waiting:
+			s.notify.Event(notify.Stopped, st.Map, "")
 		}
 	}
-	a.chat.Tick(st.Phase == runner.Ready)
-	a.watch.Tick()
+	s.chat.Tick(st.Phase == runner.Ready)
+	s.watch.Tick()
 }
 
-// updateServer atualiza o servidor pelo SteamCMD (reinício diário) e espera terminar.
-func (a *app) updateServer() error {
-	p := a.cfg.Profile()
+// updateServer atualiza a instalação do servidor id pelo SteamCMD (reinício diário) e espera terminar. Com outro
+// servidor da mesma instalação rodando, não atualiza (os arquivos estão em uso, ADR-048).
+func (a *app) updateServer(id string) error {
+	p, _, err := a.cfg.CurrentOf(id)
+	if err != nil {
+		return err
+	}
 	if p.SteamCMDDir == "" || p.ServerDir == "" {
 		return problems.New(problems.ServerUpdateFailed, "SteamCMD folder not set")
+	}
+	if err := a.installRunning(p.ServerDir, id); err != nil {
+		return err
 	}
 	if err := a.install.Install(p.SteamCMDDir, p.ServerDir, false); err != nil {
 		return err
@@ -59,22 +69,50 @@ func (a *app) updateServer() error {
 	if st := a.install.State(); st.Error != nil {
 		return st.Error
 	}
-	a.log.Add("app", "Server updated by SteamCMD", "info")
+	a.logAll("app", "Server updated by SteamCMD", "info")
 	return nil
 }
 
-// autoStartServer inicia o servidor quando o Windows abriu o app e o usuário pediu (ADR-022).
+// installRunning diz (com o problema "outros servidores rodando") se algum servidor da instalação dir, menos
+// except, está rodando: atualizar a instalação troca arquivos em uso.
+func (a *app) installRunning(dir, except string) error {
+	var names []string
+	for _, s := range a.running(except) {
+		if p, _, err := a.cfg.CurrentOf(s.id); err == nil && sameFolder(p.ServerDir, dir) {
+			names = append(names, a.cfg.Name(s.id))
+		}
+	}
+	if len(names) == 0 {
+		return nil
+	}
+	e := problems.New(problems.OthersRunning, "")
+	e.Params = map[string]string{"servers": strings.Join(names, ", ")}
+	return e
+}
+
+// sameFolder compara duas pastas do Windows.
+func sameFolder(a, b string) bool {
+	return a != "" && b != "" && strings.EqualFold(filepath.Clean(a), filepath.Clean(b))
+}
+
+// autoStartServer inicia os servidores quando o Windows abriu o app e o usuário pediu (ADR-022). Com vários, inicia
+// todos em ordem; os que usam mods esperam a vez (ADR-048), e um com as portas de outro já rodando fica parado.
 func (a *app) autoStartServer() {
 	if !a.autostart || !a.cfg.Settings().AutoStartServer {
 		return
 	}
 	go func() {
 		time.Sleep(5 * time.Second)
-		if a.runner.Status().Phase != runner.Stopped || a.install.Busy() {
+		if a.install.Busy() {
 			return
 		}
-		if err := a.runner.Start(); err != nil {
-			a.log.Add("app", "Automatic start with Windows failed: "+err.Error(), "warning")
+		for _, s := range a.all() {
+			if s.runner.Status().Phase != runner.Stopped {
+				continue
+			}
+			if err := s.runner.Start(); err != nil {
+				s.log.Add("app", "Automatic start with Windows failed: "+err.Error(), "warning")
+			}
 		}
 	}()
 }
@@ -106,22 +144,22 @@ func FirewallHelper() int {
 
 // ---- jogadores (RCON) ----
 
-// Players pede a lista de jogadores e de banidos ao servidor ligado.
-func (s *ServerAPI) Players() (players.View, error) { return s.a.players.Refresh() }
+// Players pede a lista de jogadores e de banidos ao servidor escolhido.
+func (s *ServerAPI) Players() (players.View, error) { return s.a.sel().players.Refresh() }
 
 // Kick expulsa um jogador da última lista (a tela manda o net ID da lista e o motivo).
-func (s *ServerAPI) Kick(netID, reason string) error { return s.a.players.Kick(netID, reason) }
+func (s *ServerAPI) Kick(netID, reason string) error { return s.a.sel().players.Kick(netID, reason) }
 
 // Ban bane um jogador da última lista (minutes 0 = permanente).
 func (s *ServerAPI) Ban(netID string, minutes int, reason string) error {
-	return s.a.players.Ban(netID, minutes, reason)
+	return s.a.sel().players.Ban(netID, minutes, reason)
 }
 
 // Unban tira um banimento da última lista de banidos.
-func (s *ServerAPI) Unban(netID string) error { return s.a.players.Unban(netID) }
+func (s *ServerAPI) Unban(netID string) error { return s.a.sel().players.Unban(netID) }
 
 // Say manda uma mensagem a todos no chat.
-func (s *ServerAPI) Say(text string) error { return s.a.players.Say(text) }
+func (s *ServerAPI) Say(text string) error { return s.a.sel().players.Say(text) }
 
 // AutomationInfo é o que a aba Automação mostra.
 type AutomationInfo struct {
@@ -133,12 +171,15 @@ type AutomationInfo struct {
 // Automation devolve o próximo reinício diário e o que falta para os avisos e a atualização.
 func (s *ServerAPI) Automation() AutomationInfo {
 	sec, _ := s.a.cfg.SecretsState()
-	return AutomationInfo{NextRestart: s.a.watch.Next(), HasWebhook: sec["discordWebhook"],
+	return AutomationInfo{NextRestart: s.a.sel().watch.Next(), HasWebhook: sec["discordWebhook"],
 		HasSteamCMD: s.a.cfg.Profile().SteamCMDDir != ""}
 }
 
 // TestDiscord manda um aviso de teste para o webhook.
-func (s *ServerAPI) TestDiscord() error { return s.a.notify.Test(s.a.runner.Status().Map) }
+func (s *ServerAPI) TestDiscord() error {
+	sv := s.a.sel()
+	return sv.notify.Test(sv.runner.Status().Map)
+}
 
 // ---- catálogos e perfis ----
 
@@ -231,12 +272,20 @@ func (c *ConfigAPI) MoveMapCycleGroup(lines []string, index int, up bool) []stri
 // LocalAddresses lista os IPv4 desta máquina (escolha da placa de rede do servidor, -MultiHome).
 func (c *ConfigAPI) LocalAddresses() []winsys.Address { return winsys.LocalAddresses() }
 
-// Profiles lista os perfis guardados.
+// Profiles lista os servidores (ADR-048; antes perfis).
 func (c *ConfigAPI) Profiles() []config.ProfileRef { return c.a.cfg.Profiles() }
 
-// CreateProfile guarda um perfil novo (cópia do atual ou padrão).
+// CreateProfile guarda um servidor novo (cópia do escolhido ou padrão), com portas livres, e passa a editá-lo.
 func (c *ConfigAPI) CreateProfile(name string, copyCurrent bool) ([]config.ProfileRef, error) {
-	return c.a.cfg.CreateProfile(name, copyCurrent)
+	refs, id, err := c.a.cfg.CreateProfile(name, copyCurrent, portBusy)
+	if err != nil {
+		return refs, err
+	}
+	c.a.server(id)
+	if _, err := c.a.cfg.SwitchProfile(id); err != nil {
+		return refs, err
+	}
+	return c.a.cfg.Profiles(), nil
 }
 
 // RenameProfile troca o nome de um perfil.
@@ -244,20 +293,57 @@ func (c *ConfigAPI) RenameProfile(id, name string) ([]config.ProfileRef, error) 
 	return c.a.cfg.RenameProfile(id, name)
 }
 
-// DeleteProfile apaga um perfil guardado.
+// DeleteProfile apaga um servidor que não é o escolhido, parado (os arquivos dele na pasta do servidor ficam).
 func (c *ConfigAPI) DeleteProfile(id string) ([]config.ProfileRef, error) {
-	return c.a.cfg.DeleteProfile(id)
+	if s := c.a.server(id); s != nil {
+		if st := s.runner.Status(); len(st.PIDs) > 0 || st.Phase == runner.Waiting {
+			return c.a.cfg.Profiles(), problems.New(problems.ServerRunning, "")
+		}
+	}
+	refs, err := c.a.cfg.DeleteProfile(id)
+	c.a.all()
+	return refs, err
 }
 
-// SwitchProfile passa a usar outro perfil (só com o servidor parado).
+// SwitchProfile escolhe o servidor que as telas editam (também com servidores rodando, ADR-048).
 func (c *ConfigAPI) SwitchProfile(id string) (server.Profile, error) {
-	if len(c.a.runner.Status().PIDs) > 0 {
-		return c.a.cfg.Profile(), problems.New(problems.ServerRunning, "")
+	p, err := c.a.cfg.SwitchProfile(id)
+	if err == nil {
+		if s := c.a.server(id); s != nil && c.a.ctx != nil {
+			runtime.EventsEmit(c.a.ctx, "server:status", s.runner.Status())
+		}
 	}
-	if c.a.install.Busy() {
-		return c.a.cfg.Profile(), problems.New(problems.Busy, "")
+	return p, err
+}
+
+// PortConflicts lista as portas do servidor escolhido que outro servidor também usa e, com ele parado, as que outro
+// programa do PC ocupa (Server vazio).
+func (c *ConfigAPI) PortConflicts() []server.PortConflict {
+	p := c.a.cfg.Profile()
+	out := server.PortConflicts(p, c.a.cfg.Peers(c.a.cfg.SelectedID()))
+	if st := c.a.sel().runner.Status(); len(st.PIDs) == 0 && st.Phase != runner.Waiting {
+		taken := map[string]bool{}
+		for _, x := range out {
+			taken[x.Field] = true
+		}
+		for _, b := range server.BusyPorts(p, portBusy) {
+			if !taken[b.Field] {
+				out = append(out, b)
+			}
+		}
 	}
-	return c.a.cfg.SwitchProfile(id)
+	return out
+}
+
+// FreePorts sugere portas de jogo, consulta e RCON que nenhum outro servidor usa (a tela põe nos campos; o usuário
+// salva).
+func (c *ConfigAPI) FreePorts() []int {
+	var others []server.Profile
+	for _, p := range c.a.cfg.Peers(c.a.cfg.SelectedID()) {
+		others = append(others, p.Profile)
+	}
+	port, query, rcon := server.FreePorts(others, portBusy)
+	return []int{port, query, rcon}
 }
 
 // ---- Windows ----
@@ -304,7 +390,7 @@ func (s *SystemAPI) CreateFirewallRule() (FirewallInfo, error) {
 		}
 		return s.Firewall(), problems.Wrap(problems.FirewallFailed, err)
 	}
-	s.a.log.Add("app", "Windows Firewall rules created for the server", "info")
+	s.a.sel().log.Add("app", "Windows Firewall rules created for the server", "info")
 	return s.Firewall(), nil
 }
 
@@ -330,6 +416,7 @@ func (c *ConfigAPI) DefaultMapCycle() CycleDefault {
 	if out.Lines == nil {
 		out.Lines = []string{}
 	}
-	out.ServerHasFile = p.ServerDir != "" && fsx.Exists(filepath.Join(p.ServerDir, config.MapCycleTxt))
+	out.ServerHasFile = p.ServerDir != "" && fsx.Exists(config.FilePath(p, config.Files(p).MapCycle))
+
 	return out
 }

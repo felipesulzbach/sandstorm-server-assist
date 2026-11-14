@@ -33,6 +33,8 @@ const (
 	Ready        Phase = "ready"
 	Stopping     Phase = "stopping"
 	Crashed      Phase = "crashed"
+	// Waiting: pedido para iniciar, esperando outro servidor do app terminar de sincronizar os mods (ADR-048).
+	Waiting Phase = "waiting"
 )
 
 // ModState é a situação de um mod nesta partida.
@@ -46,6 +48,8 @@ type ModState struct {
 
 // Status é o que o painel mostra.
 type Status struct {
+	// Server é o id do servidor (ADR-048).
+	Server           string          `json:"server"`
 	Phase            Phase           `json:"phase"`
 	PIDs             []uint32        `json:"pids"`
 	Since            time.Time       `json:"since"`
@@ -99,6 +103,9 @@ const ServerExe = "InsurgencyServer.exe"
 
 // Deps são as partes do sistema que o runner usa (dublês nos testes).
 type Deps struct {
+	// ID é o id do servidor deste runner (vai no Status).
+	ID string
+	// Find devolve os processos do servidor na pasta (de todas as instâncias; o runner separa os da sua).
 	Find  func(dir string) ([]proc.Process, error)
 	Kill  func(pid uint32) error
 	Start func(exe, cmdline, dir string) error
@@ -106,6 +113,15 @@ type Deps struct {
 	Config func() (server.Profile, server.Secrets, error)
 	// Prepare grava os arquivos de configuração (Admins.txt, MapCycle.txt) antes de iniciar.
 	Prepare func(server.Profile) error
+	// CheckStart confere, antes de iniciar, as portas e o GSLT contra os outros servidores rodando e as portas
+	// ocupadas no Windows (ADR-048). Pode ser nil.
+	CheckStart func(server.Profile, server.Secrets) error
+	// ModsBusy diz se outro servidor do app está iniciando ou sincronizando os mods agora: um servidor com mods
+	// espera (fase Waiting), porque os dois gravariam o mesmo state.json do mod.io (ADR-048). Pode ser nil.
+	ModsBusy func() bool
+	// StartLock é a mesma trava para todos os servidores: entre conferir ModsBusy e passar para "a iniciar", outro
+	// servidor não começa (ADR-048). Pode ser nil.
+	StartLock *sync.Mutex
 	// SessionExpiry devolve o vencimento da sessão do mod.io (zero se não houver).
 	SessionExpiry func() time.Time
 	// ModInfo devolve nome e tamanho final de um mod (state.json) e o tamanho atual da pasta.
@@ -115,8 +131,9 @@ type Deps struct {
 	ModOwners func(object string) []string
 	// InstalledMods devolve os ids dos mods instalados (state.json do mod.io).
 	InstalledMods func() []int
-	// CleanLogs apaga os logs antigos antes de iniciar, se o usuário ligou a limpeza (ADR-018). Pode ser nil.
-	CleanLogs func(serverDir string)
+	// CleanLogs apaga os logs antigos da pasta de logs da instância, se o usuário ligou a limpeza (ADR-018). Pode
+	// ser nil.
+	CleanLogs func(logsDir string)
 	// OnPlayer recebe as entradas e saídas de jogadores lidas no log (mensagens no chat, ADR-020). Pode ser nil.
 	OnPlayer func(logparse.Event)
 	// SaveRun grava (nil apaga) o registro da partida iniciada pelo app; LoadRun o lê (ADR-026). Podem ser nil.
@@ -163,6 +180,20 @@ func New(d Deps) *Service {
 	return &Service{d: d, st: Status{Phase: Stopped}, mods: map[int]*ModState{}, added: map[int]bool{}}
 }
 
+// procs devolve os processos desta instância do servidor (ADR-048): a pasta é compartilhada e a linha de comando
+// (-saveddirsuffix) diz de qual servidor é cada processo.
+func (s *Service) procs(p server.Profile) ([]proc.Process, error) {
+	list, err := s.d.Find(p.ServerDir)
+	n := server.InstanceNumber(p.Instance)
+	out := make([]proc.Process, 0, len(list))
+	for _, pr := range list {
+		if server.InstanceOf(pr.CmdLine) == n {
+			out = append(out, pr)
+		}
+	}
+	return out, err
+}
+
 // SetNotify define quem recebe o estado novo.
 func (s *Service) SetNotify(fn func(Status)) {
 	s.mu.Lock()
@@ -179,6 +210,7 @@ func (s *Service) Status() Status {
 
 func (s *Service) snapshot() Status {
 	st := s.st
+	st.Server = s.d.ID
 	st.PIDs = append([]uint32(nil), s.st.PIDs...)
 	st.Mods = make([]ModState, 0, len(s.mods))
 	for _, m := range s.mods {
@@ -219,6 +251,10 @@ func (s *Service) Authorize(code string) error {
 }
 
 func (s *Service) start(code string) error {
+	if s.d.StartLock != nil {
+		s.d.StartLock.Lock()
+		defer s.d.StartLock.Unlock()
+	}
 	p, sec, err := s.d.Config()
 	if err != nil {
 		return err
@@ -227,12 +263,25 @@ func (s *Service) start(code string) error {
 	if p.ServerDir == "" || !fileExists(exe) {
 		return problems.New(problems.ServerNotInstalled, exe)
 	}
-	if running, _ := s.d.Find(p.ServerDir); len(running) > 0 {
+	if running, _ := s.procs(p); len(running) > 0 {
 		return problems.New(problems.ServerRunning, "")
 	}
 	launch, err := server.BuildLaunch(p, sec, codeOrNone(code))
 	if err != nil {
 		return err
+	}
+	if s.d.CheckStart != nil {
+		if err := s.d.CheckStart(p, sec); err != nil {
+			return err
+		}
+	}
+	if code == "" && p.UseMods && s.d.ModsBusy != nil && s.d.ModsBusy() {
+		s.mu.Lock()
+		s.st = Status{Phase: Waiting, Since: s.d.Now()}
+		s.mu.Unlock()
+		s.log("app", "Another server is starting or syncing mods; this server starts when it is done")
+		s.emitLocked()
+		return nil
 	}
 	if s.d.Prepare != nil {
 		if err := s.d.Prepare(p); err != nil {
@@ -241,7 +290,7 @@ func (s *Service) start(code string) error {
 	}
 
 	s.mu.Lock()
-	s.tail = Tail{Path: logPath(p.ServerDir)}
+	s.tail = Tail{Path: logPath(p)}
 	s.tail.SkipToEnd(0) // o arquivo antigo vira backup; o novo é detectado pela troca de arquivo
 	s.tailInfo, _ = os.Stat(s.tail.Path)
 	s.mods = map[int]*ModState{}
@@ -298,7 +347,7 @@ func (s *Service) Stop() error {
 	if err != nil {
 		return err
 	}
-	list, err := s.d.Find(p.ServerDir)
+	list, err := s.procs(p)
 	if err != nil {
 		return problems.Wrap(problems.ServerStopFailed, err)
 	}
@@ -355,7 +404,7 @@ func (s *Service) waitGone(limit time.Duration) error {
 	}
 	deadline := s.d.Now().Add(limit)
 	for s.d.Now().Before(deadline) {
-		if list, _ := s.d.Find(p.ServerDir); len(list) == 0 {
+		if list, _ := s.procs(p); len(list) == 0 {
 			return nil
 		}
 		time.Sleep(500 * time.Millisecond)
@@ -392,7 +441,10 @@ func (s *Service) Tick() {
 		return
 	}
 	installed := fileExists(filepath.Join(p.ServerDir, ServerExe))
-	list, _ := s.d.Find(p.ServerDir)
+	list, _ := s.procs(p)
+	if s.tickWaiting(len(list) > 0) {
+		return
+	}
 
 	s.mu.Lock()
 	before := s.st.Phase
@@ -433,7 +485,7 @@ func (s *Service) Tick() {
 		if own {
 			s.travelMap = p.TravelMap
 		}
-		s.tail = Tail{Path: logPath(p.ServerDir)}
+		s.tail = Tail{Path: logPath(p)}
 		s.tailInfo, _ = os.Stat(s.tail.Path)
 	case !running && s.st.Phase != Stopped && s.st.Phase != NotInstalled && s.st.Phase != Crashed:
 		if s.stopping || s.st.Phase == Starting && s.authCode == "" && s.d.Now().Sub(s.st.Since) < 2*time.Second {
@@ -464,7 +516,7 @@ func (s *Service) Tick() {
 	s.updateModProgress()
 	s.checkAuthorization()
 	s.checkRemount()
-	s.cleanLogs(p.ServerDir)
+	s.cleanLogs(filepath.Dir(logPath(p)))
 
 	s.mu.Lock()
 	changed := before != s.st.Phase
@@ -742,12 +794,64 @@ func (s *Service) checkAuthorization() {
 	}
 }
 
-func logPath(serverDir string) string {
-	return filepath.Join(serverDir, "Insurgency", "Saved", "Logs", "Insurgency.log")
+// logPath é o log da instância do perfil (Insurgency/Saved_N/Logs nas instâncias 2 em diante, ADR-048).
+func logPath(p server.Profile) string {
+	logs := server.InstanceFiles(p.Instance).LogsDir
+	return filepath.Join(p.ServerDir, filepath.FromSlash(logs), "Insurgency.log")
 }
 
-// LogPath é o caminho do log principal do servidor.
-func LogPath(serverDir string) string { return logPath(serverDir) }
+// LogPath é o caminho do log principal do servidor do perfil.
+func LogPath(p server.Profile) string { return logPath(p) }
+
+// tickWaiting cuida do servidor esperando a vez de sincronizar os mods: inicia quando nenhum outro servidor está
+// nessa fase. Devolve true enquanto o tique não tem mais nada a fazer (esperando, ou acabou de iniciar).
+func (s *Service) tickWaiting(running bool) bool {
+	s.mu.Lock()
+	waiting := s.st.Phase == Waiting
+	s.mu.Unlock()
+	if !waiting {
+		return false
+	}
+	if running {
+		// Alguém iniciou esta instância por fora: o tique normal passa a acompanhar.
+		s.mu.Lock()
+		s.st.Phase = Stopped
+		s.mu.Unlock()
+		return false
+	}
+	if s.d.ModsBusy != nil && s.d.ModsBusy() {
+		return true
+	}
+	s.mu.Lock()
+	s.st.Phase = Stopped
+	s.mu.Unlock()
+	if err := s.start(""); err != nil {
+		s.mu.Lock()
+		s.st.Phase = Stopped
+		if pe, ok := err.(*problems.Error); ok {
+			s.st.Problem = pe
+		} else {
+			s.st.Problem = problems.New(problems.ServerStartFailed, err.Error())
+		}
+		s.mu.Unlock()
+		s.emitLocked()
+		s.log("app", "Start after waiting failed: "+err.Error())
+	}
+	return true
+}
+
+// ModsBusy diz se este servidor está numa fase em que o mod.io pode gravar o state.json: iniciando, mod.io pronto
+// ou montando os mods (com mods ligados), ou esperando a vez. limit é o tempo máximo nessas fases (um servidor
+// preso nelas não segura os outros para sempre).
+func (s *Service) ModsBusy(useMods bool, limit time.Duration) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	switch s.st.Phase {
+	case Starting, Modio, Mods:
+		return (useMods || s.authCode != "") && s.d.Now().Sub(s.st.Since) < limit
+	}
+	return false
+}
 
 // startedAt é a hora de início mais antiga entre os processos do servidor (o lançador abre antes do jogo).
 // Sem hora informada pelo Windows, ou com hora no futuro, usa now.

@@ -38,6 +38,10 @@ export function ExtractSteamID(arg1) {
   return window['go']['desktop']['ConfigAPI']['ExtractSteamID'](arg1);
 }
 
+export function FreePorts() {
+  return window['go']['desktop']['ConfigAPI']['FreePorts']();
+}
+
 export function FreshState() {
   return window['go']['desktop']['ConfigAPI']['FreshState']();
 }
@@ -72,6 +76,10 @@ export function MoveRconToVault() {
 
 export function Mutators() {
   return window['go']['desktop']['ConfigAPI']['Mutators']();
+}
+
+export function PortConflicts() {
+  return window['go']['desktop']['ConfigAPI']['PortConflicts']();
 }
 
 export function Profile() {

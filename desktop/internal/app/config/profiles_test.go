@@ -18,11 +18,11 @@ func TestProfiles(t *testing.T) {
 	if _, err := s.SaveProfile(p); err != nil {
 		t.Fatal(err)
 	}
-	list, err := s.CreateProfile("Versus", false)
+	list, _, err := s.CreateProfile("Versus", false, nil)
 	if err != nil || len(list) != 2 || !list[0].Active || list[1].Name != "Versus" {
 		t.Fatal(list, err)
 	}
-	if _, err := s.CreateProfile("  ", false); err == nil {
+	if _, _, err := s.CreateProfile("  ", false, nil); err == nil {
 		t.Fatal("empty name accepted")
 	}
 	versus := list[1].ID
@@ -30,16 +30,16 @@ func TestProfiles(t *testing.T) {
 	if err != nil || got.Hostname != server.Default().Hostname {
 		t.Fatal(got.Hostname, err)
 	}
-	// Reabre: o perfil em uso e o guardado continuam.
+	// Reabre: o servidor escolhido e o outro continuam, em ordem de instância (não muda ao escolher).
 	again := Open(path, &memVault{})
 	refs := again.Profiles()
-	if refs[0].ID != versus || refs[1].Hostname != "Coop server" {
+	if refs[1].ID != versus || !refs[1].Active || refs[0].Hostname != "Coop server" || refs[0].Instance != 1 || refs[1].Instance != 2 {
 		t.Fatalf("%+v", refs)
 	}
 	if _, err := again.DeleteProfile(versus); err == nil {
 		t.Fatal("deleted the active profile")
 	}
-	if refs, err = again.DeleteProfile(refs[1].ID); err != nil || len(refs) != 1 {
+	if refs, err = again.DeleteProfile(refs[0].ID); err != nil || len(refs) != 1 {
 		t.Fatal(refs, err)
 	}
 	if refs, err = again.RenameProfile(versus, "PvP"); err != nil || refs[0].Name != "PvP" {

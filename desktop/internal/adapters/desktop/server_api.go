@@ -29,26 +29,177 @@ type ServerAPI struct {
 	subscribedAt time.Time
 }
 
-// Status devolve o estado do servidor.
-func (s *ServerAPI) Status() runner.Status { return s.a.runner.Status() }
+// Status devolve o estado do servidor escolhido.
+func (s *ServerAPI) Status() runner.Status { return s.a.sel().runner.Status() }
+
+// Servers devolve a lista de servidores do Painel (estado de cada um; as mudanças chegam pelo "fleet:status").
+func (s *ServerAPI) Servers() []ServerSummary { return s.a.summaries() }
+
+// StartServer inicia um servidor da lista pelo id (o que usa mods espera a vez, ADR-048).
+func (s *ServerAPI) StartServer(id string) error {
+	sv := s.a.server(id)
+	if sv == nil {
+		return problems.Field("server", "validation.unknownField")
+	}
+	if s.a.install.Busy() {
+		return problems.New(problems.Busy, "")
+	}
+	return sv.runner.Start()
+}
+
+// StartServers inicia de uma vez os servidores marcados no Painel (ids), em ordem de instância. Os que já estão
+// rodando ou esperando a vez ficam como estão; os que usam mods esperam a vez um do outro (ADR-048). Um que não
+// inicia não impede os outros: volta o primeiro erro, e cada falha fica no log do servidor.
+func (s *ServerAPI) StartServers(ids []string) error {
+	want, err := s.pick(ids)
+	if err != nil {
+		return err
+	}
+	if s.a.install.Busy() {
+		return problems.New(problems.Busy, "")
+	}
+	var first error
+	for _, sv := range s.a.all() {
+		if !want[sv.id] {
+			continue
+		}
+		if st := sv.runner.Status(); len(st.PIDs) > 0 || st.Phase == runner.Waiting {
+			continue
+		}
+		if err := sv.runner.Start(); err != nil {
+			sv.log.Add("app", "Start failed: "+err.Error(), "warning")
+			if first == nil {
+				first = err
+			}
+		}
+	}
+	return first
+}
+
+// StopServers para de uma vez os servidores marcados no Painel (ids): os que rodam ou esperam a vez. Um que não
+// para não impede os outros: volta o primeiro erro, e cada falha fica no log do servidor.
+func (s *ServerAPI) StopServers(ids []string) error {
+	want, err := s.pick(ids)
+	if err != nil {
+		return err
+	}
+	var first error
+	for _, sv := range s.a.all() {
+		if !want[sv.id] {
+			continue
+		}
+		if st := sv.runner.Status(); len(st.PIDs) == 0 && st.Phase != runner.Waiting {
+			continue
+		}
+		if err := sv.runner.Stop(); err != nil {
+			sv.log.Add("app", "Stop failed: "+err.Error(), "warning")
+			if first == nil {
+				first = err
+			}
+		}
+	}
+	return first
+}
+
+// RestartServers reinicia de uma vez os servidores marcados no Painel que estão rodando: para todos, espera os
+// processos sumirem e inicia de novo em ordem de instância (os que usam mods esperam a vez, ADR-048). Os parados
+// ficam como estão. Volta o primeiro erro, e cada falha fica no log do servidor.
+func (s *ServerAPI) RestartServers(ids []string) error {
+	want, err := s.pick(ids)
+	if err != nil {
+		return err
+	}
+	if s.a.install.Busy() {
+		return problems.New(problems.Busy, "")
+	}
+	var list []*srv
+	for _, sv := range s.a.all() {
+		if want[sv.id] && len(sv.runner.Status().PIDs) > 0 {
+			list = append(list, sv)
+		}
+	}
+	var first error
+	fail := func(sv *srv, what string, err error) {
+		sv.log.Add("app", what+" failed: "+err.Error(), "warning")
+		if first == nil {
+			first = err
+		}
+	}
+	// Para todos antes de esperar: o tempo de fechar corre junto.
+	for _, sv := range list {
+		if err := sv.runner.Stop(); err != nil {
+			fail(sv, "Stop", err)
+		}
+	}
+	var stopped []*srv
+	for _, sv := range list {
+		if err := sv.runner.StopAndWait(); err != nil {
+			fail(sv, "Stop", err)
+			continue
+		}
+		stopped = append(stopped, sv)
+	}
+	for _, sv := range stopped {
+		if err := sv.runner.Start(); err != nil {
+			fail(sv, "Start", err)
+		}
+	}
+	return first
+}
+
+// pick confere os ids marcados na tela: de 1 a MaxProfiles, todos de servidores que existem.
+func (s *ServerAPI) pick(ids []string) (map[string]bool, error) {
+	if len(ids) == 0 || len(ids) > config.MaxProfiles {
+		return nil, problems.Field("servers", "validation.unknownField")
+	}
+	want := map[string]bool{}
+	for _, id := range ids {
+		if s.a.server(id) == nil {
+			return nil, problems.Field("server", "validation.unknownField")
+		}
+		want[id] = true
+	}
+	return want, nil
+}
+
+// StopServer para um servidor da lista pelo id.
+func (s *ServerAPI) StopServer(id string) error {
+	sv := s.a.server(id)
+	if sv == nil {
+		return problems.Field("server", "validation.unknownField")
+	}
+	return sv.runner.Stop()
+}
+
+// RestartServer para e inicia de novo um servidor da lista pelo id.
+func (s *ServerAPI) RestartServer(id string) error {
+	sv := s.a.server(id)
+	if sv == nil {
+		return problems.Field("server", "validation.unknownField")
+	}
+	if s.a.install.Busy() {
+		return problems.New(problems.Busy, "")
+	}
+	return sv.runner.Restart()
+}
 
 // Start inicia o servidor (modo normal, -SecurityCode=none).
 func (s *ServerAPI) Start() error {
 	if s.a.install.Busy() {
 		return problems.New(problems.Busy, "")
 	}
-	return s.a.runner.Start()
+	return s.a.sel().runner.Start()
 }
 
 // Stop encerra o servidor.
-func (s *ServerAPI) Stop() error { return s.a.runner.Stop() }
+func (s *ServerAPI) Stop() error { return s.a.sel().runner.Stop() }
 
 // Restart para e inicia de novo.
 func (s *ServerAPI) Restart() error {
 	if s.a.install.Busy() {
 		return problems.New(problems.Busy, "")
 	}
-	return s.a.runner.Restart()
+	return s.a.sel().runner.Restart()
 }
 
 // Connect é o que os jogadores precisam para entrar.
@@ -71,13 +222,13 @@ func (s *ServerAPI) Connect() Connect {
 // ---- troca de mapa (RCON, ADR-019) ----
 
 // MapChange diz se dá para trocar o mapa pelo app (RCON ligado e com senha).
-func (s *ServerAPI) MapChange() mapchange.Info { return s.a.maps.Info() }
+func (s *ServerAPI) MapChange() mapchange.Info { return s.a.sel().maps.Info() }
 
 // Scenarios pede ao servidor ligado a lista de mapas (inclui os mapas dos mods montados) e junta com os do perfil.
-func (s *ServerAPI) Scenarios() ([]server.Scenario, error) { return s.a.maps.Scenarios() }
+func (s *ServerAPI) Scenarios() ([]server.Scenario, error) { return s.a.sel().maps.Scenarios() }
 
 // ChangeMap troca para um cenário da lista (a tela manda só o id e, se quiser, Day ou Night).
-func (s *ServerAPI) ChangeMap(id, lighting string) error { return s.a.maps.Change(id, lighting) }
+func (s *ServerAPI) ChangeMap(id, lighting string) error { return s.a.sel().maps.Change(id, lighting) }
 
 // ---- diagnóstico de portas feito no PC (ADR-033) ----
 
@@ -98,7 +249,7 @@ func (s *ServerAPI) CheckPorts() netcheck.Result {
 	}
 	return netdiag.Run(s.a.ctx, netdiag.Input{
 		GamePort: p.Port, QueryPort: p.QueryPort, RconPort: p.RconPort, Rcon: p.Rcon,
-		ServerRunning: s.a.runner.Status().Phase == runner.Ready,
+		ServerRunning: s.a.sel().runner.Status().Phase == runner.Ready,
 		LocalIPs:      local, Firewall: fw,
 	})
 }
@@ -167,7 +318,7 @@ func (s *ServerAPI) Mods() ModsView {
 		}
 	}
 	s.mu.Unlock()
-	for _, m := range s.a.runner.Status().Mods {
+	for _, m := range s.a.sel().runner.Status().Mods {
 		r := get(m.ID)
 		r.Live, r.Done = m.State, m.Done
 		if r.Name == "" {
@@ -199,7 +350,7 @@ func (s *ServerAPI) DeleteMod(id int, redownload bool) error {
 
 // DownloadNewMods faz o servidor baixar os mods inscritos que ainda não estão no disco: inicia o servidor, ou
 // reinicia se ele está rodando (ADR-038).
-func (s *ServerAPI) DownloadNewMods() error { return s.a.modFiles.DownloadNew() }
+func (s *ServerAPI) DownloadNewMods() error { return s.a.modNew.DownloadNew() }
 
 // ClearModio apaga, para começar do zero, os mods baixados (mods) e a autorização do servidor no mod.io (session).
 // Servidor parado (ADR-047).
@@ -250,7 +401,7 @@ func (s *ServerAPI) RequestCode() error {
 	if err := modio.New().RequestCode(ctx, key, email); err != nil {
 		return err
 	}
-	s.a.log.Add("app", "mod.io: security code requested by e-mail", "info")
+	s.a.sel().log.Add("app", "mod.io: security code requested by e-mail", "info")
 	return nil
 }
 
@@ -259,7 +410,12 @@ func (s *ServerAPI) Authorize(code string) error {
 	if s.a.install.Busy() {
 		return problems.New(problems.Busy, "")
 	}
-	return s.a.runner.Authorize(code)
+	// A autorização troca a sessão do mod.io de todos os servidores e mexe na fila de mods: só com os outros
+	// parados (ADR-048).
+	if err := s.a.othersRunning(s.a.cfg.SelectedID()); err != nil {
+		return err
+	}
+	return s.a.sel().runner.Authorize(code)
 }
 
 // DetectAPIKey procura a chave de API do mod.io nos logs do próprio servidor e guarda no cofre (ADR-010).
@@ -283,7 +439,7 @@ func findAPIKey(serverDir string) string {
 	if serverDir == "" {
 		return ""
 	}
-	for _, path := range config.LogFiles(serverDir) {
+	for _, path := range config.LogFiles(config.LogsPath(server.Profile{ServerDir: serverDir})) {
 		b, err := fsx.ReadLimited(path, 64<<20)
 		if err != nil {
 			continue

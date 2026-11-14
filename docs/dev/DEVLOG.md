@@ -188,6 +188,32 @@ Short notes of each development session, newest last. They help a new session pi
   Windows folders. They became two more options of the confirmation, off by default.
 - Published the same day as `v0.2.9` (GitHub and the bridge server).
 
+## 2026-11-14 · several servers at once (ADR-048)
+
+- The maintainer chose one shared install, servers running at the same time, a Dashboard list with a selector at
+  the top, and the same mods for every server (the server binary no longer has `-CmdModList`).
+- Read from `InsurgencyServer-Win64-Shipping.exe`: `-saveddirsuffix=`, `AdminList=`, `Motd=`, `ABSLOG=`. A short test
+  instance (approved, primary server stopped, no mods) showed the engine adds `_` to the suffix (`Saved__ssatest`),
+  read its own 2-line MapCycle file and bound only the game and query ports (voice picks 25000-25200 by itself).
+  Both server processes carry the full command line, so the app tells the instances apart by `-saveddirsuffix`.
+- The profiles became servers, each with an instance number, its own secrets and its own services; a server that
+  uses mods waits while another one starts or syncs mods (one `state.json` for all).
+- The server log has Pros SDK tokens in `LogPros` lines; the log mask already hides them (JWT rule of `redact`).
+- Maintainer's review in the dev app: the server selector slid under **New server** (a `min-width` in % counts as 0
+  in the label's width; now 220 px); ticks in the Dashboard list start several servers with **Start servers (N)**;
+  the status card says which server it shows.
+- The dev window went black twice: a changed locale file reloaded `i18n/index.tsx`, which made a new React context;
+  the open screens, and the error screen too, lost the provider and the window lost its Wails link. The context now
+  lives in `i18n/context.ts` and `useI18n` falls back to English instead of throwing.
+- The vault format changed twice during the session (per-server secrets, then `vaultVersion`); the second migration
+  overwrote each server's secrets with the old top level, already emptied by the first. The maintainer's main server
+  lost its GSLT and GameStats tokens (restored from the copy taken before the dev app ran) and its servers started
+  without RCON. `migrateVault` now only fills servers without their own entry. The status card also polls the
+  status every 5 s, after a live reload left it showing "Stopped" for a running server.
+- The third server's RCON still failed: MongoDB listens on `127.0.0.1:27017`, the server opened `0.0.0.0:27017`
+  and local connections went to MongoDB. The port check now also opens 127.0.0.1, free ports skip busy ones, and
+  the Server screen lists ports used by other programs.
+
 ## Cautions for future sessions
 
 - The maintainer's real server folder has secrets in plain text (`Game.ini`, notes next to the `.bat`) and the mod.io

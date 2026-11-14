@@ -41,7 +41,7 @@ describe('FreshStart', () => {
     render(ui(onDone));
     expect(await screen.findByText('The server folder no longer exists.')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: /Start from scratch/ }));
-    expect(screen.getByText(/other 1 profile\(s\) use the same passwords/)).toBeInTheDocument();
+    expect(screen.getByText(/used by your other 1 server\(s\)/)).toBeInTheDocument();
     // Senhas marcadas por padrão; mods e mod.io desmarcados (ficam no Windows, fora da pasta do servidor).
     const [secrets, mods, session] = screen.getAllByRole('checkbox');
     expect(secrets).toBeChecked();

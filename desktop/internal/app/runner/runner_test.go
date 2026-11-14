@@ -30,7 +30,7 @@ func setup(t *testing.T) (*Service, *fakeOS, string) {
 	if err := os.WriteFile(filepath.Join(dir, ServerExe), []byte("x"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.MkdirAll(filepath.Dir(logPath(dir)), 0o700); err != nil {
+	if err := os.MkdirAll(filepath.Dir(logPath(server.Profile{ServerDir: dir})), 0o700); err != nil {
 		t.Fatal(err)
 	}
 	f := &fakeOS{}
@@ -74,7 +74,7 @@ func setup(t *testing.T) (*Service, *fakeOS, string) {
 
 func appendLog(t *testing.T, dir string, lines ...string) {
 	t.Helper()
-	fh, err := os.OpenFile(logPath(dir), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o600)
+	fh, err := os.OpenFile(logPath(server.Profile{ServerDir: dir}), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o600)
 	if err != nil {
 		t.Fatal(err)
 	}

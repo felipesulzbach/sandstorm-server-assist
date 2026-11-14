@@ -70,6 +70,7 @@ export const ptPT: Messages = {
     traveling: 'A carregar o mapa',
     ready: 'Pronto para jogar',
     stopping: 'A parar',
+    waiting: 'À espera do outro servidor',
     crashed: 'Parou inesperadamente',
   },
   phaseHint: {
@@ -81,12 +82,21 @@ export const ptPT: Messages = {
     traveling: 'A mudar para o mapa do mod. Mapas grandes demoram até um minuto.',
     ready: 'Os jogadores já podem entrar.',
     stopping: 'A fechar o servidor.',
+    waiting:
+      'Outro servidor está a arrancar ou a carregar os mods. Este arranca assim que ele terminar.',
     crashed: 'O servidor fechou sozinho. Veja o erro abaixo e os registos.',
   },
   dashboard: {
     title: 'Painel',
     subtitle: 'Arranque o servidor e acompanhe o que está a fazer.',
     start: 'Iniciar servidor',
+    startMany: 'Iniciar servidores ({n})',
+    startOne: 'Iniciar {name}',
+    stopMany: 'Parar servidores ({n})',
+    stopOne: 'Parar {name}',
+    restartMany: 'Reiniciar servidores ({n})',
+    restartOne: 'Reiniciar {name}',
+    statusOf: 'Servidor: {name}',
     stop: 'Parar servidor',
     restart: 'Reiniciar',
     timeline: 'Arranque',
@@ -165,7 +175,8 @@ export const ptPT: Messages = {
     keep: 'Manter as definições',
     confirm: 'As definições voltam ao padrão; as pastas escolhidas ficam. Não dá para desfazer.',
     clearSecrets: 'Apagar também as palavras-passe, tokens e chaves guardados',
-    sharedSecrets: 'Os seus outros {n} perfis usam as mesmas palavras-passe; também as perdem.',
+    sharedSecrets:
+      'O e-mail e a chave de API do mod.io também são usados pelos seus outros {n} servidores; também os perdem. As palavras-passe deles ficam.',
     clearMods: 'Apagar também os {n} mods transferidos',
     clearModsHint:
       'Estão na pasta do mod.io do Windows, não na pasta do servidor. Se o jogo estiver instalado neste PC, pode usar a mesma pasta e perder os mods dele também. O servidor transfere de novo os mods inscritos quando arranca.',
@@ -1373,17 +1384,45 @@ export const ptPT: Messages = {
       },
     },
   },
+  servers: {
+    label: 'Servidor',
+    all: 'Todos os servidores',
+    title: 'Servidores',
+    subtitle:
+      'Todos os servidores deste PC. Podem estar a correr ao mesmo tempo; o mostrado é o que os outros ecrãs editam.',
+    start: 'Iniciar',
+    stop: 'Parar',
+    show: 'Mostrar',
+    shown: 'Mostrado',
+    add: 'Servidor novo',
+    port: 'Porta {port}',
+    external: 'iniciado fora do app',
+    conflict: 'A porta {port} também é usada por {server}: não podem correr ao mesmo tempo.',
+    conflictsText:
+      'Algumas portas deste servidor já estão em uso: por outro servidor do app ou por outro programa deste PC. O servidor não pode correr com uma porta ocupada.',
+    conflictLine: '{field} {port}: também usada por {server}',
+    conflictOther: '{field} {port}: usada por outro programa deste PC',
+    freePorts: 'Usar portas livres',
+    freePortsHint:
+      'Preenche portas de jogo, de consulta e de RCON que nenhum outro servidor usa. Guarde e dê a porta nova aos jogadores.',
+    pick: 'Selecionar {name}',
+    selectAll: 'Selecionar todos',
+    pickHint: 'Marque os servidores que o botão principal abaixo inicia ou para juntos.',
+  },
   profiles: {
-    label: 'Perfil',
-    saveFirst: 'Guarde ou desfaça as mudanças antes de trocar de perfil.',
-    new: 'Perfil novo',
+    label: 'Servidor',
+    saveFirst: 'Guarde ou desfaça as mudanças antes de escolher outro servidor.',
+    new: 'Servidor novo',
     rename: 'Mudar o nome',
     switchHint:
-      'Trocar de perfil exige o servidor parado. As palavras-passe e os tokens são partilhados.',
+      'Cada servidor tem as suas configurações, palavras-passe e portas, e pode correr ao mesmo tempo que os outros. A conta do mod.io e os mods são partilhados.',
     namePlaceholder: 'Exemplo: Coop, Versus',
-    copyCurrent: 'Copiar o perfil atual',
+    copyCurrent: 'Copiar o servidor atual',
+    newHint:
+      'O servidor novo recebe portas livres e ficheiros próprios na pasta do servidor. Uma cópia não leva os tokens GSLT e GameStats: cada servidor precisa dos seus.',
     create: 'Criar',
-    delete: 'Apagar perfil',
+    delete: 'Apagar servidor',
+    deleteRunning: 'Pare o servidor antes de o apagar.',
     deleteYes: 'Apagar',
   },
   players: {
@@ -1486,7 +1525,7 @@ export const ptPT: Messages = {
     netId: 'Este jogador não está na lista. Atualize a lista e tente de novo.',
     banMinutes: 'Escolha uma duração de até {max} minutos.',
     profileName: 'Escreva um nome com 1 a 40 caracteres.',
-    profilesMax: 'Até {max} perfis.',
+    profilesMax: 'Até {max} servidores.',
     motd: 'A mensagem do dia tem até {max} caracteres e nenhum caractere especial.',
     chatMessage: 'A mensagem tem até {max} caracteres, numa linha.',
     chatNeedsRcon: 'Ligue o RCON em Palavras-passe e tokens: o app envia esta mensagem pelo RCON.',
@@ -1593,6 +1632,42 @@ export const ptPT: Messages = {
       solution: [
         'Espere alguns segundos e tente de novo.',
         'Se continuar, feche o InsurgencyServer.exe no Gestor de Tarefas.',
+      ],
+    },
+    'ports-shared': {
+      title: 'Porta usada por outro servidor',
+      what: 'A {portName} ({port}) deste servidor também é usada pelo servidor "{server}", que está a correr.',
+      cause:
+        'Dois servidores no mesmo PC não podem usar a mesma porta de jogo, de consulta ou de RCON.',
+      solution: [
+        'Pare primeiro "{server}".',
+        'Ou, em Servidor › Geral, clique em "Usar portas livres", guarde e dê a porta nova aos jogadores.',
+      ],
+    },
+    'gslt-shared': {
+      title: 'Token GSLT em uso',
+      what: 'O servidor "{server}" está a correr com o mesmo token GSLT.',
+      cause: 'A Steam aceita cada token GSLT num servidor de cada vez.',
+      solution: [
+        'Crie outro token na página da Steam (Servidor › Palavras-passe e tokens › Como obter?) e guarde-o neste servidor.',
+        'Ou pare primeiro "{server}".',
+      ],
+    },
+    'others-running': {
+      title: 'Há outros servidores a correr',
+      what: 'Isto precisa dos outros servidores parados: {servers}.',
+      cause:
+        'Os servidores partilham a pasta de instalação e a conta e os mods do mod.io. Mexer neles com outro servidor a correr pode estragá-lo.',
+      solution: ['Pare esses servidores (Painel › Servidores) e tente de novo.'],
+    },
+    'port-taken': {
+      title: 'Porta usada por outro programa',
+      what: 'A {portName} ({port}) deste servidor já é usada por outro programa deste PC.',
+      cause:
+        'Só um programa pode usar cada porta. Uma base de dados ou outro servidor de jogo pode estar a usá-la.',
+      solution: [
+        'Em Servidor, troque a {portName} por uma porta que nenhum programa use ("Usar portas livres" em Servidor › Geral), guarde e inicie de novo.',
+        'Ou feche o outro programa.',
       ],
     },
     'port-in-use': {

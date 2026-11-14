@@ -134,6 +134,21 @@ acompanha-o.
 Com o servidor ligado pode **trocar o mapa**, abrir o **painel de jogadores** (expulsar, banir, mensagem para todos)
 e ler os **Registos** (a gaveta em baixo; senhas e tokens ficam mascarados).
 
+### Vários servidores
+
+Pode correr mais do que um servidor no mesmo PC, a partir da mesma instalação do servidor.
+
+1. Em **Servidor**, clique em **Servidor novo** (marque **Copiar o servidor atual** para partir das configurações
+   dele). O servidor novo recebe portas livres e ficheiros de configuração e registos próprios.
+2. O seletor no topo escolhe o servidor que o Painel, o Servidor, os Mods e os Registos mostram. Pode trocar com
+   servidores a correr.
+3. A lista **Servidores** do Painel inicia e para cada um. Marque vários (ou **Selecionar todos**) e clique em
+   **Iniciar servidores**, **Parar servidores** ou **Reiniciar servidores** para agir em todos de uma vez.
+
+Cada servidor tem as suas palavras-passe, o seu token GSLT (a Steam aceita um token num servidor de cada vez) e o seu
+webhook do Discord. A conta do mod.io e os mods descarregados são partilhados: um servidor com mods espera enquanto
+outro está a arrancar ou a carregar os mods. Abra também as portas novas no router (secção 5).
+
 ## 7. Cópia de segurança
 
 Abra **Cópia de segurança** para criar um ficheiro, protegido por palavra-passe, com as definições, os segredos e os

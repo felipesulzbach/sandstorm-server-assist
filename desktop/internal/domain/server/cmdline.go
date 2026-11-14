@@ -79,12 +79,7 @@ func BuildLaunch(p Profile, s Secrets, securityCode string) (Launch, error) {
 	if len(p.Mutators) > 0 {
 		args = append(args, "-mutators="+strings.Join(p.Mutators, ","))
 	}
-	if len(p.Admins) > 0 {
-		args = append(args, "-AdminList=Admins")
-	}
-	if len(p.MapCycle) > 0 {
-		args = append(args, "-MapCycle=MapCycle")
-	}
+	args = append(args, instanceArgs(p)...)
 	if p.Rcon && s.RconPassword != "" {
 		args = append(args, "-Rcon", "-RconPassword="+s.RconPassword, "-RconListenPort="+strconv.Itoa(p.RconPort))
 	}

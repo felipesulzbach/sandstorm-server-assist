@@ -716,7 +716,8 @@ code {
 .dot--modio,
 .dot--mods,
 .dot--traveling,
-.dot--stopping {
+.dot--stopping,
+.dot--waiting {
   background: var(--warn);
 }
 
@@ -921,6 +922,16 @@ code {
 }
 
 /* ---- painel ---- */
+.status__server {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+  color: var(--accent);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
 .status__phase {
   display: flex;
   align-items: center;
@@ -1736,6 +1747,68 @@ code {
 .text-ok {
   color: var(--ok);
 }
+/* Vários servidores (ADR-048): seletor no topo e lista no Painel. */
+.serverbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+.serverbar__pick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.serverbar__label {
+  font-weight: 600;
+}
+.serverbar .errorcard {
+  flex-basis: 100%;
+}
+.servers {
+  margin-bottom: 16px;
+}
+.servers__row {
+  grid-template-columns: auto minmax(0, 170px) minmax(0, 1fr) auto;
+}
+.servers__pickrow {
+  margin-bottom: 8px;
+}
+.servers__check {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+.servers__row.is-selected {
+  outline: 1px solid var(--accent);
+}
+.servers__state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.servers__name {
+  display: grid;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.servers__meta {
+  font-size: 12.5px;
+}
+.hint--warn {
+  color: var(--warn);
+}
+.portwarn {
+  display: grid;
+  gap: 6px;
+}
 .profilebar {
   display: grid;
   gap: 8px;
@@ -1745,9 +1818,21 @@ code {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
 }
-.profilebar__pick .select {
-  min-width: min(220px, 100%);
+/* O select fica com a largura do nome (não encolhe por baixo dos botões ao lado). */
+.profilebar__pick .select,
+.serverbar__pick .select {
+  width: auto;
+  max-width: 100%;
+  /* Sem %: um mínimo em % conta como 0 na largura do rótulo, e o select passava por baixo dos botões. */
+  min-width: 220px;
+}
+/* O texto de ajuda vai para a linha de baixo, sem apertar o seletor. */
+.profilebar > .row > .hint {
+  flex-basis: 100%;
 }
 .profilebar__form .input {
   max-width: 280px;

@@ -70,6 +70,7 @@ export const esES: Messages = {
     traveling: 'Cargando el mapa',
     ready: 'Listo para jugar',
     stopping: 'Deteniendo',
+    waiting: 'Esperando al otro servidor',
     crashed: 'Se detuvo inesperadamente',
   },
   phaseHint: {
@@ -81,12 +82,21 @@ export const esES: Messages = {
     traveling: 'Cambiando al mapa del mod. Los mapas grandes tardan hasta un minuto.',
     ready: 'Los jugadores ya pueden entrar.',
     stopping: 'Cerrando el servidor.',
+    waiting:
+      'Otro servidor se está iniciando o cargando los mods. Este se inicia en cuanto termine.',
     crashed: 'El servidor se cerró solo. Mira el error de abajo y los registros.',
   },
   dashboard: {
     title: 'Panel',
     subtitle: 'Inicia tu servidor y sigue lo que está haciendo.',
     start: 'Iniciar servidor',
+    startMany: 'Iniciar servidores ({n})',
+    startOne: 'Iniciar {name}',
+    stopMany: 'Detener servidores ({n})',
+    stopOne: 'Detener {name}',
+    restartMany: 'Reiniciar servidores ({n})',
+    restartOne: 'Reiniciar {name}',
+    statusOf: 'Servidor: {name}',
     stop: 'Detener servidor',
     restart: 'Reiniciar',
     timeline: 'Arranque',
@@ -168,7 +178,8 @@ export const esES: Messages = {
     confirm:
       'Los ajustes vuelven a los valores por defecto; las carpetas elegidas se quedan. No se puede deshacer.',
     clearSecrets: 'Borrar también las contraseñas, tokens y claves guardados',
-    sharedSecrets: 'Tus otros {n} perfiles usan las mismas contraseñas; también las pierden.',
+    sharedSecrets:
+      'El correo y la clave de API de mod.io también los usan tus otros {n} servidores; también los pierden. Sus contraseñas se quedan.',
     clearMods: 'Borrar también los {n} mods descargados',
     clearModsHint:
       'Están en la carpeta de mod.io de Windows, no en la carpeta del servidor. Si el juego está instalado en este PC, puede usar la misma carpeta y perder también sus mods. El servidor vuelve a descargar los mods suscritos al arrancar.',
@@ -1379,17 +1390,45 @@ export const esES: Messages = {
       },
     },
   },
+  servers: {
+    label: 'Servidor',
+    all: 'Todos los servidores',
+    title: 'Servidores',
+    subtitle:
+      'Todos los servidores de este PC. Pueden funcionar a la vez; el que se muestra es el que editan las demás pantallas.',
+    start: 'Iniciar',
+    stop: 'Detener',
+    show: 'Mostrar',
+    shown: 'Mostrado',
+    add: 'Servidor nuevo',
+    port: 'Puerto {port}',
+    external: 'iniciado fuera de la app',
+    conflict: 'El puerto {port} también lo usa {server}: no pueden funcionar a la vez.',
+    conflictsText:
+      'Algunos puertos de este servidor ya están en uso: por otro servidor de la app o por otro programa de este PC. El servidor no puede funcionar con un puerto ocupado.',
+    conflictLine: '{field} {port}: también lo usa {server}',
+    conflictOther: '{field} {port}: lo usa otro programa de este PC',
+    freePorts: 'Usar puertos libres',
+    freePortsHint:
+      'Rellena puertos de juego, de consulta y de RCON que ningún otro servidor usa. Guarda y da el puerto nuevo a los jugadores.',
+    pick: 'Seleccionar {name}',
+    selectAll: 'Seleccionar todos',
+    pickHint: 'Marca los servidores que el botón principal de abajo inicia o detiene juntos.',
+  },
   profiles: {
-    label: 'Perfil',
-    saveFirst: 'Guarda o deshaz los cambios antes de cambiar de perfil.',
-    new: 'Perfil nuevo',
+    label: 'Servidor',
+    saveFirst: 'Guarda o deshaz los cambios antes de elegir otro servidor.',
+    new: 'Servidor nuevo',
     rename: 'Renombrar',
     switchHint:
-      'Cambiar de perfil requiere el servidor detenido. Las contraseñas y los tokens se comparten.',
+      'Cada servidor tiene sus ajustes, contraseñas y puertos, y puede funcionar a la vez que los demás. La cuenta de mod.io y los mods se comparten.',
     namePlaceholder: 'Ejemplo: Coop, Versus',
-    copyCurrent: 'Copiar el perfil actual',
+    copyCurrent: 'Copiar el servidor actual',
+    newHint:
+      'El servidor nuevo recibe puertos libres y archivos propios en la carpeta del servidor. Una copia no lleva los tokens GSLT y GameStats: cada servidor necesita los suyos.',
     create: 'Crear',
-    delete: 'Borrar perfil',
+    delete: 'Borrar servidor',
+    deleteRunning: 'Detén el servidor antes de borrarlo.',
     deleteYes: 'Borrar',
   },
   players: {
@@ -1493,7 +1532,7 @@ export const esES: Messages = {
     netId: 'Este jugador no está en la lista. Actualiza la lista y vuelve a intentarlo.',
     banMinutes: 'Elige una duración de hasta {max} minutos.',
     profileName: 'Escribe un nombre de 1 a 40 caracteres.',
-    profilesMax: 'Hasta {max} perfiles.',
+    profilesMax: 'Hasta {max} servidores.',
     motd: 'El mensaje del día tiene hasta {max} caracteres y ningún carácter especial.',
     chatMessage: 'El mensaje tiene hasta {max} caracteres, en una línea.',
     chatNeedsRcon: 'Activa RCON en Contraseñas y tokens: la app envía este mensaje por RCON.',
@@ -1601,6 +1640,42 @@ export const esES: Messages = {
       solution: [
         'Espera unos segundos y vuelve a intentarlo.',
         'Si sigue igual, cierra InsurgencyServer.exe en el Administrador de tareas.',
+      ],
+    },
+    'ports-shared': {
+      title: 'Puerto usado por otro servidor',
+      what: 'El {portName} ({port}) de este servidor también lo usa el servidor "{server}", que está funcionando.',
+      cause:
+        'Dos servidores en el mismo PC no pueden usar el mismo puerto de juego, de consulta o de RCON.',
+      solution: [
+        'Detén primero "{server}".',
+        'O, en Servidor › General, pulsa "Usar puertos libres", guarda y da el puerto nuevo a los jugadores.',
+      ],
+    },
+    'gslt-shared': {
+      title: 'Token GSLT en uso',
+      what: 'El servidor "{server}" está funcionando con el mismo token GSLT.',
+      cause: 'Steam acepta cada token GSLT en un servidor a la vez.',
+      solution: [
+        'Crea otro token en la página de Steam (Servidor › Contraseñas y tokens › ¿Cómo conseguirlo?) y guárdalo en este servidor.',
+        'O detén primero "{server}".',
+      ],
+    },
+    'others-running': {
+      title: 'Hay otros servidores funcionando',
+      what: 'Esto necesita los demás servidores detenidos: {servers}.',
+      cause:
+        'Los servidores comparten la carpeta de instalación y la cuenta y los mods de mod.io. Cambiarlos con otro servidor funcionando podría romperlo.',
+      solution: ['Detén esos servidores (Panel › Servidores) y vuelve a intentarlo.'],
+    },
+    'port-taken': {
+      title: 'Puerto usado por otro programa',
+      what: 'El {portName} ({port}) de este servidor ya lo usa otro programa de este PC.',
+      cause:
+        'Solo un programa puede usar cada puerto. Puede estar usándolo una base de datos u otro servidor de juego.',
+      solution: [
+        'En Servidor, cambia el {portName} por un puerto que ningún programa use ("Usar puertos libres" en Servidor › General), guarda e inicia de nuevo.',
+        'O cierra el otro programa.',
       ],
     },
     'port-in-use': {

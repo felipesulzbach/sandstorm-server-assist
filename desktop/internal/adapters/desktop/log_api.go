@@ -24,11 +24,11 @@ func (l *LogAPI) Recent(limit int) []logbuf.Line {
 	if limit <= 0 || limit > 6000 {
 		limit = 2000
 	}
-	return l.a.log.Recent(limit)
+	return l.a.sel().log.Recent(limit)
 }
 
 // Clear limpa a lista da tela (não apaga os arquivos de log do servidor).
-func (l *LogAPI) Clear() { l.a.log.Clear() }
+func (l *LogAPI) Clear() { l.a.sel().log.Clear() }
 
 // OpenFolder abre a pasta de logs do servidor no Explorador de Arquivos.
 func (l *LogAPI) OpenFolder() error {
@@ -36,7 +36,7 @@ func (l *LogAPI) OpenFolder() error {
 	if p.ServerDir == "" {
 		return problems.New(problems.ServerNotInstalled, "")
 	}
-	dir := filepath.Dir(runner.LogPath(p.ServerDir))
+	dir := filepath.Dir(runner.LogPath(p))
 	if !fsx.Exists(dir) {
 		return problems.New(problems.ServerNotInstalled, dir)
 	}
@@ -58,12 +58,12 @@ var reFirstTime = regexp.MustCompile(`\[(\d{4}\.\d{2}\.\d{2}-\d{2}\.\d{2}\.\d{2}
 
 // Runs lista as partidas que o servidor guardou, da mais nova para a mais velha.
 func (l *LogAPI) Runs() []LogRun {
-	dir := l.a.cfg.Profile().ServerDir
+	dir := config.LogsPath(l.a.cfg.Profile())
 	files := config.ServerLogs(dir)
 	out := make([]LogRun, 0, len(files))
 	for _, f := range files {
 		r := LogRun{ID: f.Name, Ended: f.ModTime, Size: f.Size, Current: f.Name == serverlogs.Current, Started: f.ModTime}
-		if head, err := fsx.ReadHead(filepath.Join(dir, config.LogsDir, f.Name), 256<<10); err == nil {
+		if head, err := fsx.ReadHead(filepath.Join(dir, f.Name), 256<<10); err == nil {
 			if m := reFirstTime.FindSubmatch(head); m != nil {
 				if t, err := time.ParseInLocation("2006.01.02-15.04.05", string(m[1]), time.UTC); err == nil {
 					r.Started = t.Local()
@@ -81,7 +81,7 @@ const maxRunLines = 6000
 // ReadRun devolve as últimas linhas de uma partida guardada, já mascaradas e classificadas. id precisa ser um
 // dos nomes de Runs (a tela nunca manda caminho).
 func (l *LogAPI) ReadRun(id string) ([]logbuf.Line, error) {
-	dir := l.a.cfg.Profile().ServerDir
+	dir := config.LogsPath(l.a.cfg.Profile())
 	found := false
 	for _, f := range config.ServerLogs(dir) {
 		found = found || f.Name == id
@@ -89,7 +89,7 @@ func (l *LogAPI) ReadRun(id string) ([]logbuf.Line, error) {
 	if !found || !serverlogs.IsServerLog(id) {
 		return nil, problems.New(problems.Unknown, "unknown log")
 	}
-	b, err := fsx.ReadLimited(filepath.Join(dir, config.LogsDir, id), 128<<20)
+	b, err := fsx.ReadLimited(filepath.Join(dir, id), 128<<20)
 	if err != nil {
 		return nil, problems.Wrap(problems.Unknown, err)
 	}
@@ -102,7 +102,7 @@ func (l *LogAPI) ReadRun(id string) ([]logbuf.Line, error) {
 		if strings.TrimSpace(text) == "" {
 			continue
 		}
-		line := l.a.log.Format("server", text, "")
+		line := l.a.sel().log.Format("server", text, "")
 		line.Seq = int64(i + 1)
 		out = append(out, line)
 	}
@@ -124,7 +124,7 @@ type LogCleanup struct {
 
 func (l *LogAPI) cleanup() LogCleanup {
 	st := l.a.cfg.Settings()
-	dir := l.a.cfg.Profile().ServerDir
+	dir := config.LogsPath(l.a.cfg.Profile())
 	c := LogCleanup{Enabled: st.LogCleanup, Keep: st.LogKeep, Min: serverlogs.MinKeep, Max: serverlogs.MaxKeep,
 		Runs: len(config.ServerLogs(dir))}
 	for _, f := range config.OldLogs(dir, st.LogKeep) {
@@ -147,7 +147,7 @@ func (l *LogAPI) SetCleanup(enabled bool, keep int) (LogCleanup, error) {
 
 // CleanOld apaga agora os logs antigos, mantendo as partidas definidas. Nunca apaga o log da partida atual.
 func (l *LogAPI) CleanOld() (LogCleanup, error) {
-	dir := l.a.cfg.Profile().ServerDir
+	dir := config.LogsPath(l.a.cfg.Profile())
 	if dir == "" {
 		return l.cleanup(), problems.New(problems.ServerNotInstalled, "")
 	}
@@ -170,5 +170,5 @@ func (l *LogAPI) ReportScreenError(where, detail string) {
 	if len(text) > maxScreenError {
 		text = text[:maxScreenError]
 	}
-	l.a.log.Add("app", "Screen error: "+strings.ToValidUTF8(text, ""), "error")
+	l.a.sel().log.Add("app", "Screen error: "+strings.ToValidUTF8(text, ""), "error")
 }

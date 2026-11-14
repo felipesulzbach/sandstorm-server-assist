@@ -1,37 +1,29 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Copy, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useI18n } from '../../i18n';
-import { backend, type Profile, type ProfileRef } from '../../shared/backend';
+import { backend } from '../../shared/backend';
 import { ErrorCard } from '../../shared/components';
 import { useAction } from '../../shared/hooks';
+import { useServers } from '../../shared/servers';
+
+// Fases em que o servidor não pode ser apagado (processo rodando ou esperando a vez).
+const ACTIVE = ['waiting', 'starting', 'modio', 'mods', 'traveling', 'ready', 'stopping'];
 
 /**
- * Perfis do servidor (ADR-022): um perfil em uso e outros guardados (ex.: Coop e Versus). Trocar de perfil troca
- * todas as configurações do servidor; os segredos do cofre são os mesmos. Só com o servidor parado.
+ * Servidores (ADR-048, antes perfis do ADR-022): o escolhido é o que esta tela edita. Cada servidor tem as próprias
+ * configurações, senhas e portas e pode rodar junto dos outros; a conta e os mods do mod.io são os mesmos. Um
+ * servidor novo ganha portas livres e passa a ser o escolhido.
  */
-export function ProfileBar({
-  dirty,
-  onSwitched,
-}: {
-  dirty: boolean;
-  onSwitched: (p: Profile) => void;
-}) {
+export function ProfileBar({ dirty }: { dirty: boolean }) {
   const { t } = useI18n();
   const action = useAction();
-  const [list, setList] = useState<ProfileRef[]>([]);
+  const { list, selected, select, refresh } = useServers();
   const [mode, setMode] = useState<'new' | 'rename' | null>(null);
   const [name, setName] = useState('');
   const [copy, setCopy] = useState(true);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  useEffect(() => {
-    backend
-      .profiles()
-      .then(setList)
-      .catch(() => {});
-  }, []);
-
-  const active = list.find((p) => p.active);
+  const active = list.find((p) => p.id === selected);
 
   const submit = async () => {
     const r = await action.run(() =>
@@ -40,24 +32,17 @@ export function ProfileBar({
         : backend.createProfile(name, copy),
     );
     if (r) {
-      setList(r);
       setMode(null);
       setName('');
-    }
-  };
-
-  const switchTo = async (id: string) => {
-    const p = await action.run(() => backend.switchProfile(id));
-    if (p) {
-      onSwitched(p);
-      setList(await backend.profiles());
+      // Servidor novo: passa a ser o escolhido e as telas remontam com ele.
+      await refresh();
     }
   };
 
   const remove = async (id: string) => {
     const r = await action.run(() => backend.deleteProfile(id));
-    if (r) setList(r);
     setConfirmDelete(null);
+    if (r) await refresh();
   };
 
   return (
@@ -67,10 +52,10 @@ export function ProfileBar({
           <span className="field__label">{t('profiles.label')}</span>
           <select
             className="select"
-            value={active?.id ?? ''}
+            value={selected}
             disabled={dirty || action.busy}
             title={dirty ? t('profiles.saveFirst') : undefined}
-            onChange={(e) => switchTo(e.target.value)}
+            onChange={(e) => action.run(() => select(e.target.value))}
           >
             {list.map((p) => (
               <option key={p.id} value={p.id}>
@@ -83,6 +68,8 @@ export function ProfileBar({
         <button
           type="button"
           className="btn btn--small btn--ghost"
+          disabled={dirty}
+          title={dirty ? t('profiles.saveFirst') : undefined}
           onClick={() => {
             setMode('new');
             setName('');
@@ -101,7 +88,7 @@ export function ProfileBar({
         >
           <Pencil size={14} aria-hidden /> {t('profiles.rename')}
         </button>
-        {list.length > 1 && <span className="hint">{t('profiles.switchHint')}</span>}
+        <span className="hint">{t('profiles.switchHint')}</span>
       </div>
 
       {mode && (
@@ -133,17 +120,20 @@ export function ProfileBar({
           <button type="button" className="btn btn--small" onClick={() => setMode(null)}>
             {t('common.cancel')}
           </button>
+          {mode === 'new' && <span className="hint">{t('profiles.newHint')}</span>}
         </div>
       )}
 
       {list.length > 1 && (
         <ul className="list profilebar__others">
           {list
-            .filter((p) => !p.active)
+            .filter((p) => p.id !== selected)
             .map((p) => (
               <li key={p.id} className="list__row">
                 <span>{p.name}</span>
-                <span className="muted">{p.hostname}</span>
+                <span className="muted">
+                  {p.hostname} · {t('servers.port', { port: p.port })}
+                </span>
                 {confirmDelete === p.id ? (
                   <span className="row">
                     <button
@@ -166,7 +156,10 @@ export function ProfileBar({
                     type="button"
                     className="icon-btn"
                     aria-label={t('profiles.delete')}
-                    title={t('profiles.delete')}
+                    title={
+                      ACTIVE.includes(p.phase) ? t('profiles.deleteRunning') : t('profiles.delete')
+                    }
+                    disabled={ACTIVE.includes(p.phase)}
                     onClick={() => setConfirmDelete(p.id)}
                   >
                     <Trash2 size={16} />

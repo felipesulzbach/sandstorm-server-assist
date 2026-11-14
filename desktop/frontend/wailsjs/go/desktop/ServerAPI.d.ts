@@ -45,15 +45,29 @@ export function RequestCode():Promise<void>;
 
 export function Restart():Promise<void>;
 
+export function RestartServer(arg1:string):Promise<void>;
+
+export function RestartServers(arg1:Array<string>):Promise<void>;
+
 export function Say(arg1:string):Promise<void>;
 
 export function Scenarios():Promise<Array<server.Scenario>>;
 
+export function Servers():Promise<Array<desktop.ServerSummary>>;
+
 export function Start():Promise<void>;
+
+export function StartServer(arg1:string):Promise<void>;
+
+export function StartServers(arg1:Array<string>):Promise<void>;
 
 export function Status():Promise<runner.Status>;
 
 export function Stop():Promise<void>;
+
+export function StopServer(arg1:string):Promise<void>;
+
+export function StopServers(arg1:Array<string>):Promise<void>;
 
 export function TestDiscord():Promise<void>;
 

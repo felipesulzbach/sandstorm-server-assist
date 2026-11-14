@@ -56,6 +56,13 @@ const (
 	ReportFailed       = "report-failed"
 	ReportImage        = "report-image"
 	ModDelete          = "mod-delete"
+	// Vários servidores (ADR-048): porta ou GSLT usados por outro servidor do app que está rodando, e ação que
+	// precisa dos outros servidores parados.
+	PortsShared   = "ports-shared"
+	GSLTShared    = "gslt-shared"
+	OthersRunning = "others-running"
+	// PortTaken: uma porta do servidor já está em uso por outro programa do PC (conferido antes de iniciar).
+	PortTaken = "port-taken"
 )
 
 // links de ajuda de cada problema (chaves de links conhecidos, abertos pelo Go).
@@ -79,6 +86,7 @@ var Codes = []string{
 	ConfigWrite, Busy, Canceled, UpdateFailed, ModsNotMounted, LogDelete,
 	RconOff, RconFailed, RconAuth, MapChangeFailed,
 	DiscordFailed, FirewallFailed, AutostartFailed, ServerUpdateFailed, ReportFailed, ReportImage, ModDelete,
+	PortsShared, GSLTShared, OthersRunning, PortTaken,
 }
 
 // Links devolve os links de ajuda de um código.

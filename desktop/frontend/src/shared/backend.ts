@@ -62,6 +62,8 @@ export type CycleMap = server.CycleMap;
 export type CycleDefault = desktop.CycleDefault;
 export type LocalAddress = winsys.Address;
 export type ProfileRef = config.ProfileRef;
+export type ServerSummary = desktop.ServerSummary;
+export type PortConflict = server.PortConflict;
 export type PlayersView = players.View;
 export type Player = admin.Player;
 export type Ban = admin.Ban;
@@ -147,6 +149,8 @@ export const backend = {
   renameProfile: (id: string, name: string) => Cfg.RenameProfile(id, name),
   deleteProfile: (id: string) => Cfg.DeleteProfile(id),
   switchProfile: (id: string) => Cfg.SwitchProfile(id),
+  portConflicts: () => Cfg.PortConflicts(),
+  freePorts: () => Cfg.FreePorts(),
 
   installState: () => Inst.State(),
   installInfo: () => Inst.Info(),
@@ -155,6 +159,13 @@ export const backend = {
   cancelInstall: () => Inst.Cancel(),
 
   status: () => Srv.Status(),
+  servers: () => Srv.Servers(),
+  startServer: (id: string) => Srv.StartServer(id),
+  startServers: (ids: string[]) => Srv.StartServers(ids),
+  stopServers: (ids: string[]) => Srv.StopServers(ids),
+  restartServers: (ids: string[]) => Srv.RestartServers(ids),
+  stopServer: (id: string) => Srv.StopServer(id),
+  restartServer: (id: string) => Srv.RestartServer(id),
   start: () => Srv.Start(),
   stop: () => Srv.Stop(),
   restart: () => Srv.Restart(),
@@ -205,7 +216,7 @@ export const backend = {
 
 /** Assina um evento do Go. Devolve a função que cancela. */
 export function on<T>(
-  event: 'server:status' | 'install:state' | 'log:lines' | 'update:state',
+  event: 'server:status' | 'fleet:status' | 'install:state' | 'log:lines' | 'update:state',
   fn: (v: T) => void,
 ) {
   return EventsOn(event, fn);

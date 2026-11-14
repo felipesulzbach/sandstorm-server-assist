@@ -3,6 +3,31 @@
 All notable changes to Sandstorm Server Assist. Versions follow `MAJOR.MINOR.PATCH`. The GitHub release notes of
 each version come from its section here (`npm run release:publish`).
 
+## [Unreleased]
+
+### Added
+
+- **Several servers at the same time.** Server › **New server** creates another server from the same install (a
+  copy of the current one, or the defaults). Each server gets free ports, its own config files, logs, passwords,
+  GSLT token and Discord webhook, and its own automatic restarts and messages. The Dashboard lists every server
+  with Start and Stop, and a selector at the top chooses the server the screens show; you can switch while servers
+  run. The mod.io account and the downloaded mods are shared, so a server that uses mods waits while another one is
+  starting or loading mods.
+- **Start or stop several servers at once:** tick servers in the Dashboard list (or **Select all**) and the main
+  button becomes **Start servers (N)**, or **Stop servers (N)** and **Restart servers (N)** while the shown server
+  runs. A refused start names
+  the port in use: game, query or RCON.
+
+### Changed
+
+- Profiles are now servers. Existing profiles become servers with the same ports: give one of them other ports
+  (Server › General › **Use free ports**) before running both at once. The mod.io e-mail and API key stay shared;
+  the other passwords and tokens are now per server.
+- A start is refused when another running server uses the same port or GSLT token, or when Windows reports the
+  port taken (also when another program uses it only on 127.0.0.1, like MongoDB on 27017). New servers and
+  **Use free ports** skip ports other programs use. Updating the server install, authorizing mod.io with a code and
+  deleting mods need the other servers stopped.
+
 ## [0.2.9] - 2026-11-14
 
 ### Added

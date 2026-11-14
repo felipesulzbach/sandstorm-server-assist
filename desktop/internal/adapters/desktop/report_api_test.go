@@ -35,7 +35,7 @@ func readZip(t *testing.T, b []byte) map[string]string {
 func TestReportZipScrubsLogAndChecksImage(t *testing.T) {
 	log := logbuf.New(100, func() []string { return []string{"supersecret"} })
 	log.Add("server", "Join from 203.0.113.9 id 76561198000000001 pass supersecret", "info")
-	r := &ReportAPI{a: &app{log: log}}
+	r := &ReportAPI{a: &app{servers: &fleet{byID: map[string]*srv{"x": {id: "x", log: log}}}}}
 
 	png := filepath.Join(t.TempDir(), "shot.png")
 	if err := os.WriteFile(png, []byte("\x89PNG\r\n\x1a\nrest-of-image"), 0o600); err != nil {

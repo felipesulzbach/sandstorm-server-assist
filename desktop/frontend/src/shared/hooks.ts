@@ -1,22 +1,33 @@
 import { useCallback, useEffect, useState } from 'react';
 import { backend, on, type InstallState, type Status } from './backend';
+import { useServers } from './servers';
 import { toAppError, type AppError } from './problem';
 
 /** Estado do servidor (evento "server:status" do Go). */
 export function useServerStatus(): Status | null {
   const [st, setSt] = useState<Status | null>(null);
+  // Só o estado do servidor escolhido (um aviso atrasado de outro servidor não troca a tela, ADR-048).
+  const { selected } = useServers();
   useEffect(() => {
     let alive = true;
-    backend
-      .status()
-      .then((s) => alive && setSt(s))
-      .catch(() => {});
-    const off = on<Status>('server:status', (s) => setSt(s));
+    const mine = (s: Status) => !selected || !s.server || s.server === selected;
+    const load = () =>
+      backend
+        .status()
+        .then((s) => alive && mine(s) && setSt(s))
+        .catch(() => {});
+    void load();
+    const off = on<Status>('server:status', (s) => {
+      if (mine(s)) setSt(s);
+    });
+    // Reserva: se um aviso se perder (a tela recarregada no meio), o estado se acerta sozinho em poucos segundos.
+    const poll = setInterval(load, 5000);
     return () => {
       alive = false;
+      clearInterval(poll);
       off();
     };
-  }, []);
+  }, [selected]);
   return st;
 }
 
@@ -44,7 +55,7 @@ export function useInstallState(): InstallState | null {
 export function useAction() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<AppError | null>(null);
-  const run = useCallback(async <R,>(fn: () => Promise<R>): Promise<R | undefined> => {
+  const run = useCallback(async <R>(fn: () => Promise<R>): Promise<R | undefined> => {
     setBusy(true);
     setError(null);
     try {

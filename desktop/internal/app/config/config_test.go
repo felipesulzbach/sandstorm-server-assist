@@ -11,10 +11,28 @@ import (
 	"sandstorm-server-assist/desktop/internal/domain/server"
 )
 
-type memVault struct{ s server.Secrets }
+type memVault struct{ s server.Vault }
 
-func (m *memVault) Load() (server.Secrets, error) { return m.s, nil }
-func (m *memVault) Save(s server.Secrets) error   { m.s = s; return nil }
+func (m *memVault) Load() (server.Vault, error) { return m.s, nil }
+func (m *memVault) Save(s server.Vault) error   { m.s = s; return nil }
+
+// one devolve os segredos do único servidor guardado no cofre (com os da conta).
+func (m *memVault) one() server.Secrets {
+	for _, sec := range m.s.Servers {
+		return sec.WithAccount(m.s.Secrets)
+	}
+	return m.s.Secrets
+}
+
+// Arquivos do servidor principal (instância 1) nos testes.
+const (
+	GameIni     = `Insurgency\Saved\Config\WindowsServer\Game.ini`
+	EngineIni   = `Insurgency\Saved\Config\WindowsServer\Engine.ini`
+	AdminsTxt   = `Insurgency\Config\Server\Admins.txt`
+	MapCycleTxt = `Insurgency\Config\Server\MapCycle.txt`
+	MotdTxt     = `Insurgency\Config\Server\Motd.txt`
+	LogsDir     = `Insurgency\Saved\Logs`
+)
 
 func TestProfileSettingsAndSecrets(t *testing.T) {
 	dir := t.TempDir()
@@ -51,7 +69,7 @@ func TestProfileSettingsAndSecrets(t *testing.T) {
 		t.Fatal(err)
 	}
 	state, _ := s.SecretsState()
-	if !state["rconPassword"] || state["gsltToken"] || v.s.RconPassword != "boa#Senha1" {
+	if !state["rconPassword"] || state["gsltToken"] || v.one().RconPassword != "boa#Senha1" {
 		t.Errorf("%v %+v", state, v.s)
 	}
 

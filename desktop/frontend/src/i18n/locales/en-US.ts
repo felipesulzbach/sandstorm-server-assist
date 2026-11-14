@@ -69,6 +69,7 @@ export const enUS = {
     traveling: 'Loading the map',
     ready: 'Ready to play',
     stopping: 'Stopping',
+    waiting: 'Waiting for the other server',
     crashed: 'Stopped unexpectedly',
   },
   phaseHint: {
@@ -80,12 +81,20 @@ export const enUS = {
     traveling: 'Changing to the mod map. Big maps take up to a minute.',
     ready: 'Players can join now.',
     stopping: 'Closing the server.',
+    waiting: 'Another server is starting or loading mods. This one starts as soon as it finishes.',
     crashed: 'The server closed by itself. See the error below and the logs.',
   },
   dashboard: {
     title: 'Dashboard',
     subtitle: 'Start your server and follow what it is doing.',
     start: 'Start server',
+    startMany: 'Start servers ({n})',
+    startOne: 'Start {name}',
+    stopMany: 'Stop servers ({n})',
+    stopOne: 'Stop {name}',
+    restartMany: 'Restart servers ({n})',
+    restartOne: 'Restart {name}',
+    statusOf: 'Server: {name}',
     stop: 'Stop server',
     restart: 'Restart',
     timeline: 'Startup',
@@ -166,7 +175,8 @@ export const enUS = {
     confirm:
       'The settings go back to the defaults; the chosen folders stay. This cannot be undone.',
     clearSecrets: 'Also delete the saved passwords, tokens and keys',
-    sharedSecrets: 'Your other {n} profile(s) use the same passwords; they lose them too.',
+    sharedSecrets:
+      'The mod.io e-mail and API key are also used by your other {n} server(s); they lose them too. Their own passwords stay.',
     clearMods: 'Also delete the {n} downloaded mods',
     clearModsHint:
       'They are in the mod.io folder of Windows, not in the server folder. If the game is installed on this PC, it may use the same folder and lose its mods too. The server downloads its subscribed mods again when it starts.',
@@ -1365,16 +1375,45 @@ export const enUS = {
       },
     },
   },
+  servers: {
+    label: 'Server',
+    all: 'All servers',
+    title: 'Servers',
+    subtitle:
+      'Every server on this PC. They can run at the same time; the one shown is the one the other screens edit.',
+    start: 'Start',
+    stop: 'Stop',
+    show: 'Show',
+    shown: 'Shown',
+    add: 'New server',
+    port: 'Port {port}',
+    external: 'started outside the app',
+    conflict: 'Port {port} is also used by {server}: they cannot run at the same time.',
+    conflictsText:
+      'Some ports of this server are already in use: by another server of the app or by another program on this PC. The server cannot run while a port is taken.',
+    conflictLine: '{field} {port}: also used by {server}',
+    conflictOther: '{field} {port}: used by another program on this PC',
+    freePorts: 'Use free ports',
+    freePortsHint:
+      'Fills in game, query and RCON ports that no other server uses. Save, and give the players the new port.',
+    pick: 'Select {name}',
+    selectAll: 'Select all',
+    pickHint: 'Tick servers to start or stop them together with the main button below.',
+  },
   profiles: {
-    label: 'Profile',
-    saveFirst: 'Save or undo the changes before switching profiles.',
-    new: 'New profile',
+    label: 'Server',
+    saveFirst: 'Save or undo the changes before choosing another server.',
+    new: 'New server',
     rename: 'Rename',
-    switchHint: 'Switching profiles needs the server stopped. Passwords and tokens are shared.',
+    switchHint:
+      'Each server has its own settings, passwords and ports, and can run at the same time as the others. The mod.io account and the mods are shared.',
     namePlaceholder: 'Example: Coop, Versus',
-    copyCurrent: 'Copy the current profile',
+    copyCurrent: 'Copy the current server',
+    newHint:
+      'The new server gets free ports and its own files in the server folder. A copy does not take the GSLT and GameStats tokens: each server needs its own.',
     create: 'Create',
-    delete: 'Delete profile',
+    delete: 'Delete server',
+    deleteRunning: 'Stop the server before deleting it.',
     deleteYes: 'Delete',
   },
   players: {
@@ -1477,7 +1516,7 @@ export const enUS = {
     netId: 'This player is not in the list. Refresh the list and try again.',
     banMinutes: 'Choose a duration of up to {max} minutes.',
     profileName: 'Type a name with 1 to 40 characters.',
-    profilesMax: 'Up to {max} profiles.',
+    profilesMax: 'Up to {max} servers.',
     motd: 'The message of the day has up to {max} characters and no special characters.',
     chatMessage: 'The message has up to {max} characters, in one line.',
     chatNeedsRcon: 'Turn on RCON in Passwords & tokens: the app sends this message through RCON.',
@@ -1583,6 +1622,40 @@ export const enUS = {
       solution: [
         'Wait a few seconds and try again.',
         'If it continues, close InsurgencyServer.exe in Task Manager.',
+      ],
+    },
+    'ports-shared': {
+      title: 'Port used by another server',
+      what: 'This server\'s {portName} ({port}) is also used by the server "{server}", which is running.',
+      cause: 'Two servers on the same PC cannot use the same game, query or RCON port.',
+      solution: [
+        'Stop "{server}" first.',
+        'Or, in Server › General, click "Use free ports", save, and give the players the new port.',
+      ],
+    },
+    'gslt-shared': {
+      title: 'GSLT token in use',
+      what: 'The server "{server}" is running with the same GSLT token.',
+      cause: 'Steam accepts each GSLT token on one server at a time.',
+      solution: [
+        'Create another token on the Steam page (Server › Passwords & tokens › How to get it?) and save it in this server.',
+        'Or stop "{server}" first.',
+      ],
+    },
+    'others-running': {
+      title: 'Other servers are running',
+      what: 'This needs the other servers stopped: {servers}.',
+      cause:
+        'The servers share the install folder and the mod.io account and mods. Changing them while another server runs could break it.',
+      solution: ['Stop those servers (Dashboard › Servers) and try again.'],
+    },
+    'port-taken': {
+      title: 'Port used by another program',
+      what: 'The {portName} ({port}) of this server is already used by another program on this PC.',
+      cause: 'Only one program can use a port. A database or another game server may be using it.',
+      solution: [
+        'In Server, change the {portName} to a port no program uses (Use free ports in Server › General), save and start again.',
+        'Or close the other program.',
       ],
     },
     'port-in-use': {

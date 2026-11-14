@@ -18,9 +18,10 @@ type Fresh struct {
 	Offer bool `json:"offer"`
 	// Missing: a pasta guardada não existe mais (foi movida ou apagada).
 	Missing bool `json:"missing"`
-	// HasSecrets: o cofre tem alguma senha, token ou chave.
+	// HasSecrets: o servidor escolhido (ou a conta do mod.io) tem alguma senha, token ou chave no cofre.
 	HasSecrets bool `json:"hasSecrets"`
-	// Others é quantos outros perfis existem (o cofre é o mesmo para todos).
+	// Others é quantos outros servidores existem: eles mantêm as próprias senhas, mas o e-mail e a chave do mod.io
+	// são os mesmos para todos (ADR-048).
 	Others int `json:"others"`
 	// NoServer: há uma pasta escolhida e nela não há servidor instalado.
 	NoServer bool `json:"noServer"`
@@ -32,7 +33,7 @@ const serverExe = "InsurgencyServer.exe"
 // FreshState diz se a tela deve oferecer começar do zero.
 func (s *Service) FreshState() Fresh {
 	s.mu.Lock()
-	p, sec, others := s.data.Profile, s.secrets, len(s.data.Others)
+	p, sec, others := s.data.Profile, s.secretsOf(s.data.ActiveID), len(s.data.Others)
 	s.mu.Unlock()
 	f := Fresh{HasSecrets: sec != server.Secrets{}, Others: others}
 	if p.ServerDir == "" {
@@ -47,16 +48,18 @@ func (s *Service) FreshState() Fresh {
 	return f
 }
 
-// hasData diz se o perfil tem algo além do padrão (as pastas não contam).
+// hasData diz se o perfil tem algo além do padrão (as pastas, a instância e as portas não contam).
 func hasData(p server.Profile) bool {
-	p.ServerDir, p.SteamCMDDir = "", ""
+	d := server.Default()
+	p.ServerDir, p.SteamCMDDir, p.Instance = "", "", 0
+	p.Port, p.QueryPort, p.RconPort = d.Port, d.QueryPort, d.RconPort
 	a, errA := json.Marshal(p)
 	b, errB := json.Marshal(server.Default())
 	return errA != nil || errB != nil || string(a) != string(b)
 }
 
-// StartFresh volta o perfil em uso ao padrão, mantendo as pastas escolhidas, e com clearSecrets também esvazia o
-// cofre (vale para todos os perfis). Os outros perfis guardados não mudam.
+// StartFresh volta o servidor escolhido ao padrão, mantendo as pastas, a instância e as portas, e com clearSecrets
+// também apaga os segredos dele e os da conta do mod.io (que valem para todos). Os outros servidores não mudam.
 func (s *Service) StartFresh(clearSecrets bool) (server.Profile, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -64,13 +67,17 @@ func (s *Service) StartFresh(clearSecrets bool) (server.Profile, error) {
 		if s.vaultErr != nil {
 			return s.data.Profile, s.vaultErr
 		}
-		if err := s.vault.Save(server.Secrets{}); err != nil {
+		next := s.copyVault()
+		next.Secrets = server.Secrets{}
+		delete(next.Servers, s.data.ActiveID)
+		if err := s.saveVault(next); err != nil {
 			return s.data.Profile, err
 		}
-		s.secrets = server.Secrets{}
 	}
+	old := s.data.Profile
 	p := server.Default()
-	p.ServerDir, p.SteamCMDDir = s.data.Profile.ServerDir, s.data.Profile.SteamCMDDir
+	p.ServerDir, p.SteamCMDDir, p.Instance = old.ServerDir, old.SteamCMDDir, old.Instance
+	p.Port, p.QueryPort, p.RconPort = old.Port, old.QueryPort, old.RconPort
 	s.data.Profile = p
 	return p, s.save()
 }

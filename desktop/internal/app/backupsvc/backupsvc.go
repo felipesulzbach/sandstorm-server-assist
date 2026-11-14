@@ -58,7 +58,7 @@ func Create(src Source, appVersion, dest, password string, opt Options) (Summary
 		Files:    map[string][]byte{},
 	}
 	if p.ServerDir != "" {
-		for name, rel := range backup.ConfigFiles {
+		for name, rel := range backup.FilesFor(p.Instance) {
 			if b, err := fsx.ReadLimited(filepath.Join(p.ServerDir, filepath.FromSlash(rel)), 4<<20); err == nil {
 				c.Files[name] = b
 			}
@@ -117,6 +117,9 @@ func Restore(src Source, path, password, serverDir string, restoreModio bool) (S
 	if err != nil {
 		return Summary{}, err
 	}
+	// Os arquivos vão para a instância do servidor escolhido, que é o que o backup substitui (ADR-048).
+	cur, _, _ := src.Current()
+	files := backup.FilesFor(cur.Instance)
 	if err := src.ReplaceAll(c.Profile, c.Secrets, filepath.Clean(serverDir)); err != nil {
 		return Summary{}, err
 	}
@@ -124,7 +127,7 @@ func Restore(src Source, path, password, serverDir string, restoreModio bool) (S
 		if name == backup.ModioSessionName {
 			continue
 		}
-		rel, ok := backup.ConfigFiles[name]
+		rel, ok := files[name]
 		if !ok {
 			continue
 		}

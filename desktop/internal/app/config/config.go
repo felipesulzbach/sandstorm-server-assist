@@ -58,28 +58,28 @@ type file struct {
 
 // SecretStore é o cofre (DPAPI no app, memória nos testes).
 type SecretStore interface {
-	Load() (server.Secrets, error)
-	Save(server.Secrets) error
+	Load() (server.Vault, error)
+	Save(server.Vault) error
 }
 
 // Service guarda o estado em memória e grava a cada mudança.
 type Service struct {
-	mu       sync.Mutex
-	path     string
-	data     file
+	mu   sync.Mutex
+	path string
+	data file
+	// vault guarda vdata: os segredos da conta do mod.io e os de cada servidor (ADR-048).
 	vault    SecretStore
-	secrets  server.Secrets
+	vdata    server.Vault
 	vaultErr error
 }
 
-// Paths dos arquivos do servidor dentro da pasta.
-const (
-	GameIni     = `Insurgency\Saved\Config\WindowsServer\Game.ini`
-	EngineIni   = `Insurgency\Saved\Config\WindowsServer\Engine.ini`
-	AdminsTxt   = `Insurgency\Config\Server\Admins.txt`
-	MapCycleTxt = `Insurgency\Config\Server\MapCycle.txt`
-	MotdTxt     = `Insurgency\Config\Server\Motd.txt`
-)
+// FilePath é o caminho de um arquivo da instância do perfil (rel vem de server.InstanceFiles).
+func FilePath(p server.Profile, rel string) string {
+	return filepath.Join(p.ServerDir, filepath.FromSlash(rel))
+}
+
+// Files devolve os arquivos da instância do perfil (ADR-048).
+func Files(p server.Profile) server.Files { return server.InstanceFiles(p.Instance) }
 
 // Open carrega o arquivo de configuração (ausente = padrões) e o cofre.
 func Open(path string, vault SecretStore) *Service {
@@ -106,7 +106,15 @@ func Open(path string, vault SecretStore) *Service {
 			_ = s.save()
 		}
 	}
-	s.secrets, s.vaultErr = vault.Load()
+	// Perfis de versões antigas viram servidores: cada um com id, nome e número de instância próprio (ADR-048).
+	changed := s.ensureActive()
+	if s.ensureInstances() || changed {
+		_ = s.save()
+	}
+	s.vdata, s.vaultErr = vault.Load()
+	if s.vaultErr == nil {
+		s.migrateVault()
+	}
 	return s
 }
 
@@ -127,28 +135,42 @@ func (s *Service) save() error {
 	return fsx.WriteAtomic(s.path, append(b, '\n'), false)
 }
 
-// Profile devolve o perfil.
+// Profile devolve o perfil do servidor escolhido na tela.
 func (s *Service) Profile() server.Profile {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return s.data.Profile
 }
 
-// Current devolve perfil e segredos (para iniciar o servidor).
+// Current devolve perfil e segredos do servidor escolhido.
 func (s *Service) Current() (server.Profile, server.Secrets, error) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	if s.vaultErr != nil {
-		return s.data.Profile, server.Secrets{}, s.vaultErr
-	}
-	return s.data.Profile, s.secrets, nil
+	id := s.data.ActiveID
+	s.mu.Unlock()
+	return s.CurrentOf(id)
 }
 
-// SaveProfile valida e grava. As pastas não mudam por aqui (só pelos diálogos: SetServerDir/SetSteamCMDDir).
+// CurrentOf devolve perfil e segredos de um servidor (para iniciar e acompanhar cada um, ADR-048).
+func (s *Service) CurrentOf(id string) (server.Profile, server.Secrets, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	p := s.find(id)
+	if p == nil {
+		return server.Profile{}, server.Secrets{}, problems.Field("server", "validation.unknownField")
+	}
+	if s.vaultErr != nil {
+		return *p, server.Secrets{}, s.vaultErr
+	}
+	return *p, s.secretsOf(id), nil
+}
+
+// SaveProfile valida e grava. As pastas e a instância não mudam por aqui (pastas só pelos diálogos:
+// SetServerDir/SetSteamCMDDir).
 func (s *Service) SaveProfile(p server.Profile) (server.Profile, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	p.ServerDir, p.SteamCMDDir = s.data.Profile.ServerDir, s.data.Profile.SteamCMDDir
+	p.Instance = s.data.Profile.Instance
 	p.MapCycle = server.FixMapCycle(p.MapCycle)
 	if err := p.Validate(); err != nil {
 		return s.data.Profile, err
@@ -162,7 +184,8 @@ func (s *Service) SaveProfile(p server.Profile) (server.Profile, error) {
 	return p, s.save()
 }
 
-// SetServerDir troca a pasta do servidor (escolhida num diálogo do Windows).
+// SetServerDir troca a pasta do servidor (escolhida num diálogo do Windows). A instalação é compartilhada: os outros
+// servidores que usavam a mesma pasta vão junto (ADR-048).
 func (s *Service) SetServerDir(dir string) (server.Profile, error) {
 	if !fsx.SafeDir(dir) {
 		return s.Profile(), problems.New(problems.ServerDirInvalid, dir)
@@ -175,8 +198,18 @@ func (s *Service) SetServerDir(dir string) (server.Profile, error) {
 	if steamcmd.NestedDirs(filepath.Clean(dir), s.data.Profile.SteamCMDDir) {
 		return s.data.Profile, problems.New(problems.FoldersNested, "")
 	}
-	s.data.Profile.ServerDir = filepath.Clean(dir)
+	old := s.data.Profile.ServerDir
+	s.eachProfile(func(p *server.Profile) {
+		if p == &s.data.Profile || sameDir(p.ServerDir, old) {
+			p.ServerDir = filepath.Clean(dir)
+		}
+	})
 	return s.data.Profile, s.save()
+}
+
+// sameDir compara duas pastas do Windows (sem diferenciar maiúsculas).
+func sameDir(a, b string) bool {
+	return a != "" && b != "" && strings.EqualFold(filepath.Clean(a), filepath.Clean(b))
 }
 
 // SetSteamCMDDir troca a pasta do SteamCMD.
@@ -189,7 +222,12 @@ func (s *Service) SetSteamCMDDir(dir string) (server.Profile, error) {
 	if steamcmd.NestedDirs(s.data.Profile.ServerDir, filepath.Clean(dir)) {
 		return s.data.Profile, problems.New(problems.FoldersNested, "")
 	}
-	s.data.Profile.SteamCMDDir = filepath.Clean(dir)
+	old, install := s.data.Profile.SteamCMDDir, s.data.Profile.ServerDir
+	s.eachProfile(func(p *server.Profile) {
+		if p == &s.data.Profile || sameDir(p.ServerDir, install) && (p.SteamCMDDir == "" || sameDir(p.SteamCMDDir, old)) {
+			p.SteamCMDDir = filepath.Clean(dir)
+		}
+	})
 	return s.data.Profile, s.save()
 }
 
@@ -248,81 +286,109 @@ func (s *Service) AcceptTerms(version string, now time.Time) (Settings, error) {
 	return s.data.Settings, s.save()
 }
 
-// SecretsState diz quais segredos estão definidos (a tela nunca recebe o valor sem pedir).
+// SecretsState diz quais segredos do servidor escolhido estão definidos (a tela nunca recebe o valor sem pedir).
 func (s *Service) SecretsState() (map[string]bool, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	sec := s.secretsOf(s.data.ActiveID)
 	out := map[string]bool{}
 	for _, k := range server.SecretKeys {
-		v, _ := s.secrets.Get(k)
+		v, _ := sec.Get(k)
 		out[k] = v != ""
 	}
 	return out, s.vaultErr
 }
 
-// Secret devolve um segredo (para "Mostrar" na tela ou uso interno).
+// Secret devolve um segredo do servidor escolhido (para "Mostrar" na tela ou uso interno).
 func (s *Service) Secret(key string) (string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.vaultErr != nil {
 		return "", s.vaultErr
 	}
-	v, ok := s.secrets.Get(key)
+	v, ok := s.secretsOf(s.data.ActiveID).Get(key)
 	if !ok {
 		return "", problems.Field(key, "validation.unknownField")
 	}
 	return v, nil
 }
 
-// SetSecret valida e grava um segredo no cofre (vazio apaga).
+// SetSecret valida e grava um segredo no cofre (vazio apaga): os da conta do mod.io valem para todos os
+// servidores, os outros só para o servidor escolhido (ADR-048).
 func (s *Service) SetSecret(key, value string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	next, err := s.secrets.With(key, value)
-	if err != nil {
-		return err
+	if s.vaultErr != nil {
+		return s.vaultErr
 	}
-	if err := s.vault.Save(next); err != nil {
-		return err
+	next := s.copyVault()
+	if server.IsAccountKey(key) {
+		v, err := next.Secrets.With(key, value)
+		if err != nil {
+			return err
+		}
+		next.Secrets = v
+	} else {
+		v, err := next.Servers[s.data.ActiveID].With(key, value)
+		if err != nil {
+			return err
+		}
+		next.Servers[s.data.ActiveID] = v
 	}
-	s.secrets, s.vaultErr = next, nil
-	return nil
+	return s.saveVault(next)
 }
 
-// ReplaceAll troca perfil e segredos de uma vez (restaurar backup). A pasta do servidor é a da máquina nova.
+// ReplaceAll troca o perfil e os segredos do servidor escolhido de uma vez (restaurar backup). A pasta do servidor
+// é a da máquina nova e a instância continua a do servidor escolhido; os segredos da conta vêm do backup.
 func (s *Service) ReplaceAll(p server.Profile, sec server.Secrets, serverDir string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	p.ServerDir = serverDir
+	p.Instance = s.data.Profile.Instance
 	if p.SteamCMDDir != "" && !fsx.Exists(p.SteamCMDDir) {
 		p.SteamCMDDir = ""
 	}
 	if err := p.Validate(); err != nil {
 		return err
 	}
-	if err := s.vault.Save(sec); err != nil {
+	next := s.copyVault()
+	next.Secrets = server.Secrets{}.WithAccount(sec)
+	next.Servers[s.data.ActiveID] = sec.ServerOnly()
+	s.vaultErr = nil
+	if err := s.saveVault(next); err != nil {
 		return err
 	}
-	s.data.Profile, s.secrets, s.vaultErr = p, sec, nil
+	s.data.Profile = p
 	return s.save()
 }
 
-// SecretValues devolve os valores para mascarar em log.
+// SecretValues devolve os valores de todos os servidores para mascarar em log.
 func (s *Service) SecretValues() []string {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	return s.secrets.Values()
+	out := s.vdata.Secrets.Values()
+	for _, sec := range s.vdata.Servers {
+		out = append(out, sec.Values()...)
+	}
+	return out
 }
 
 // ---- servidor existente ----
 
-// LogsDir é a pasta de logs do servidor (Insurgency.log e os backups Insurgency-backup-*.log).
-const LogsDir = `Insurgency\Saved\Logs`
+// LogsPath é a pasta de logs da instância do perfil (Insurgency.log e os backups Insurgency-backup-*.log).
+func LogsPath(p server.Profile) string {
+	if p.ServerDir == "" {
+		return ""
+	}
+	return FilePath(p, Files(p).LogsDir)
+}
 
-// LogFiles devolve os logs do servidor (Insurgency.log, Insurgency_2.log quando o primeiro estava aberto, e os
+// LogFiles devolve os logs da pasta dir (Insurgency.log, Insurgency_2.log quando o primeiro estava aberto, e os
 // Insurgency-backup-*.log), do mais recente para o mais velho pela data de gravação.
-func LogFiles(serverDir string) []string {
-	dir := filepath.Join(serverDir, LogsDir)
+func LogFiles(dir string) []string {
+	if dir == "" {
+		return nil
+	}
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return nil
@@ -388,9 +454,9 @@ func ResolveServerDir(dir string) string {
 
 // lastCommandLine acha a linha de comando da última partida ("LogInit: Command Line:"), que fica no começo do
 // log. Serve com o servidor rodando (log atual) ou parado (último log). Devolve também o nome do log.
-func lastCommandLine(serverDir string) (string, string) {
+func lastCommandLine(p server.Profile) (string, string) {
 	const marker = "Command Line:"
-	for _, path := range LogFiles(serverDir) {
+	for _, path := range LogFiles(LogsPath(p)) {
 		b, err := fsx.ReadHead(path, 512<<10)
 		if err != nil {
 			continue
@@ -407,12 +473,13 @@ func lastCommandLine(serverDir string) (string, string) {
 // ServerRules lê as regras do jogo que o servidor já tem no Game.ini e no Engine.ini (ADR-040). nil quando não há
 // nenhuma, ou sem pasta do servidor. Só lê: a aba Regras oferece usá-las quando o app ainda não cuida das regras.
 func (s *Service) ServerRules() map[string]string {
-	dir := s.Profile().ServerDir
-	if dir == "" {
+	p := s.Profile()
+	if p.ServerDir == "" {
 		return nil
 	}
-	game, _ := fsx.ReadLimited(filepath.Join(dir, GameIni), 1<<20)
-	engine, _ := fsx.ReadLimited(filepath.Join(dir, EngineIni), 1<<20)
+	f := Files(p)
+	game, _ := fsx.ReadLimited(FilePath(p, f.GameIni), 1<<20)
+	engine, _ := fsx.ReadLimited(FilePath(p, f.EngineIni), 1<<20)
 	return server.ReadRules(string(game), string(engine))
 }
 
@@ -420,17 +487,18 @@ func (s *Service) ServerRules() map[string]string {
 // o MapCycle.txt e o [Rcon] do Game.ini. apiKey é a chave do mod.io achada nos logs (ou vazia).
 func (s *Service) Detect(apiKey string) (server.Detected, string, error) {
 	d := server.NewDetected()
-	dir := s.Profile().ServerDir
-	if dir == "" {
+	p := s.Profile()
+	if p.ServerDir == "" {
 		return d, "", problems.New(problems.ServerNotInstalled, "")
 	}
-	cmd, logFile := lastCommandLine(dir)
+	f := Files(p)
+	cmd, logFile := lastCommandLine(p)
 	d.ParseCommandLine(cmd)
 
-	if b, err := fsx.ReadLimited(filepath.Join(dir, AdminsTxt), 1<<20); err == nil {
+	if b, err := fsx.ReadLimited(FilePath(p, f.Admins), 1<<20); err == nil {
 		d.Profile.Admins, d.Found["admins"] = server.ValidAdmins(server.ParseAdmins(string(b))), true
 	}
-	if b, err := fsx.ReadLimited(filepath.Join(dir, MapCycleTxt), 1<<20); err == nil {
+	if b, err := fsx.ReadLimited(FilePath(p, f.MapCycle), 1<<20); err == nil {
 		var lines []string
 		for _, l := range server.ParseMapCycle(string(b)) {
 			if len(l) <= 200 {
@@ -439,13 +507,13 @@ func (s *Service) Detect(apiKey string) (server.Detected, string, error) {
 		}
 		d.Profile.MapCycle, d.Found["mapCycle"] = lines, true
 	}
-	if b, err := fsx.ReadLimited(filepath.Join(dir, MotdTxt), 64<<10); err == nil {
+	if b, err := fsx.ReadLimited(FilePath(p, f.Motd), 64<<10); err == nil {
 		if text, ok := server.ParseMotd(string(b)); ok {
 			d.Profile.Motd, d.Found["motd"] = text, true
 		}
 	}
-	game, gerr := fsx.ReadLimited(filepath.Join(dir, GameIni), 1<<20)
-	engine, _ := fsx.ReadLimited(filepath.Join(dir, EngineIni), 1<<20)
+	game, gerr := fsx.ReadLimited(FilePath(p, f.GameIni), 1<<20)
+	engine, _ := fsx.ReadLimited(FilePath(p, f.EngineIni), 1<<20)
 	if rules := server.ReadRules(string(game), string(engine)); rules != nil {
 		d.Profile.Rules, d.Found["rules"] = rules, true
 	}
@@ -530,23 +598,26 @@ func (s *Service) ApplyExisting(steamcmdDir, apiKey string, keepMine []string) (
 	if s.vaultErr != nil {
 		return r, s.vaultErr
 	}
-	for _, df := range server.Compare(s.data.Profile, s.secrets, d) {
+	cur := s.secretsOf(s.data.ActiveID)
+	for _, df := range server.Compare(s.data.Profile, cur, d) {
 		if df.State == server.SyncConflict && keep[df.Key] {
 			r.Kept = append(r.Kept, df.Key)
 		}
 	}
-	p, sec, applied, skipped, err := server.Merge(s.data.Profile, s.secrets, d, keep)
+	p, sec, applied, skipped, err := server.Merge(s.data.Profile, cur, d, keep)
 	if err != nil {
 		return r, err
 	}
 	if p.SteamCMDDir == "" && steamcmdDir != "" && fsx.SafeDir(steamcmdDir) {
 		p.SteamCMDDir = filepath.Clean(steamcmdDir)
 	}
-	if sec != s.secrets {
-		if err := s.vault.Save(sec); err != nil {
+	if sec != cur {
+		next := s.copyVault()
+		next.Secrets = next.Secrets.WithAccount(sec)
+		next.Servers[s.data.ActiveID] = sec.ServerOnly()
+		if err := s.saveVault(next); err != nil {
 			return r, err
 		}
-		s.secrets = sec
 	}
 	s.data.Profile = p
 	r.Profile, r.Applied, r.Skipped = p, applied, skipped
@@ -557,7 +628,7 @@ func (s *Service) ApplyExisting(steamcmdDir, apiKey string, keepMine []string) (
 // comando ao iniciar (ADR-002).
 func (s *Service) MoveRconToVault() error {
 	p := s.Profile()
-	path := filepath.Join(p.ServerDir, GameIni)
+	path := FilePath(p, Files(p).GameIni)
 	b, err := fsx.ReadLimited(path, 1<<20)
 	if err != nil {
 		return problems.Wrap(problems.ConfigWrite, err)
@@ -585,7 +656,7 @@ func (s *Service) RconInIni() bool {
 	if p.ServerDir == "" {
 		return false
 	}
-	b, err := fsx.ReadLimited(filepath.Join(p.ServerDir, GameIni), 1<<20)
+	b, err := fsx.ReadLimited(FilePath(p, Files(p).GameIni), 1<<20)
 	if err != nil {
 		return false
 	}
@@ -593,24 +664,26 @@ func (s *Service) RconInIni() bool {
 	return ok && pw != ""
 }
 
-// Prepare grava Admins.txt, MapCycle.txt, Motd.txt e as regras (Game.ini e Engine.ini) a partir do perfil antes de
-// iniciar (cópia .bak na primeira vez). Listas e textos vazios não mexem nos arquivos.
+// Prepare grava Admins.txt, MapCycle.txt, Motd.txt e as regras (Game.ini e Engine.ini) da instância a partir do
+// perfil antes de iniciar (cópia .bak na primeira vez). No servidor principal, listas e textos vazios não mexem nos
+// arquivos; nos outros (ADR-048) o Admins e o Motd são sempre gravados, porque a linha de comando sempre os aponta.
 func Prepare(p server.Profile) error {
 	if err := writeRules(p); err != nil {
 		return err
 	}
-	if len(p.Admins) > 0 {
-		if err := fsx.WriteAtomic(filepath.Join(p.ServerDir, AdminsTxt), []byte(server.AdminsFile(p.Admins)), true); err != nil {
+	f, extra := Files(p), server.InstanceNumber(p.Instance) > 1
+	if len(p.Admins) > 0 || extra {
+		if err := fsx.WriteAtomic(FilePath(p, f.Admins), []byte(server.AdminsFile(p.Admins)), true); err != nil {
 			return err
 		}
 	}
 	if len(p.MapCycle) > 0 {
-		if err := fsx.WriteAtomic(filepath.Join(p.ServerDir, MapCycleTxt), []byte(server.MapCycleFile(p.MapCycle)), true); err != nil {
+		if err := fsx.WriteAtomic(FilePath(p, f.MapCycle), []byte(server.MapCycleFile(p.MapCycle)), true); err != nil {
 			return err
 		}
 	}
-	if motd := server.MotdFile(p.Motd); motd != "" {
-		if err := fsx.WriteAtomic(filepath.Join(p.ServerDir, MotdTxt), []byte(motd), true); err != nil {
+	if motd := server.MotdFile(p.Motd); motd != "" || extra {
+		if err := fsx.WriteAtomic(FilePath(p, f.Motd), []byte(motd), true); err != nil {
 			return err
 		}
 	}
@@ -622,7 +695,9 @@ func writeRules(p server.Profile) error {
 	if p.Rules == nil {
 		return nil
 	}
-	gamePath, enginePath := filepath.Join(p.ServerDir, GameIni), filepath.Join(p.ServerDir, EngineIni)
+	f := Files(p)
+	gamePath, enginePath := FilePath(p, f.GameIni), FilePath(p, f.EngineIni)
+
 	read := func(path string) (string, error) {
 		b, err := fsx.ReadLimited(path, 1<<20)
 		if err != nil && !IsNotExist(err) {

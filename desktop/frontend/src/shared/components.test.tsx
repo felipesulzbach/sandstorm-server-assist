@@ -12,6 +12,12 @@ import { ErrorCard, Guide } from './components';
 const wrap = (ui: React.ReactNode, lang: 'en-US' | 'ru' = 'en-US') => render(<I18nProvider initial={lang}>{ui}</I18nProvider>);
 
 describe('ErrorCard', () => {
+  // ADR-048: o aviso de porta ocupada diz qual porta (jogo, consulta ou RCON).
+  it('names the taken port', () => {
+    wrap(<ErrorCard error={{ code: 'port-taken', params: { port: '27017', portField: 'rconPort' } }} />);
+    expect(screen.getByText(/The RCON port \(27017\) of this server/)).toBeInTheDocument();
+  });
+
   it('shows what happened, cause and solution', () => {
     wrap(<ErrorCard error={{ code: 'mod-conflict', detail: 'Serial size mismatch', links: ['modio-subscriptions'] }} />);
     expect(screen.getByText('Mods in conflict')).toBeInTheDocument();

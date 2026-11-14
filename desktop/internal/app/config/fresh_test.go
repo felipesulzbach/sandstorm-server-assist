@@ -54,7 +54,7 @@ func TestFreshStart(t *testing.T) {
 	if got.ServerDir != srv || got.SteamCMDDir != steam || got.Hostname == "Old server" || len(got.Admins) != 0 {
 		t.Fatalf("perfil: %+v", got)
 	}
-	if v.s.RconPassword == "" {
+	if v.one().RconPassword == "" {
 		t.Fatal("cofre apagado sem pedir")
 	}
 	// Ainda oferece por causa do cofre; apagando o cofre também, não oferece mais.
@@ -64,7 +64,7 @@ func TestFreshStart(t *testing.T) {
 	if _, err := s.StartFresh(true); err != nil {
 		t.Fatal(err)
 	}
-	if v.s != (server.Secrets{}) {
+	if v.one() != (server.Secrets{}) {
 		t.Fatalf("cofre: %+v", v.s)
 	}
 	if f := s.FreshState(); f.Offer || f.HasSecrets {

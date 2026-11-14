@@ -92,7 +92,7 @@ func (c *ConfigAPI) FreshState() FreshInfo {
 
 // StartFresh volta o perfil em uso ao padrão, mantendo as pastas; clearSecrets também esvazia o cofre (ADR-047).
 func (c *ConfigAPI) StartFresh(clearSecrets bool) (server.Profile, error) {
-	if len(c.a.runner.Status().PIDs) > 0 {
+	if len(c.a.sel().runner.Status().PIDs) > 0 {
 		return c.a.cfg.Profile(), problems.New(problems.ServerRunning, "")
 	}
 	if c.a.install.Busy() {
@@ -143,7 +143,7 @@ func (c *ConfigAPI) ScanExisting() (ExistingScan, error) {
 	s, err := c.a.cfg.ScanExisting(findAPIKey(c.a.cfg.Profile().ServerDir))
 	return ExistingScan{
 		Found: s.Found, LogFile: s.LogFile, Diffs: s.Diffs, RconInIni: s.RconInIni,
-		Running: len(c.a.runner.Status().PIDs) > 0,
+		Running: len(c.a.sel().runner.Status().PIDs) > 0,
 	}, err
 }
 
@@ -162,7 +162,7 @@ func (c *ConfigAPI) RconInIni() bool { return c.a.cfg.RconInIni() }
 
 // MoveRconToVault tira a senha de RCON do Game.ini e guarda no cofre (servidor parado).
 func (c *ConfigAPI) MoveRconToVault() error {
-	if len(c.a.runner.Status().PIDs) > 0 {
+	if len(c.a.sel().runner.Status().PIDs) > 0 {
 		return problems.New(problems.ServerRunning, "")
 	}
 	return c.a.cfg.MoveRconToVault()

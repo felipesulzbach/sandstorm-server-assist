@@ -626,3 +626,49 @@ one, the older one says so.
   `modio.RemoveAllInstalled` (every mod of `state.json` and leftover mod folders) and `modio.Logout` (deletes
   `user.json`), through `modfiles.Clear` with the server stopped. They also make the notice appear when the folder
   has no server.
+
+## ADR-048 · Several servers at the same time from one install
+
+- **Context:** the maintainer wants to create and run several servers at once. Until now the app had named profiles
+  (ADR-022), but one runner, watchdog, chat, Discord and log buffer, and switching only with the server stopped. A
+  second copy of the server in the same folder shared `Saved/Config/WindowsServer` (Game.ini, Engine.ini), the logs,
+  MapCycle.txt, Admins.txt and Motd.txt, and the app found the server processes by folder only.
+- **Agreed with the maintainer:** one shared install; the servers run at the same time; the Dashboard lists every
+  server and a selector at the top chooses the server that the other screens edit; every server loads the same mods.
+- **What the game supports** (read from `InsurgencyServer-Win64-Shipping.exe` and checked with a test instance on the
+  maintainer's install, without mods): `-saveddirsuffix=N` makes the engine use `Insurgency/Saved_N/` for the config
+  files and the logs; `-MapCycle=`, `-AdminList=` and `-Motd=` take a file name in `Insurgency/Config/Server`. The
+  server binds the game port (UDP), the query port (UDP) and, with RCON, the RCON port (TCP); voice picks a free UDP
+  port from 25000-25200 by itself. Both server processes carry the full command line. The binary has no
+  `-CmdModList` any more, so a mod subset per server is not possible.
+- **Decision:**
+  - **Servers:** the profiles become servers (same file, one list, a `selected` id). Each server has an instance
+    number (`Profile.Instance`): 1 is the main one and keeps today's files; N ≥ 2 starts with `-saveddirsuffix=N`,
+    `-AdminList=Admins_N`, `-Motd=Motd_N` and, with a rotation, `-MapCycle=MapCycle_N` (files written by the app).
+    Numbers are unique, so two servers never share files. A new server copies the install and SteamCMD folders;
+    choosing another install folder moves every server that used the same one. At most 20 servers.
+  - **Processes:** `proc.FindInDir` also reads each process command line; a process belongs to the server whose
+    instance matches its `-saveddirsuffix` (none = instance 1, anything else = not the app's). A reopened app keeps
+    recognising each server it started (ADR-026, one run record per server).
+  - **Per server:** runner, log buffer and runs, watchdog (daily and crash restarts), scheduled and join/leave
+    messages, players, map change, Discord and the problems shown. The log drawer shows the selected server.
+  - **Ports:** a new server gets the first free set (27102/27131/27015, then +1 each), skipping ports another
+    program uses. The Server screen warns when a port is used by another server or program and offers free ports. A
+    start is refused when a port (game, query, RCON) is used by another running server, or the OS says it is taken.
+    The OS check opens each port on 0.0.0.0 and on 127.0.0.1: Windows lets a program open 0.0.0.0 on a port another
+    one holds on 127.0.0.1 only, and local connections then go to the other program (MongoDB on 27017 took the third
+    server's RCON on the maintainer's PC).
+  - **Secrets:** the server password, RCON password, GSLT and GameStats tokens and the Discord webhook are per server
+    (a GSLT serves one server at a time: a start is refused when another running server has the same token); the
+    mod.io e-mail and API key stay shared. Existing secrets go to every existing server, as before. The top level of
+    the vault keeps a copy of the selected server's secrets, so an older version of the app still opens it.
+  - **mod.io is shared:** one account (`user.json` per Windows user) and one mods folder with one `state.json`. Two
+    servers syncing mods at the same time could both write `state.json` and the same mod folders, so a server that
+    uses mods waits ("Waiting for the other server") while another one is starting, syncing or mounting mods (up to
+    10 minutes). Authorizing with a code, deleting mods and starting from scratch need the other servers stopped;
+    deleting a mod stops the running servers and starts them again. Updating the install needs every server of that
+    install stopped; the daily restart skips the update while another server of the install runs.
+  - **Backup:** stays per server (the selected one) with its own files; restoring replaces the selected server.
+- **Consequence:** profiles of older versions become servers with the same ports; they cannot run at the same time
+  until their ports change. A server other than the main one has its own `Saved_N` folder, so lines added by hand to
+  the main Game.ini/Engine.ini do not apply to it (the app's game rules do). Bans.json, Mods.txt and the Firewall rule (per program) stay shared by the install.

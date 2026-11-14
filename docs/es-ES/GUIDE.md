@@ -134,6 +134,21 @@ El servidor del juego sigue en marcha si cierras la app. Cuando vuelvas a abrirl
 Con el servidor en marcha puedes **cambiar de mapa**, abrir el **panel de jugadores** (expulsar, banear, mensaje a
 todos) y leer los **Registros** (el cajón de abajo; las contraseñas y los tokens se ocultan).
 
+### Varios servidores
+
+Puedes tener más de un servidor funcionando en el mismo PC, desde la misma instalación del servidor.
+
+1. En **Servidor**, pulsa **Servidor nuevo** (marca **Copiar el servidor actual** para partir de sus ajustes). El
+   servidor nuevo recibe puertos libres y sus propios archivos de configuración y registros.
+2. El selector de arriba elige el servidor que muestran el Panel, Servidor, Mods y Registros. Puedes cambiarlo con
+   servidores funcionando.
+3. La lista **Servidores** del Panel inicia y detiene cada uno. Marca varios (o **Seleccionar todos**) y pulsa
+   **Iniciar servidores**, **Detener servidores** o **Reiniciar servidores** para actuar en todos a la vez.
+
+Cada servidor tiene sus contraseñas, su token GSLT (Steam acepta un token en un servidor a la vez) y su webhook de
+Discord. La cuenta de mod.io y los mods descargados se comparten: un servidor con mods espera mientras otro se
+inicia o carga los mods. Abre también los puertos nuevos en el router (sección 5).
+
 ## 7. Copia de seguridad
 
 Abre **Copia de seguridad** para crear un archivo, protegido con contraseña, con tus ajustes, tus secretos y los

@@ -20,7 +20,6 @@ import (
 	"sandstorm-server-assist/desktop/internal/adapters/netx"
 	"sandstorm-server-assist/desktop/internal/adapters/proc"
 	"sandstorm-server-assist/desktop/internal/adapters/trust"
-	"sandstorm-server-assist/desktop/internal/app/logbuf"
 	"sandstorm-server-assist/desktop/internal/domain/problems"
 	"sandstorm-server-assist/desktop/internal/domain/server"
 	"sandstorm-server-assist/desktop/internal/domain/steamcmd"
@@ -81,14 +80,20 @@ type Service struct {
 	st     State
 	cancel context.CancelFunc
 	notify func(State)
-	log    *logbuf.Buffer
+	log    Logger
 	// speed: amostras para calcular velocidade.
 	lastDone int64
 	lastAt   time.Time
 }
 
+// Logger recebe as linhas do SteamCMD e do app (um logbuf.Buffer, ou todos os servidores juntos: a instalação é
+// compartilhada, ADR-048).
+type Logger interface {
+	Add(source, text, level string)
+}
+
 // New cria o serviço.
-func New(log *logbuf.Buffer) *Service { return &Service{log: log} }
+func New(log Logger) *Service { return &Service{log: log} }
 
 // SetNotify define quem recebe o estado.
 func (s *Service) SetNotify(fn func(State)) {

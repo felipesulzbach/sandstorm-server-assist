@@ -14,6 +14,7 @@ type Process struct {
 	PID     uint32    `json:"pid"`
 	Path    string    `json:"path"`
 	Started time.Time `json:"started"`
+	CmdLine string    `json:"-"`
 }
 
 var errWindowsOnly = errors.New("only supported on Windows")

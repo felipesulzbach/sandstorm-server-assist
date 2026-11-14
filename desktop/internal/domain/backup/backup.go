@@ -65,6 +65,19 @@ var ConfigFiles = map[string]string{
 	"server/Notes.txt":    "Insurgency/Config/Server/Notes.txt",
 }
 
+// FilesFor são os ConfigFiles de uma instância do servidor (ADR-048): os mesmos nomes no backup, com o Game.ini, o
+// Engine.ini, o Admins, o MapCycle e o Motd da instância. Bans.json, Mods.txt e Notes.txt são da instalação.
+func FilesFor(instance int) map[string]string {
+	f := server.InstanceFiles(instance)
+	out := map[string]string{}
+	for name, rel := range ConfigFiles {
+		out[name] = rel
+	}
+	out["server/Game.ini"], out["server/Engine.ini"] = f.GameIni, f.EngineIni
+	out["server/Admins.txt"], out["server/MapCycle.txt"], out["server/Motd.txt"] = f.Admins, f.MapCycle, f.Motd
+	return out
+}
+
 // ModioSessionName é o nome da sessão do mod.io (user.json) dentro do backup.
 const ModioSessionName = "modio/user.json"
 

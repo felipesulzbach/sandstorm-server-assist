@@ -78,6 +78,14 @@ export function Restart() {
   return window['go']['desktop']['ServerAPI']['Restart']();
 }
 
+export function RestartServer(arg1) {
+  return window['go']['desktop']['ServerAPI']['RestartServer'](arg1);
+}
+
+export function RestartServers(arg1) {
+  return window['go']['desktop']['ServerAPI']['RestartServers'](arg1);
+}
+
 export function Say(arg1) {
   return window['go']['desktop']['ServerAPI']['Say'](arg1);
 }
@@ -86,8 +94,20 @@ export function Scenarios() {
   return window['go']['desktop']['ServerAPI']['Scenarios']();
 }
 
+export function Servers() {
+  return window['go']['desktop']['ServerAPI']['Servers']();
+}
+
 export function Start() {
   return window['go']['desktop']['ServerAPI']['Start']();
+}
+
+export function StartServer(arg1) {
+  return window['go']['desktop']['ServerAPI']['StartServer'](arg1);
+}
+
+export function StartServers(arg1) {
+  return window['go']['desktop']['ServerAPI']['StartServers'](arg1);
 }
 
 export function Status() {
@@ -96,6 +116,14 @@ export function Status() {
 
 export function Stop() {
   return window['go']['desktop']['ServerAPI']['Stop']();
+}
+
+export function StopServer(arg1) {
+  return window['go']['desktop']['ServerAPI']['StopServer'](arg1);
+}
+
+export function StopServers(arg1) {
+  return window['go']['desktop']['ServerAPI']['StopServers'](arg1);
 }
 
 export function TestDiscord() {

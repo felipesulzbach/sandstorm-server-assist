@@ -31,6 +31,9 @@ type Admin struct {
 type Profile struct {
 	ServerDir   string `json:"serverDir"`
 	SteamCMDDir string `json:"steamcmdDir"`
+	// Instance é o número da instância na instalação (ADR-048): 1 (ou 0, perfis antigos) é a principal. Quem escolhe
+	// é o app, não a tela.
+	Instance int `json:"instance,omitempty"`
 
 	Hostname   string `json:"hostname"`
 	Port       int    `json:"port"`
@@ -163,6 +166,37 @@ func (s Secrets) With(key, value string) (Secrets, error) {
 	return s, nil
 }
 
+// AccountKeys são os segredos da conta do mod.io, os mesmos para todos os servidores. Os outros são de cada
+// servidor (ADR-048).
+var AccountKeys = []string{"modioEmail", "modioApiKey"}
+
+// IsAccountKey diz se o segredo é da conta (compartilhado) e não do servidor.
+func IsAccountKey(key string) bool { return key == "modioEmail" || key == "modioApiKey" }
+
+// ServerOnly devolve só os segredos do servidor (sem os da conta).
+func (s Secrets) ServerOnly() Secrets {
+	s.ModioEmail, s.ModioAPIKey = "", ""
+	return s
+}
+
+// WithAccount devolve os segredos do servidor com os da conta tirados de account.
+func (s Secrets) WithAccount(account Secrets) Secrets {
+	s.ModioEmail, s.ModioAPIKey = account.ModioEmail, account.ModioAPIKey
+	return s
+}
+
+// Vault é o conteúdo do cofre (ADR-048): em Servers os segredos de cada servidor pelo id; no nível de cima os da
+// conta do mod.io e uma cópia dos do servidor escolhido, para uma versão antiga do app ainda abrir o cofre (nos
+// cofres antigos, Version 0, o nível de cima tinha os segredos de todos os perfis).
+type Vault struct {
+	Secrets
+	Version int                `json:"vaultVersion,omitempty"`
+	Servers map[string]Secrets `json:"servers,omitempty"`
+}
+
+// VaultVersion é a versão do cofre com segredos por servidor.
+const VaultVersion = 2
+
 // Values devolve os segredos preenchidos (para mascarar em log).
 func (s Secrets) Values() []string {
 	return []string{s.ServerPassword, s.RconPassword, s.GSLTToken, s.GameStatsToken, s.ModioAPIKey, s.DiscordWebhook}
@@ -251,6 +285,9 @@ func ValidCode(c string) bool { return codeRe.MatchString(c) }
 func (p Profile) Validate() error {
 	if p.ServerDir != "" && !filepath.IsAbs(p.ServerDir) {
 		return problems.Field("serverDir", "validation.absolutePath")
+	}
+	if p.Instance < 0 || p.Instance > MaxInstance {
+		return problems.Field("instance", "validation.unknownField")
 	}
 	if err := validHostname(p.Hostname); err != nil {
 		return err

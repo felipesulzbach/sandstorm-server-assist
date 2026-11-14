@@ -24,6 +24,8 @@ export function DeleteProfile(arg1:string):Promise<Array<config.ProfileRef>>;
 
 export function ExtractSteamID(arg1:string):Promise<string>;
 
+export function FreePorts():Promise<Array<number>>;
+
 export function FreshState():Promise<desktop.FreshInfo>;
 
 export function LocalAddresses():Promise<Array<winsys.Address>>;
@@ -41,6 +43,8 @@ export function MoveMapCycleGroup(arg1:Array<string>,arg2:number,arg3:boolean):P
 export function MoveRconToVault():Promise<void>;
 
 export function Mutators():Promise<Array<server.Mutator>>;
+
+export function PortConflicts():Promise<Array<server.PortConflict>>;
 
 export function Profile():Promise<server.Profile>;
 

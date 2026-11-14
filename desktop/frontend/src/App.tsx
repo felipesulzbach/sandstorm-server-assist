@@ -15,6 +15,8 @@ import { backend, type AppInfo } from './shared/backend';
 import { ErrorBoundary } from './shared/ErrorBoundary';
 import { TitleBar } from './shared/TitleBar';
 import { useServerStatus } from './shared/hooks';
+import { ServersProvider, useServers } from './shared/servers';
+import { ServerBar } from './shared/ServerBar';
 import { LogsProvider } from './features/logs/LogDrawer';
 import { DashboardPage } from './features/dashboard/DashboardPage';
 import { InstallPage } from './features/install/InstallPage';
@@ -53,19 +55,30 @@ export function App() {
   if (!lang) return null;
   return (
     <I18nProvider initial={lang}>
-      <LogsProvider>
-        {/* Erro na moldura do app (menu, barra de título): aviso em tela cheia com "Recarregar". */}
-        <ErrorBoundary scope="app">
-          <Shell />
-        </ErrorBoundary>
-      </LogsProvider>
+      <ServersProvider>
+        <Scoped />
+      </ServersProvider>
     </I18nProvider>
   );
 }
 
-function Shell() {
-  const { t } = useI18n();
+/** Remonta as telas e a gaveta de logs quando o servidor escolhido muda (ADR-048); a página aberta continua. */
+function Scoped() {
+  const { selected, loaded } = useServers();
   const [page, setPage] = useState<PageId>('dashboard');
+  if (!loaded) return null;
+  return (
+    <LogsProvider key={selected}>
+      {/* Erro na moldura do app (menu, barra de título): aviso em tela cheia com "Recarregar". */}
+      <ErrorBoundary scope="app">
+        <Shell page={page} setPage={setPage} />
+      </ErrorBoundary>
+    </LogsProvider>
+  );
+}
+
+function Shell({ page, setPage }: { page: PageId; setPage: (p: PageId) => void }) {
+  const { t } = useI18n();
   const [info, setInfo] = useState<AppInfo | null>(null);
   const status = useServerStatus();
   const [terms, setTerms] = useTerms();
@@ -110,6 +123,7 @@ function Shell() {
           </footer>
         </aside>
         <main className="content">
+          <ServerBar go={setPage} />
           {/* Erro numa página mostra um aviso nela; o resto do app continua (antes ficava tudo preto). */}
           <ErrorBoundary scope="page" resetKey={page} onHome={() => setPage('dashboard')}>
             {page === 'dashboard' && <DashboardPage go={setPage} status={status} />}

@@ -65,3 +65,20 @@ func TestPackRejectsUnknownNames(t *testing.T) {
 		t.Error("nome fora da lista aceito")
 	}
 }
+
+// O backup de outro servidor da instalação (ADR-048) leva os arquivos da instância dele com os mesmos nomes.
+func TestFilesForInstance(t *testing.T) {
+	main, two := FilesFor(1), FilesFor(2)
+	if len(main) != len(ConfigFiles) || main["server/Game.ini"] != ConfigFiles["server/Game.ini"] {
+		t.Fatalf("main: %v", main)
+	}
+	if two["server/Game.ini"] != "Insurgency/Saved_2/Config/WindowsServer/Game.ini" ||
+		two["server/Motd.txt"] != "Insurgency/Config/Server/Motd_2.txt" || two["server/Bans.json"] != ConfigFiles["server/Bans.json"] {
+		t.Fatalf("instance 2: %v", two)
+	}
+	for name := range two {
+		if !allowedName(name) {
+			t.Errorf("%s not accepted on restore", name)
+		}
+	}
+}

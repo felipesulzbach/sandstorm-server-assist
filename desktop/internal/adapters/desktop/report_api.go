@@ -139,7 +139,7 @@ func (r *ReportAPI) Create(req ReportRequest) (ReportResult, error) {
 
 	runtime.BrowserOpenURL(r.a.ctx, report.IssueLink(meta, desc))
 	_ = winsys.RevealFile(path)
-	r.a.log.Add("app", "Report saved: "+name, "info")
+	r.a.sel().log.Add("app", "Report saved: "+name, "info")
 	return ReportResult{File: name, Size: int64(len(zipBytes))}, nil
 }
 
@@ -196,7 +196,7 @@ func (r *ReportAPI) build(meta report.Meta, desc string, withLog bool, image str
 // logText são as últimas linhas do log do app (já com os segredos mascarados), sem IPs nem SteamIDs, com limite
 // de tamanho: guarda as mais recentes.
 func (r *ReportAPI) logText() []byte {
-	lines := r.a.log.Recent(report.MaxLogLines)
+	lines := r.a.sel().log.Recent(report.MaxLogLines)
 	rows := make([]string, 0, len(lines))
 	size := 0
 	for i := len(lines) - 1; i >= 0; i-- {

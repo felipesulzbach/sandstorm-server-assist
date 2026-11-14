@@ -36,7 +36,7 @@ func TestScanAndApplyExisting(t *testing.T) {
 	writeFile(t, filepath.Join(srv, AdminsTxt), ";Alice\r\n76561198000000001\r\nnot-a-steamid\r\n")
 	writeFile(t, filepath.Join(srv, GameIni), "[Rcon]\r\nbEnabled=True\r\nPassword=rcon#Senha1\r\nListenPort=27015\r\n")
 
-	v := &memVault{s: server.Secrets{RconPassword: "minhaSenha9"}}
+	v := &memVault{s: server.Vault{Secrets: server.Secrets{RconPassword: "minhaSenha9"}}}
 	s := Open(filepath.Join(dir, "config.json"), v)
 	if _, err := s.SetServerDir(srv); err != nil {
 		t.Fatal(err)
@@ -75,7 +75,7 @@ func TestScanAndApplyExisting(t *testing.T) {
 		len(got.Admins) != 1 || !got.Rcon || got.ServerDir != srv {
 		t.Errorf("perfil: %+v", got)
 	}
-	if v.s.RconPassword != "rcon#Senha1" || !slices.Contains(r.Kept, "hostname") || !slices.Contains(r.Applied, "rconPassword") {
+	if v.one().RconPassword != "rcon#Senha1" || !slices.Contains(r.Kept, "hostname") || !slices.Contains(r.Applied, "rconPassword") {
 		t.Errorf("resultado %+v cofre %+v", r, v.s)
 	}
 
@@ -125,10 +125,10 @@ func TestResolveServerDirAndLogOrder(t *testing.T) {
 		}
 	}
 	writeFile(t, filepath.Join(logs, "Modio.log"), "x")
-	if got := LogFiles(srv); !slices.Equal(got, []string{newest, mid, old}) {
+	if got := LogFiles(logs); !slices.Equal(got, []string{newest, mid, old}) {
 		t.Errorf("ordem: %v", got)
 	}
-	if cmd, file := lastCommandLine(srv); cmd != "-Port=27202" || file != "Insurgency_2.log" {
+	if cmd, file := lastCommandLine(server.Profile{ServerDir: srv}); cmd != "-Port=27202" || file != "Insurgency_2.log" {
 		t.Errorf("linha: %q %q", cmd, file)
 	}
 }
@@ -175,14 +175,14 @@ func TestLogRetention(t *testing.T) {
 		}
 		_ = os.Chtimes(p, mt, mt)
 	}
-	if got := len(ServerLogs(root)); got != 5 {
+	if got := len(ServerLogs(logs)); got != 5 {
 		t.Fatalf("ServerLogs = %d", got)
 	}
-	n, freed, err := DeleteOldLogs(root, 3)
+	n, freed, err := DeleteOldLogs(logs, 3)
 	if err != nil || n != 2 || freed != 2 {
 		t.Fatalf("deleted %d (%d bytes) %v", n, freed, err)
 	}
-	left := ServerLogs(root)
+	left := ServerLogs(logs)
 	if len(left) != 3 || left[0].Name != "Insurgency.log" || left[1].Name != "Insurgency_2.log" {
 		t.Fatalf("left %+v", left)
 	}

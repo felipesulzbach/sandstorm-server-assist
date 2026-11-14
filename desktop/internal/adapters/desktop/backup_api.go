@@ -49,7 +49,7 @@ func (b *BackupAPI) Create(password string, includeModio bool) (CreateResult, er
 	if err != nil {
 		return CreateResult{}, err
 	}
-	b.a.log.Add("app", "Backup saved: "+filepath.Base(dest), "info")
+	b.a.sel().log.Add("app", "Backup saved: "+filepath.Base(dest), "info")
 	return CreateResult{Saved: true, File: filepath.Base(dest), Summary: sum}, nil
 }
 
@@ -92,7 +92,7 @@ func (b *BackupAPI) ChooseRestoreDir() (string, error) {
 
 // Restore grava o backup nesta máquina (servidor parado).
 func (b *BackupAPI) Restore(password string, restoreModio bool) (backupsvc.Summary, error) {
-	if len(b.a.runner.Status().PIDs) > 0 {
+	if len(b.a.sel().runner.Status().PIDs) > 0 {
 		return backupsvc.Summary{}, problems.New(problems.ServerRunning, "")
 	}
 	b.mu.Lock()
@@ -108,6 +108,6 @@ func (b *BackupAPI) Restore(password string, restoreModio bool) (backupsvc.Summa
 	if err != nil {
 		return sum, err
 	}
-	b.a.log.Add("app", "Backup restored into "+dir, "info")
+	b.a.sel().log.Add("app", "Backup restored into "+dir, "info")
 	return sum, nil
 }

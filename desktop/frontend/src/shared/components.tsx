@@ -6,6 +6,13 @@ import { toAppError, type AppError } from './problem';
 import { percent } from './format';
 
 /** Erro do catálogo: o que aconteceu, possível causa e como resolver (ADR-005). */
+// Nome de cada porta nos avisos de porta ocupada.
+const PORT_NAMES: Record<string, string> = {
+  port: 'server.port',
+  queryPort: 'server.queryPort',
+  rconPort: 'server.secrets.rconPort',
+};
+
 export function ErrorCard({
   error,
   onClose,
@@ -20,7 +27,11 @@ export function ErrorCard({
   const title = t(`${base}.title`);
   const known = title !== `${base}.title`;
   const p = known ? base : 'problems.unknown';
-  const fieldMsg = error.msg ? t(error.msg, error.params) : '';
+  // portField (port, queryPort, rconPort) vira o nome da porta no texto: {portName} (ADR-048).
+  const params = error.params?.portField
+    ? { ...error.params, portName: t(PORT_NAMES[error.params.portField] ?? 'server.port') }
+    : error.params;
+  const fieldMsg = error.msg ? t(error.msg, params) : '';
   return (
     <div className="errorcard" role="alert">
       <div className="errorcard__head">
@@ -46,13 +57,13 @@ export function ErrorCard({
       {!fieldMsg && (
         <dl className="errorcard__body">
           <dt>{t('error.what')}</dt>
-          <dd>{t(`${p}.what`)}</dd>
+          <dd>{t(`${p}.what`, params)}</dd>
           <dt>{t('error.cause')}</dt>
-          <dd>{t(`${p}.cause`)}</dd>
+          <dd>{t(`${p}.cause`, params)}</dd>
           <dt>{t('error.solution')}</dt>
           <dd>
             <ol>
-              {tl(`${p}.solution`).map((s) => (
+              {tl(`${p}.solution`, params).map((s) => (
                 <li key={s}>{s}</li>
               ))}
             </ol>

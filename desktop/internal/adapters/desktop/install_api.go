@@ -38,8 +38,12 @@ func (i *InstallAPI) InstallServer(validate bool) error {
 	if p.ServerDir == "" {
 		return problems.New(problems.ServerDirInvalid, "")
 	}
-	if len(i.a.runner.Status().PIDs) > 0 {
+	if len(i.a.sel().runner.Status().PIDs) > 0 {
 		return problems.New(problems.ServerRunning, "")
+	}
+	// A instalação é compartilhada: os outros servidores dela também precisam estar parados (ADR-048).
+	if err := i.a.installRunning(p.ServerDir, ""); err != nil {
+		return err
 	}
 	return i.a.install.Install(p.SteamCMDDir, p.ServerDir, validate)
 }

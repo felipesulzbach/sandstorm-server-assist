@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-14 (0.2.9 published).
+> Living document, updated at each step. Last update: 2026-11-14 (several servers, not published).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -208,6 +208,32 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
   a pair kept from an older profile without locking it.
 - Verified: what each mutator changes was read from the game files (blueprints in `pakchunk0`); Go and front-end
   tests.
+
+## Several servers at once (ADR-048, not published)
+
+- `domain/server`: `Profile.Instance`, `InstanceFiles` (`Saved_N`, `Admins_N`, `MapCycle_N`, `Motd_N`), launch
+  arguments per instance (`-saveddirsuffix=N`, `-AdminList`, `-Motd`, `-MapCycle`), `InstanceOf` (instance from a
+  process command line), `PortConflicts`, `FreePorts`, `CheckStart` (ports and GSLT), `Vault` (secrets of the
+  account and of each server). New problems `ports-shared`, `gslt-shared`, `others-running`.
+- `config`: the profiles are the servers (file kept in the old shape), unique instances, per-server secrets with
+  the old vault migrated, `CurrentOf`, `Peers`, a new server with free ports, install folder moved for every server
+  that shared it, instance paths in Prepare, import, logs and rules.
+- `proc.FindInDir` reads each process command line; `runner` keeps only its instance's processes, checks ports and
+  GSLT before starting and waits (phase `waiting`) while another server syncs mods; one run record per server.
+- Bridge: one runner, log, chat, players, map change, Discord and watchdog per server (`fleet.go`); `Servers`,
+  `StartServer`, `StopServer`, `RestartServer`, `PortConflicts`, `FreePorts`; events `fleet:status` and the
+  selected server's `server:status` and `log:lines`. Backup per server with its instance files.
+- `ServerAPI.StartServers(ids)` / `StopServers(ids)` / `RestartServers(ids)`: start, stop or restart (stop all, wait,
+  start in order) the ticked servers in instance order (the others
+  skipped, each failure in its log). The Dashboard list has a tick per server and **Select all**; the main button
+  becomes **Start servers (N)**, **Stop servers (N)** or **Restart servers (N)**. A refused start (`ports-shared`, new `port-taken`) carries
+  `portField`, shown as the port's name.
+- Front end: `ServersProvider`, the selector at the top (`ServerBar`), the Dashboard **Servers** list, the Server
+  screen's servers bar and the port warning with **Use free ports**; texts in the 5 languages.
+- Verified: a test instance on the maintainer's install (no mods) used `Saved__ssatest` and its own MapCycle file;
+  Go tests (instances, ports, migration, per-server secrets, runner per instance, waiting for mods, command line of
+  a real process), front-end tests, lint, typecheck and audits. Not yet: two real servers with mods at once, and the
+  maintainer's check in the dev app.
 
 ## Bridge from the old download server
 

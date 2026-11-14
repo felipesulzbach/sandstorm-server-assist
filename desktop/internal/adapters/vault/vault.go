@@ -30,9 +30,10 @@ func Default() (Vault, error) {
 	return Vault{Path: filepath.Join(base, "sandstorm-server-assist", "vault.bin")}, nil
 }
 
-// Load abre o cofre. Sem arquivo, devolve segredos vazios.
-func (v Vault) Load() (server.Secrets, error) {
-	var s server.Secrets
+// Load abre o cofre. Sem arquivo, devolve segredos vazios. O cofre de versões antigas (só os segredos, sem
+// servidores) abre igual: os campos ficam no nível de cima (ADR-048).
+func (v Vault) Load() (server.Vault, error) {
+	var s server.Vault
 	data, err := fsx.ReadLimited(v.Path, 1<<20)
 	if errors.Is(err, fs.ErrNotExist) {
 		return s, nil
@@ -52,7 +53,7 @@ func (v Vault) Load() (server.Secrets, error) {
 }
 
 // Save grava o cofre (troca atômica).
-func (v Vault) Save(s server.Secrets) error {
+func (v Vault) Save(s server.Vault) error {
 	plain, err := json.Marshal(s)
 	if err != nil {
 		return err

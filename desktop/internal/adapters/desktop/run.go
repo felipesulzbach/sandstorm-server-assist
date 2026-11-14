@@ -4,8 +4,6 @@ package desktop
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -20,55 +18,40 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
-	"sandstorm-server-assist/desktop/internal/adapters/discord"
 	"sandstorm-server-assist/desktop/internal/adapters/fsx"
 	"sandstorm-server-assist/desktop/internal/adapters/modio"
-	"sandstorm-server-assist/desktop/internal/adapters/proc"
-	"sandstorm-server-assist/desktop/internal/adapters/rcon"
 	upd "sandstorm-server-assist/desktop/internal/adapters/updater"
 	"sandstorm-server-assist/desktop/internal/adapters/vault"
 	"sandstorm-server-assist/desktop/internal/adapters/winsys"
-	"sandstorm-server-assist/desktop/internal/app/chat"
 	"sandstorm-server-assist/desktop/internal/app/config"
 	"sandstorm-server-assist/desktop/internal/app/installer"
-	"sandstorm-server-assist/desktop/internal/app/logbuf"
-	"sandstorm-server-assist/desktop/internal/app/mapchange"
 	"sandstorm-server-assist/desktop/internal/app/modfiles"
-	"sandstorm-server-assist/desktop/internal/app/notify"
-	"sandstorm-server-assist/desktop/internal/app/players"
-	"sandstorm-server-assist/desktop/internal/app/runner"
 	"sandstorm-server-assist/desktop/internal/app/updater"
-	"sandstorm-server-assist/desktop/internal/app/watchdog"
 	"sandstorm-server-assist/desktop/internal/domain/legal"
-	"sandstorm-server-assist/desktop/internal/domain/logparse"
 	"sandstorm-server-assist/desktop/internal/domain/server"
 )
 
 // AppVersion é trocada no build (-ldflags "-X .../desktop.AppVersion=x.y.z").
 var AppVersion = "0.1.0-dev"
 
-// app junta os serviços compartilhados pelas APIs.
+// app junta os serviços compartilhados pelas APIs. Os de cada servidor (runner, log, chat...) ficam em servers
+// (ADR-048).
 type app struct {
 	ctx     context.Context
 	cfg     *config.Service
-	log     *logbuf.Buffer
-	runner  *runner.Service
+	cfgPath string
+	servers *fleet
 	install *installer.Service
 	mods    *modCache
 	updates *updater.Service
-	maps    *mapchange.Service
-	chat    *chat.Service
-	players *players.Service
-	notify  *notify.Service
-	watch   *watchdog.Service
-	// lastPhase é a fase vista no último tique (avisos do Discord quando muda).
-	lastPhase runner.Phase
 	// autostart: o Windows abriu o app ao entrar (--autostart).
 	autostart bool
 	// updatesOnce liga a procura de atualizações uma vez, só depois do aceite dos termos (ADR-015).
 	updatesOnce sync.Once
-	// modFiles apaga um mod baixado para o servidor baixar de novo (ADR-037).
+	// modFiles apaga mods baixados (ADR-037, ADR-047) com todos os servidores parados; modNew baixa os mods novos
+	// reiniciando só o servidor escolhido (ADR-038).
 	modFiles *modfiles.Service
+	modNew   *modfiles.Service
 	// scenarios guarda os cenários que existem (jogo base e mods instalados) para conferir a rotação (ADR-030).
 	scenarios *scenarioCache
 }
@@ -102,14 +85,9 @@ func Run(assets fs.FS) error {
 		AssetServer:      &assetserver.Options{Assets: assets},
 		OnStartup: func(ctx context.Context) {
 			a.ctx = ctx
-			a.log.SetNotify(func(lines []logbuf.Line) { runtime.EventsEmit(ctx, "log:lines", lines) })
-			a.runner.SetNotify(func(st runner.Status) {
-				// Servidor parou: a conexão das mensagens de chat fecha e a lista de jogadores recomeça.
-				if st.Phase == runner.Stopped || st.Phase == runner.Crashed {
-					a.chat.Reset()
-				}
-				runtime.EventsEmit(ctx, "server:status", st)
-			})
+			for _, sv := range a.all() {
+				a.wireServer(sv)
+			}
 			a.install.SetNotify(func(st installer.State) { runtime.EventsEmit(ctx, "install:state", st) })
 			a.updates.SetNotify(func(st updater.State) { runtime.EventsEmit(ctx, "update:state", st) })
 			if legal.Accepted(a.cfg.Settings().TermsAccepted) {
@@ -151,132 +129,54 @@ func newApp() *app {
 		path = filepath.Join(os.TempDir(), "sandstorm-server-assist", "config.json")
 	}
 	cfg := config.Open(path, store)
-	log := logbuf.New(6000, cfg.SecretValues)
-	mods := &modCache{}
-	a := &app{cfg: cfg, log: log, install: installer.New(log), mods: mods, scenarios: &scenarioCache{}}
+	a := &app{cfg: cfg, cfgPath: path, servers: &fleet{byID: map[string]*srv{}}, mods: &modCache{},
+		scenarios: &scenarioCache{}}
+	a.install = installer.New(fanLog{a})
 	a.updates = newUpdater()
-	runs := newRunFile(path, log)
-	a.runner = runner.New(runner.Deps{
-		Find: func(dir string) ([]proc.Process, error) { return proc.FindInDir(dir, "InsurgencyServer") },
-		Kill: proc.Kill,
-		Start: func(exe, cmdline, dir string) error {
-			_, err := proc.Start(exe, cmdline, dir, !cfg.Settings().ShowConsole)
-			return err
-		},
-		Config:  cfg.Current,
-		Prepare: config.Prepare,
-		SessionExpiry: func() time.Time {
-			uf, err := modio.UserFile()
-			if err != nil {
-				return time.Time{}
-			}
-			s, _, _ := modio.ReadSession(uf)
-			return s.Expires
-		},
-		ModInfo: mods.info,
-		ModOwners: func(object string) []string {
-			return modOwnerNames(object)
-		},
-		CleanLogs: func(dir string) {
-			st := cfg.Settings()
-			if !st.LogCleanup {
-				return
-			}
-			n, freed, err := config.DeleteOldLogs(dir, st.LogKeep)
-			if n > 0 {
-				log.Add("app", fmt.Sprintf("Old server logs deleted: %d files (%d KB), keeping the last %d runs", n, freed/1024, st.LogKeep), "")
-			}
-			if err != nil {
-				log.Add("app", "Some old server logs could not be deleted: "+err.Error(), "warning")
-			}
-		},
-		InstalledMods: func() []int {
-			list, err := modio.ServerInstalled(modio.RootDir())
-			if err != nil {
-				return nil
-			}
-			ids := make([]int, 0, len(list))
-			for _, m := range list {
-				if m.State == modio.StateInstalled {
-					ids = append(ids, m.ID)
-				}
-			}
-			return ids
-		},
-		OnPlayer: func(ev logparse.Event) { a.chat.Observe(ev) },
-		SaveRun:  runs.Save,
-		LoadRun:  runs.Load,
-		Log:      log,
-	})
-	a.maps = mapchange.New(mapchange.Deps{
-		Config:       cfg.Current,
-		Ready:        func() bool { return a.runner.Status().Phase == runner.Ready },
-		ModScenarios: func() []string { return loadedModScenarios(a.runner.Status().Mods) },
-		Dial: func(port int, password string) (mapchange.Conn, error) {
-			c, err := rcon.Dial(port, password)
-			if errors.Is(err, rcon.ErrAuth) {
-				return nil, mapchange.ErrAuth
-			}
-			if err != nil {
-				return nil, err
-			}
-			return c, nil
-		},
-		Log: func(text, level string) { log.Add("app", text, level) },
-	})
-	a.notify = notify.New(notify.Deps{
-		Config: cfg.Current,
-		Post:   discord.Post,
-		Log:    func(text, level string) { log.Add("app", text, level) },
-	}, true)
-	a.players = players.New(players.Deps{
-		Config: cfg.Current,
-		Ready:  func() bool { return a.runner.Status().Phase == runner.Ready },
-		Dial: func(port int, password string) (players.Conn, error) {
-			c, err := rcon.Dial(port, password)
-			if errors.Is(err, rcon.ErrAuth) {
-				return nil, players.ErrAuth
-			}
-			if err != nil {
-				return nil, err
-			}
-			return c, nil
-		},
-		Log: func(text, level string) { log.Add("app", text, level) },
-	})
-	a.modFiles = modfiles.New(modfiles.Deps{
-		Running:     func() bool { return len(a.runner.Status().PIDs) > 0 },
-		Busy:        a.install.Busy,
-		StopAndWait: a.runner.StopAndWait,
-		Start:       a.runner.Start,
-		Remove:      func(id int) error { return modio.RemoveInstalled(modio.RootDir(), id) },
-		RemoveAll:   func() error { return modio.RemoveAllInstalled(modio.RootDir()) },
-		Logout:      modio.Logout,
-		Log:         func(text, level string) { log.Add("app", text, level) },
-	})
-	a.watch = watchdog.New(watchdog.Deps{
-		Config:      cfg.Current,
-		Phase:       func() string { return string(a.runner.Status().Phase) },
-		Start:       a.runner.Start,
-		Restart:     a.runner.Restart,
-		StopAndWait: a.runner.StopAndWait,
-		Update:      a.updateServer,
-		Say:         func(text string) { a.chat.Broadcast(text) },
-		Log:         func(text, level string) { log.Add("app", text, level) },
-	})
-	a.chat = chat.New(chat.Deps{
-		OnPlayer: func(kind, name string) { a.notify.Event(kind, "", name) },
-		Config:   cfg.Current,
-		Dial: func(port int, password string) (chat.Conn, error) {
-			c, err := rcon.Dial(port, password)
-			if err != nil {
-				return nil, err
-			}
-			return c, nil
-		},
-		Log: func(text, level string) { log.Add("app", text, level) },
-	}, true)
+	a.all()
+	a.modFiles = modfiles.New(a.modDeps(true))
+	a.modNew = modfiles.New(a.modDeps(false))
 	return a
+}
+
+// modDeps liga o serviço de mods aos servidores: fleet=true para e volta todos os que estavam rodando (apagar
+// mods mexe na pasta de todos); fleet=false usa só o servidor escolhido.
+func (a *app) modDeps(fleet bool) modfiles.Deps {
+	logf := func(text, level string) { a.logAll("app", text, level) }
+	d := modfiles.Deps{
+		Busy:      a.install.Busy,
+		Remove:    func(id int) error { return modio.RemoveInstalled(modio.RootDir(), id) },
+		RemoveAll: func() error { return modio.RemoveAllInstalled(modio.RootDir()) },
+		Logout:    modio.Logout,
+		Log:       logf,
+	}
+	if !fleet {
+		d.Running = func() bool { return len(a.sel().runner.Status().PIDs) > 0 }
+		d.StopAndWait = func() error { return a.sel().runner.StopAndWait() }
+		d.Start = func() error { return a.sel().runner.Start() }
+		return d
+	}
+	var mu sync.Mutex
+	var stopped []string
+	d.Running = func() bool { return len(a.running("")) > 0 }
+	d.StopAndWait = func() error {
+		ids, err := a.stopAll()
+		mu.Lock()
+		stopped = ids
+		mu.Unlock()
+		return err
+	}
+	d.Start = func() error {
+		mu.Lock()
+		ids := stopped
+		stopped = nil
+		mu.Unlock()
+		if len(ids) == 0 {
+			ids = []string{a.cfg.SelectedID()}
+		}
+		return a.startIDs(ids)
+	}
+	return d
 }
 
 // Atualização automática: primeira procura 10 s depois de abrir, depois a cada 4 horas.
@@ -303,22 +203,28 @@ func newUpdater() *updater.Service {
 	return updater.New(cfg)
 }
 
-// loop: estado do servidor a cada segundo e logs para a tela a cada 300 ms.
+// loop: estado dos servidores a cada segundo e logs para a tela a cada 300 ms.
 func (a *app) loop(ctx context.Context) {
 	tick := time.NewTicker(time.Second)
 	flush := time.NewTicker(300 * time.Millisecond)
 	defer tick.Stop()
 	defer flush.Stop()
-	a.runner.Tick()
+	for _, s := range a.all() {
+		s.runner.Tick()
+	}
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case <-tick.C:
-			a.runner.Tick()
-			a.tickAutomation()
+			for _, s := range a.all() {
+				s.runner.Tick()
+				a.tickAutomation(s)
+			}
 		case <-flush.C:
-			a.log.Flush()
+			for _, s := range a.all() {
+				s.log.Flush()
+			}
 		}
 	}
 }
@@ -326,8 +232,8 @@ func (a *app) loop(ctx context.Context) {
 // memoryVault é usado se o Windows não der a pasta de configuração (segredos só na memória).
 type memoryVault struct{}
 
-func (memoryVault) Load() (server.Secrets, error) { return server.Secrets{}, nil }
-func (memoryVault) Save(server.Secrets) error     { return nil }
+func (memoryVault) Load() (server.Vault, error) { return server.Vault{}, nil }
+func (memoryVault) Save(server.Vault) error     { return nil }
 
 // modCache guarda os mods do state.json (relido a cada 5 s) para nome e tamanho no progresso de download.
 type modCache struct {

@@ -10,10 +10,13 @@ import (
 	"sandstorm-server-assist/desktop/internal/domain/server"
 )
 
-type memVault struct{ s server.Secrets }
+type memVault struct{ s server.Vault }
 
-func (m *memVault) Load() (server.Secrets, error) { return m.s, nil }
-func (m *memVault) Save(s server.Secrets) error   { m.s = s; return nil }
+func (m *memVault) Load() (server.Vault, error) { return m.s, nil }
+func (m *memVault) Save(s server.Vault) error   { m.s = s; return nil }
+
+// gameIni é o Game.ini do servidor principal.
+const gameIni = `Insurgency\Saved\Config\WindowsServer\Game.ini`
 
 func write(t *testing.T, path, content string) {
 	t.Helper()
@@ -30,9 +33,9 @@ func write(t *testing.T, path, content string) {
 func TestImportBackupRestore(t *testing.T) {
 	a := t.TempDir()
 	serverA := filepath.Join(a, "sandstorm_server")
-	write(t, filepath.Join(serverA, config.GameIni), "[Rcon]\r\nbEnabled=True\r\nPassword=rcon#Senha1\r\nListenPort=27015\r\n")
-	write(t, filepath.Join(serverA, config.AdminsTxt), ";Alice\r\n76561198000000001\r\n")
-	write(t, filepath.Join(serverA, config.MapCycleTxt), "//x\r\n(Scenario=\"Scenario_Farmhouse_Checkpoint_Security\")\r\n")
+	write(t, filepath.Join(serverA, gameIni), "[Rcon]\r\nbEnabled=True\r\nPassword=rcon#Senha1\r\nListenPort=27015\r\n")
+	write(t, filepath.Join(serverA, `Insurgency\Config\Server\Admins.txt`), ";Alice\r\n76561198000000001\r\n")
+	write(t, filepath.Join(serverA, `Insurgency\Config\Server\MapCycle.txt`), "//x\r\n(Scenario=\"Scenario_Farmhouse_Checkpoint_Security\")\r\n")
 
 	vaultA := &memVault{}
 	cfgA := config.Open(filepath.Join(a, "config.json"), vaultA)
@@ -43,7 +46,7 @@ func TestImportBackupRestore(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if p := r.Profile; len(p.Admins) != 1 || len(p.MapCycle) != 1 || !p.Rcon || !r.RconInIni || vaultA.s.RconPassword != "rcon#Senha1" {
+	if p := r.Profile; len(p.Admins) != 1 || len(p.MapCycle) != 1 || !p.Rcon || !r.RconInIni || one(vaultA).RconPassword != "rcon#Senha1" {
 		t.Fatalf("import %+v vault %+v", r, vaultA.s)
 	}
 	if err := cfgA.MoveRconToVault(); err != nil {
@@ -52,7 +55,7 @@ func TestImportBackupRestore(t *testing.T) {
 	if cfgA.RconInIni() {
 		t.Fatal("senha continua no Game.ini")
 	}
-	if _, err := os.Stat(filepath.Join(serverA, config.GameIni+".bak")); err != nil {
+	if _, err := os.Stat(filepath.Join(serverA, gameIni+".bak")); err != nil {
 		t.Fatal("sem cópia .bak do Game.ini")
 	}
 	if err := cfgA.SetSecret("gsltToken", "ABCDEF0123456789"); err != nil {
@@ -89,10 +92,18 @@ func TestImportBackupRestore(t *testing.T) {
 	if p.ServerDir != serverB || len(p.Admins) != 1 || !p.Rcon {
 		t.Errorf("perfil: %+v", p)
 	}
-	if vaultB.s.GSLTToken != "ABCDEF0123456789" || vaultB.s.RconPassword != "rcon#Senha1" {
+	if one(vaultB).GSLTToken != "ABCDEF0123456789" || one(vaultB).RconPassword != "rcon#Senha1" {
 		t.Errorf("cofre B: %+v", vaultB.s)
 	}
-	if b, err := os.ReadFile(filepath.Join(serverB, config.AdminsTxt)); err != nil || !strings.Contains(string(b), "76561198000000001") {
+	if b, err := os.ReadFile(filepath.Join(serverB, `Insurgency\Config\Server\Admins.txt`)); err != nil || !strings.Contains(string(b), "76561198000000001") {
 		t.Errorf("Admins.txt: %v %q", err, b)
 	}
+}
+
+// one devolve os segredos do único servidor do cofre, com os da conta.
+func one(m *memVault) server.Secrets {
+	for _, sec := range m.s.Servers {
+		return sec.WithAccount(m.s.Secrets)
+	}
+	return m.s.Secrets
 }

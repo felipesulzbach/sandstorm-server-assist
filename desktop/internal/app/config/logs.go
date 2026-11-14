@@ -23,12 +23,13 @@ func (s *Service) SetLogRetention(on bool, keep int) (Settings, error) {
 	return s.Settings(), err
 }
 
-// ServerLogs lista os logs do servidor (só os nomes que o servidor cria), do mais novo para o mais velho.
-func ServerLogs(serverDir string) []serverlogs.File {
-	if serverDir == "" {
+// ServerLogs lista os logs da pasta de logs de uma instância (LogsPath; só os nomes que o servidor cria), do mais
+// novo para o mais velho.
+func ServerLogs(logsDir string) []serverlogs.File {
+	if logsDir == "" {
 		return nil
 	}
-	entries, err := os.ReadDir(filepath.Join(serverDir, LogsDir))
+	entries, err := os.ReadDir(logsDir)
 	if err != nil {
 		return nil
 	}
@@ -46,18 +47,18 @@ func ServerLogs(serverDir string) []serverlogs.File {
 }
 
 // OldLogs devolve os logs que a limpeza apagaria mantendo keep partidas.
-func OldLogs(serverDir string, keep int) []serverlogs.File {
-	return serverlogs.ToDelete(ServerLogs(serverDir), keep)
+func OldLogs(logsDir string, keep int) []serverlogs.File {
+	return serverlogs.ToDelete(ServerLogs(logsDir), keep)
 }
 
 // DeleteOldLogs apaga os logs antigos mantendo keep partidas. O log atual nunca é apagado. Devolve quantos
 // arquivos e quantos bytes saíram; um arquivo que não pôde ser apagado (em uso) não impede os outros.
-func DeleteOldLogs(serverDir string, keep int) (int, int64, error) {
-	dir := filepath.Join(serverDir, LogsDir)
+func DeleteOldLogs(logsDir string, keep int) (int, int64, error) {
+	dir := logsDir
 	var n int
 	var freed int64
 	var errs []error
-	for _, f := range OldLogs(serverDir, keep) {
+	for _, f := range OldLogs(logsDir, keep) {
 		if !serverlogs.IsServerLog(f.Name) || f.Name == serverlogs.Current {
 			continue
 		}
