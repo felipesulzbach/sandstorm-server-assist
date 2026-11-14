@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-14 (0.3.0 being published).
+> Living document, updated at each step. Last update: 2026-11-14 (0.3.0 published).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -232,8 +232,11 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
   screen's servers bar and the port warning with **Use free ports**; texts in the 5 languages.
 - Verified: a test instance on the maintainer's install (no mods) used `Saved__ssatest` and its own MapCycle file;
   Go tests (instances, ports, migration, per-server secrets, runner per instance, waiting for mods, command line of
-  a real process), front-end tests, lint, typecheck and audits. Not yet: two real servers with mods at once, and the
-  maintainer's check in the dev app.
+  a real process), front-end tests, lint, typecheck and audits. The maintainer then ran three servers with mods at
+  once from the dev app (each with its own port, logs, rotation and RCON) and used start, stop and restart of
+  several together.
+- **0.3.0 published** on 2026-11-14: GitHub Release `v0.3.0` (installer and `latest.json` checked after download,
+  same SHA-256). Not published on the bridge server this time (the maintainer skipped it).
 
 ## Bridge from the old download server
 

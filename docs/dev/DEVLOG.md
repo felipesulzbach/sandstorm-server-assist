@@ -213,6 +213,8 @@ Short notes of each development session, newest last. They help a new session pi
 - The third server's RCON still failed: MongoDB listens on `127.0.0.1:27017`, the server opened `0.0.0.0:27017`
   and local connections went to MongoDB. The port check now also opens 127.0.0.1, free ports skip busy ones, and
   the Server screen lists ports used by other programs.
+- Restart and Stop also act on the ticked servers; **Select all** in the list.
+- Published the same day as `v0.3.0` on GitHub only (bridge skipped by the maintainer).
 
 ## Cautions for future sessions
 
