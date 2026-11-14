@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-14 (0.2.8 in progress).
+> Living document, updated at each step. Last update: 2026-11-14 (0.2.8 published).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -174,6 +174,13 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
   CSS finds the reported Dashboard break and a Mods table overflow.
 
 - **0.2.6 published** on 2026-11-13: GitHub Release `v0.2.6` and the bridge server; both `latest.json` serve the
+  same installer (SHA-256 checked after download).
+
+## 0.2.8 · folder dialog after a folder was moved
+
+- `dialogStart` opens **Choose…** at the nearest existing parent folder, and the dialog retries without a start
+  folder if Windows still refuses (`dialogs.go`, tested).
+- **0.2.8 published** on 2026-11-14: GitHub Release `v0.2.8` and the bridge server; both `latest.json` serve the
   same installer (SHA-256 checked after download).
 
 ## 0.2.7 · map rotation by map (ADR-046)

@@ -177,6 +177,7 @@ Short notes of each development session, newest last. They help a new session pi
   error and never opened. Wails checks the dialog's start folder with `os.Stat` and returns an error when it does not
   exist. The app now opens the dialog at the nearest existing parent folder (`dialogStart`), and once more without a
   start folder if Windows still refuses.
+- Published the same day as `v0.2.8` (GitHub and the bridge server).
 
 ## Cautions for future sessions
 
