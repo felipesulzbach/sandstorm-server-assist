@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-14 (several servers, not published).
+> Living document, updated at each step. Last update: 2026-11-14 (0.3.0 being published).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -209,7 +209,7 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
 - Verified: what each mutator changes was read from the game files (blueprints in `pakchunk0`); Go and front-end
   tests.
 
-## Several servers at once (ADR-048, not published)
+## 0.3.0 · several servers at once (ADR-048)
 
 - `domain/server`: `Profile.Instance`, `InstanceFiles` (`Saved_N`, `Admins_N`, `MapCycle_N`, `Motd_N`), launch
   arguments per instance (`-saveddirsuffix=N`, `-AdminList`, `-Motd`, `-MapCycle`), `InstanceOf` (instance from a

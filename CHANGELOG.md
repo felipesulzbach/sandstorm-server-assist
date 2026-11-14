@@ -3,7 +3,7 @@
 All notable changes to Sandstorm Server Assist. Versions follow `MAJOR.MINOR.PATCH`. The GitHub release notes of
 each version come from its section here (`npm run release:publish`).
 
-## [Unreleased]
+## [0.3.0] - 2026-11-14
 
 ### Added
 
