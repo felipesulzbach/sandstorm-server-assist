@@ -186,6 +186,7 @@ Short notes of each development session, newest last. They help a new session pi
   with a confirmation and a choice to clear the shared vault too (ADR-047).
 - In the maintainer's test the downloaded mods and the server's mod.io authorization stayed: they are mod.io's, in
   Windows folders. They became two more options of the confirmation, off by default.
+- Published the same day as `v0.2.9` (GitHub and the bridge server).
 
 ## Cautions for future sessions
 
