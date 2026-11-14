@@ -3,6 +3,14 @@
 All notable changes to Sandstorm Server Assist. Versions follow `MAJOR.MINOR.PATCH`. The GitHub release notes of
 each version come from its section here (`npm run release:publish`).
 
+## [0.2.8] - 2026-11-14
+
+### Fixed
+
+- **Choose…** for the server or SteamCMD folder showed "Something went wrong" and did not open when the saved folder
+  had been moved or deleted, so a new folder could not be chosen. The folder window now opens at the nearest folder
+  that still exists.
+
 ## [0.2.7] - 2026-11-13
 
 ### Added

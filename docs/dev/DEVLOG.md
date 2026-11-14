@@ -171,6 +171,13 @@ Short notes of each development session, newest last. They help a new session pi
   capture time (Competitive, Hardcore, Slow Capture Times). Ultralethal, Headshots Only, Hot Potato and Vampirism
   are native classes (not readable); they stay free (ADR-045).
 
+## 2026-11-14 · 0.2.8 (folder moved away)
+
+- The maintainer moved the server and SteamCMD folders to start from scratch; **Choose…** then showed an unknown
+  error and never opened. Wails checks the dialog's start folder with `os.Stat` and returns an error when it does not
+  exist. The app now opens the dialog at the nearest existing parent folder (`dialogStart`), and once more without a
+  start folder if Windows still refuses.
+
 ## Cautions for future sessions
 
 - The maintainer's real server folder has secrets in plain text (`Game.ini`, notes next to the `.bat`) and the mod.io

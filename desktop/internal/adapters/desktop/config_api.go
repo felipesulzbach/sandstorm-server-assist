@@ -1,8 +1,6 @@
 package desktop
 
 import (
-	"github.com/wailsapp/wails/v2/pkg/runtime"
-
 	"sandstorm-server-assist/desktop/internal/app/config"
 	"sandstorm-server-assist/desktop/internal/app/installer"
 	"sandstorm-server-assist/desktop/internal/domain/problems"
@@ -64,9 +62,7 @@ func (c *ConfigAPI) ExtractSteamID(text string) (string, error) {
 // ChooseServerDir abre o diálogo de pasta para a pasta do servidor.
 func (c *ConfigAPI) ChooseServerDir() (server.Profile, error) {
 	cur := c.a.cfg.Profile()
-	dir, err := runtime.OpenDirectoryDialog(c.a.ctx, runtime.OpenDialogOptions{
-		DefaultDirectory: cur.ServerDir, CanCreateDirectories: true,
-	})
+	dir, err := c.a.chooseDir(cur.ServerDir)
 	if err != nil || dir == "" {
 		return cur, err
 	}
@@ -83,9 +79,7 @@ func (c *ConfigAPI) ChooseServerDir() (server.Profile, error) {
 // ChooseSteamCMDDir abre o diálogo de pasta para o SteamCMD.
 func (c *ConfigAPI) ChooseSteamCMDDir() (server.Profile, error) {
 	cur := c.a.cfg.Profile()
-	dir, err := runtime.OpenDirectoryDialog(c.a.ctx, runtime.OpenDialogOptions{
-		DefaultDirectory: cur.SteamCMDDir, CanCreateDirectories: true,
-	})
+	dir, err := c.a.chooseDir(cur.SteamCMDDir)
 	if err != nil || dir == "" {
 		return cur, err
 	}
