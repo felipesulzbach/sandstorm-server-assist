@@ -233,6 +233,11 @@ export const ptPT: Messages = {
     mutatorsRefused:
       'No mapa atual o servidor recusou: {names}. O jogo não diz porquê: pode não funcionar neste modo de jogo ou com outro mutator que escolheu (visto com o Ultralethal no Checkpoint, com ou sem o Bullet Sponge).',
     mutatorsRefusedBadge: 'recusado pelo servidor',
+    mutatorsConflictHint:
+      'Alguns mutators do jogo mudam o mesmo ajuste (pontos de abastecimento iniciais, classes e armas, velocidade, tempo de captura). Só um deles funciona de cada vez, por isso os outros ficam desligados enquanto um estiver marcado.',
+    mutatorsConflict: 'Muda o mesmo ajuste que {names}. Desmarque esse para usar este.',
+    mutatorsConflictBoth: 'Muda o mesmo ajuste que {names}: só um deles funciona. Deixe apenas um.',
+    mutatorsConflictBadge: 'conflito',
     mutatorsFromMod: 'Mod: {name}',
     mutatorsMissing: 'Nenhum mod instalado tem este mutator: o servidor não o vai carregar.',
     mutatorsNoMods:
@@ -281,7 +286,7 @@ export const ptPT: Messages = {
     cycleDefault: {
       button: 'Usar a rotação padrão ({n} mapas do jogo)',
       filled:
-        'Preenchida com a rotação padrão: {n} mapas do jogo no modo do mapa inicial. Clique em Guardar para a usar, ou edite a lista.',
+        'Preenchida com a rotação padrão: {n} mapas do jogo no modo do mapa inicial, cada um de dia e de noite. Clique em Guardar para a usar, ou edite a lista.',
       replace: 'Substituir a rotação atual pela padrão?',
     },
     admins: {
@@ -1009,6 +1014,37 @@ export const ptPT: Messages = {
       ],
     },
   },
+  cycle: {
+    hint: 'Aqui a rotação aparece por mapa. O ficheiro MapCycle.txt continua com um cenário por linha, nesta ordem.',
+    empty:
+      'A rotação está vazia: o servidor mantém o MapCycle.txt que já tem. Adicione mapas ou use a rotação padrão.',
+    unknownGroup: 'Linhas que a app não lê',
+    fromMod: 'Mod: {name}',
+    moveUp: 'Subir {map}',
+    moveDown: 'Descer {map}',
+    removeMap: 'Tirar {map} da rotação',
+    removeLine: 'Tirar {scenario}',
+    addScenario: '+ Adicionar um cenário deste mapa…',
+    addScenarioTo: 'Adicionar um cenário de {map}',
+    addMap: 'Adicionar mapa',
+    addMapTitle: 'Adicionar um mapa à rotação',
+    pickMap: 'Mapa',
+    pickScenarios: 'Cenários',
+    inCycle: 'já está na rotação',
+    mapIn: 'na rotação ({n} de {total} cenários)',
+    lightsHint:
+      'Cada cenário marcado entra uma vez em cada iluminação marcada. Marque as duas para jogar o mapa de dia e depois de noite.',
+    addMapHint:
+      'Os mapas com ✓ já estão na rotação. Para adicionar mais cenários deles, use “Adicionar um cenário deste mapa” no bloco do mapa.',
+    allMapsIn:
+      'Todos os mapas disponíveis já estão na rotação. Para adicionar mais cenários, use “Adicionar um cenário deste mapa” em cada bloco.',
+    addSelected: 'Adicionar à rotação',
+    groupMods: 'Dos seus mods',
+    groupGame: 'Do jogo',
+    noMaps:
+      'Nenhum mapa encontrado. Instale o servidor, ou subscreva mods de mapas e inicie o servidor uma vez.',
+    textEdit: 'Editar como texto (avançado)',
+  },
   lighting: {
     label: 'Iluminação',
     default: 'Padrão do cenário',
@@ -1455,12 +1491,15 @@ export const ptPT: Messages = {
     scenario: 'O cenário começa por Scenario_ (exemplo: Scenario_Farmhouse_Checkpoint_Security).',
     travelNeedsMods: 'O mapa do mod só funciona com os mods ligados.',
     mutator: 'Mutator inválido: {value}.',
+    mutatorConflict:
+      '{a} e {b} mudam o mesmo ajuste do jogo, por isso um anularia o outro. Deixe apenas um deles.',
     ip: 'Escreva só o IP, por exemplo 203.0.113.10.',
     steamId: 'SteamID64 inválido: {value}. Tem 17 dígitos e começa por 7656119.',
     steamIdNotFound:
       'Nenhum SteamID64 encontrado. Cole o número de 17 dígitos ou uma ligação steamcommunity.com/profiles/….',
     adminName: 'Nome do administrador: até 40 caracteres, numa linha.',
     mapCycleLine: 'Cada linha da rotação de mapas tem até 200 caracteres.',
+    mapCycleTooLong: 'A rotação de mapas tem até 500 linhas.',
     modId: 'ID de mod inválido: {value}.',
     code: 'O código tem 5 letras ou números.',
     backupPassword: 'A palavra-passe da cópia precisa de pelo menos {min} caracteres.',

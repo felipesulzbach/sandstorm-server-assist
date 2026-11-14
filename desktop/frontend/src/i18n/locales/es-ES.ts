@@ -233,6 +233,12 @@ export const esES: Messages = {
     mutatorsRefused:
       'En el mapa actual el servidor rechazó: {names}. El juego no dice por qué: puede no funcionar en este modo de juego o con otro mutator que elegiste (visto con Ultralethal en Checkpoint, con o sin Bullet Sponge).',
     mutatorsRefusedBadge: 'rechazado por el servidor',
+    mutatorsConflictHint:
+      'Algunos mutators del juego cambian el mismo ajuste (puntos de suministro iniciales, clases y armas, velocidad, tiempo de captura). Solo uno de ellos funciona a la vez, así que los demás quedan desactivados mientras uno esté marcado.',
+    mutatorsConflict: 'Cambia el mismo ajuste que {names}. Desmarca ese para usar este.',
+    mutatorsConflictBoth:
+      'Cambia el mismo ajuste que {names}: solo uno de ellos funciona. Deja solo uno.',
+    mutatorsConflictBadge: 'conflicto',
     mutatorsFromMod: 'Mod: {name}',
     mutatorsMissing: 'Ningún mod instalado tiene este mutator: el servidor no lo cargará.',
     mutatorsNoMods:
@@ -282,7 +288,7 @@ export const esES: Messages = {
     cycleDefault: {
       button: 'Usar la rotación predeterminada ({n} mapas del juego)',
       filled:
-        'Rellenada con la rotación predeterminada: {n} mapas del juego en el modo del mapa inicial. Pulsa Guardar para usarla, o edita la lista.',
+        'Rellenada con la rotación predeterminada: {n} mapas del juego en el modo del mapa inicial, cada uno de día y de noche. Pulsa Guardar para usarla, o edita la lista.',
       replace: '¿Sustituir la rotación actual por la predeterminada?',
     },
     admins: {
@@ -1012,6 +1018,37 @@ export const esES: Messages = {
       ],
     },
   },
+  cycle: {
+    hint: 'Aquí la rotación aparece por mapa. El archivo MapCycle.txt sigue con un escenario por línea, en este orden.',
+    empty:
+      'La rotación está vacía: el servidor mantiene el MapCycle.txt que ya tiene. Añade mapas o usa la rotación predeterminada.',
+    unknownGroup: 'Líneas que la app no lee',
+    fromMod: 'Mod: {name}',
+    moveUp: 'Subir {map}',
+    moveDown: 'Bajar {map}',
+    removeMap: 'Quitar {map} de la rotación',
+    removeLine: 'Quitar {scenario}',
+    addScenario: '+ Añadir un escenario de este mapa…',
+    addScenarioTo: 'Añadir un escenario de {map}',
+    addMap: 'Añadir mapa',
+    addMapTitle: 'Añadir un mapa a la rotación',
+    pickMap: 'Mapa',
+    pickScenarios: 'Escenarios',
+    inCycle: 'ya está en la rotación',
+    mapIn: 'en la rotación ({n} de {total} escenarios)',
+    lightsHint:
+      'Cada escenario marcado entra una vez con cada iluminación marcada. Marca las dos para jugar el mapa de día y luego de noche.',
+    addMapHint:
+      'Los mapas con ✓ ya están en la rotación. Para añadir más escenarios suyos, usa «Añadir un escenario de este mapa» en el bloque del mapa.',
+    allMapsIn:
+      'Todos los mapas disponibles ya están en la rotación. Para añadir más escenarios, usa «Añadir un escenario de este mapa» en cada bloque.',
+    addSelected: 'Añadir a la rotación',
+    groupMods: 'De tus mods',
+    groupGame: 'Del juego',
+    noMaps:
+      'No se encontró ningún mapa. Instala el servidor, o suscríbete a mods de mapas e inicia el servidor una vez.',
+    textEdit: 'Editar como texto (avanzado)',
+  },
   lighting: {
     label: 'Iluminación',
     default: 'Predeterminado del escenario',
@@ -1461,12 +1498,15 @@ export const esES: Messages = {
       'El escenario empieza por Scenario_ (ejemplo: Scenario_Farmhouse_Checkpoint_Security).',
     travelNeedsMods: 'El mapa del mod solo funciona con los mods activados.',
     mutator: 'Mutator no válido: {value}.',
+    mutatorConflict:
+      '{a} y {b} cambian el mismo ajuste del juego, así que uno anularía al otro. Deja solo uno de ellos.',
     ip: 'Escribe solo la IP, por ejemplo 203.0.113.10.',
     steamId: 'SteamID64 no válido: {value}. Tiene 17 dígitos y empieza por 7656119.',
     steamIdNotFound:
       'No se ha encontrado ningún SteamID64. Pega el número de 17 dígitos o un enlace steamcommunity.com/profiles/….',
     adminName: 'Nombre del administrador: hasta 40 caracteres, en una línea.',
     mapCycleLine: 'Cada línea de la rotación de mapas tiene hasta 200 caracteres.',
+    mapCycleTooLong: 'La rotación de mapas tiene hasta 500 líneas.',
     modId: 'ID de mod no válido: {value}.',
     code: 'El código tiene 5 letras o números.',
     backupPassword: 'La contraseña de la copia necesita al menos {min} caracteres.',

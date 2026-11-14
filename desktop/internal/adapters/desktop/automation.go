@@ -172,28 +172,6 @@ func (c *ConfigAPI) ServerRules() map[string]string {
 	return map[string]string{}
 }
 
-// CycleLine é uma linha da rotação com o cenário e a iluminação.
-type CycleLine struct {
-	Scenario string `json:"scenario"`
-	Lighting string `json:"lighting"`
-	// Missing: o mapa não está no jogo base nem nos mods instalados (ADR-030).
-	Missing bool `json:"missing"`
-}
-
-// MapCycleLines lê o cenário e a iluminação de cada linha da rotação (para a tela mostrar).
-func (c *ConfigAPI) MapCycleLines(lines []string) []CycleLine {
-	if len(lines) > 500 {
-		lines = lines[:500]
-	}
-	p, _, _ := c.a.cfg.Current()
-	missing := server.MissingInCycle(lines, c.a.scenarios.known(p.ServerDir))
-	out := make([]CycleLine, len(lines))
-	for i, l := range lines {
-		out[i] = CycleLine{Scenario: server.LineScenario(l), Lighting: server.LineLighting(l), Missing: missing[i]}
-	}
-	return out
-}
-
 // SetMapCycleLighting troca a iluminação de uma linha da rotação (index) ou de todas (index -1).
 func (c *ConfigAPI) SetMapCycleLighting(lines []string, index int, lighting string) ([]string, error) {
 	if !server.ValidLighting(lighting) || len(lines) > 500 || index < -1 || index >= len(lines) {
@@ -206,6 +184,48 @@ func (c *ConfigAPI) SetMapCycleLighting(lines []string, index int, lighting stri
 		}
 	}
 	return out, nil
+}
+
+// CycleView é a rotação em blocos por mapa e os mapas que podem entrar nela (ADR-046).
+type CycleView struct {
+	Groups []server.CycleGroup `json:"groups"`
+	Maps   []server.CycleMap   `json:"maps"`
+}
+
+// MapCycleView divide a rotação em blocos por mapa para a tela (o MapCycle.txt continua uma lista simples).
+func (c *ConfigAPI) MapCycleView(lines []string) CycleView {
+	if len(lines) > server.MaxCycleLines {
+		lines = lines[:server.MaxCycleLines]
+	}
+	p, _, _ := c.a.cfg.Current()
+	cat := c.a.scenarios.catalog(p.ServerDir)
+	missing := server.MissingInCycle(lines, c.a.scenarios.known(p.ServerDir))
+	return CycleView{Groups: server.GroupMapCycle(lines, missing, cat), Maps: cat}
+}
+
+// AddToMapCycle põe cenários na rotação depois da linha after (-1: no fim), de dia, de noite ou nos dois, sem
+// repetir.
+func (c *ConfigAPI) AddToMapCycle(lines []string, after int, ids, lightings []string) ([]string, error) {
+	if len(lines) > server.MaxCycleLines || len(ids) > server.MaxCycleLines || len(lightings) > 2 {
+		return lines, problems.Field("mapCycle", "validation.mapCycleTooLong")
+	}
+	return server.AddToMapCycle(lines, after, ids, lightings)
+}
+
+// RemoveFromMapCycle tira linhas da rotação.
+func (c *ConfigAPI) RemoveFromMapCycle(lines []string, indexes []int) []string {
+	if len(lines) > server.MaxCycleLines {
+		return lines
+	}
+	return server.RemoveFromMapCycle(lines, indexes)
+}
+
+// MoveMapCycleGroup sobe ou desce na rotação o bloco do mapa da linha index.
+func (c *ConfigAPI) MoveMapCycleGroup(lines []string, index int, up bool) []string {
+	if len(lines) > server.MaxCycleLines {
+		return lines
+	}
+	return server.MoveMapCycleGroup(lines, index, up)
 }
 
 // LocalAddresses lista os IPv4 desta máquina (escolha da placa de rede do servidor, -MultiHome).
@@ -291,6 +311,8 @@ func (s *SystemAPI) CreateFirewallRule() (FirewallInfo, error) {
 // CycleDefault é a rotação padrão com os mapas do jogo (ADR-043).
 type CycleDefault struct {
 	Lines []string `json:"lines"`
+	// Maps: quantos mapas a rotação padrão tem (cada um com os cenários de dia e de noite).
+	Maps int `json:"maps"`
 	// ServerHasFile: o servidor já tem um MapCycle.txt (com a rotação vazia no app, o app o mantém).
 	ServerHasFile bool `json:"serverHasFile"`
 }
@@ -303,7 +325,8 @@ func (c *ConfigAPI) DefaultMapCycle() CycleDefault {
 	if p.ServerDir != "" {
 		base = modio.BaseScenarios(filepath.Join(p.ServerDir, "Insurgency", "Content", "Paks"))
 	}
-	out := CycleDefault{Lines: server.DefaultMapCycle(p.StartScenario, base)}
+	ids := server.DefaultMapCycle(p.StartScenario, base)
+	out := CycleDefault{Lines: server.WithDayAndNight(ids), Maps: server.CountMaps(ids)}
 	if out.Lines == nil {
 		out.Lines = []string{}
 	}

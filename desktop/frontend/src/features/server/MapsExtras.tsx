@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { AlertTriangle, ListRestart, Moon, Sun } from 'lucide-react';
+import { ListRestart } from 'lucide-react';
 import { useI18n } from '../../i18n';
 import {
   backend,
   type CycleDefault,
-  type CycleLine,
-  type Lighting,
   type ModMutator,
   type ModScenario,
   type Mutator,
@@ -51,24 +49,49 @@ export function MutatorPicker({
     list.length > 0 && mods ? value.filter((m) => !official.has(m) && !fromMods.has(m)) : [];
   const toggle = (id: string, on: boolean) =>
     onChange(on ? [...value.filter((m) => m !== id), id] : value.filter((m) => m !== id));
+  // Mutators do jogo marcados que trocam o mesmo ajuste que este (a lista de conflitos vem do Go, ADR-045).
+  const labelOf = new Map(list.map((m) => [m.id, m.label]));
+  const blockers = (m: Mutator) => (m.conflicts ?? []).filter((c) => value.includes(c));
 
-  const item = (id: string, label: string, hint: string, kind: 'mod' | 'game' | 'missing') => (
-    <label key={`${kind}-${id}`} className={`check mutators__item mutators__item--${kind}`}>
-      <input
-        type="checkbox"
-        checked={value.includes(id)}
-        onChange={(e) => toggle(id, e.target.checked)}
-      />
-      <span>
-        {label}
-        {kind !== 'game' && <span className="mutators__badge">{t('server.mutatorsBadge')}</span>}
-        {refused.includes(id) && (
-          <span className="pill pill--warn">{t('server.mutatorsRefusedBadge')}</span>
-        )}
-        <span className="field__hint">{hint}</span>
-      </span>
-    </label>
-  );
+  const item = (
+    id: string,
+    label: string,
+    hint: string,
+    kind: 'mod' | 'game' | 'missing',
+    blockedBy: string[] = [],
+  ) => {
+    const checked = value.includes(id);
+    const names = blockedBy.map((c) => labelOf.get(c) ?? c).join(', ');
+    return (
+      <label
+        key={`${kind}-${id}`}
+        className={`check mutators__item mutators__item--${kind}${!checked && blockedBy.length ? ' is-blocked' : ''}`}
+      >
+        <input
+          type="checkbox"
+          checked={checked}
+          disabled={!checked && blockedBy.length > 0}
+          onChange={(e) => toggle(id, e.target.checked)}
+        />
+        <span>
+          {label}
+          {kind !== 'game' && <span className="mutators__badge">{t('server.mutatorsBadge')}</span>}
+          {refused.includes(id) && (
+            <span className="pill pill--warn">{t('server.mutatorsRefusedBadge')}</span>
+          )}
+          {checked && blockedBy.length > 0 && (
+            <span className="pill pill--warn">{t('server.mutatorsConflictBadge')}</span>
+          )}
+          <span className="field__hint">{hint}</span>
+          {blockedBy.length > 0 && (
+            <span className="field__hint mutators__conflict">
+              {t(checked ? 'server.mutatorsConflictBoth' : 'server.mutatorsConflict', { names })}
+            </span>
+          )}
+        </span>
+      </label>
+    );
+  };
 
   return (
     <div className="mutators">
@@ -89,118 +112,11 @@ export function MutatorPicker({
           <p className="hint">{t('server.mutatorsNoMods')}</p>
         )}
         <p className="mutators__group">{t('server.mutatorsGame')}</p>
+        <p className="hint">{t('server.mutatorsConflictHint')}</p>
         <div className="mutators__grid">
-          {list.map((m) => item(m.id, m.label, t(`mutators.${m.id}`), 'game'))}
+          {list.map((m) => item(m.id, m.label, t(`mutators.${m.id}`), 'game', blockers(m)))}
         </div>
       </div>
-    </div>
-  );
-}
-
-/** Dia ou noite em cada mapa da rotação (Lighting="Day|Night" na linha). */
-export function CycleLighting({
-  lines,
-  onChange,
-}: {
-  lines: string[];
-  onChange: (lines: string[]) => void;
-}) {
-  const { t } = useI18n();
-  const [info, setInfo] = useState<CycleLine[]>([]);
-  const key = lines.join('\n');
-
-  useEffect(() => {
-    backend
-      .mapCycleLines(key ? key.split('\n') : [])
-      .then(setInfo)
-      .catch(() => {});
-  }, [key]);
-
-  const setLighting = async (index: number, lighting: Lighting) => {
-    try {
-      onChange(await backend.setMapCycleLighting(lines, index, lighting));
-    } catch {
-      /* linha que o app não entende: fica como está */
-    }
-  };
-
-  // Linhas cujo mapa não está no jogo base nem nos mods instalados (ADR-030). O app só avisa: o usuário tira.
-  const missing = info.filter((l) => l.missing).length;
-  const remove = (keep: (i: number) => boolean) => onChange(lines.filter((_, i) => keep(i)));
-
-  if (lines.length === 0) return null;
-  return (
-    <div className="cycle">
-      {missing > 0 && (
-        <div className="banner banner--warn row row--wrap" role="status">
-          <AlertTriangle size={16} aria-hidden />
-          <span>{t('lighting.cycleMissing')}</span>
-          <button
-            type="button"
-            className="btn btn--small"
-            onClick={() => remove((i) => !info[i]?.missing)}
-          >
-            {t('lighting.cycleRemoveMissing')}
-          </button>
-        </div>
-      )}
-      <div className="row row--wrap">
-        <span className="field__label">{t('lighting.cycleTitle')}</span>
-        <button
-          type="button"
-          className="btn btn--small btn--ghost"
-          onClick={() => setLighting(-1, 'Day')}
-        >
-          <Sun size={14} aria-hidden /> {t('lighting.allDay')}
-        </button>
-        <button
-          type="button"
-          className="btn btn--small btn--ghost"
-          onClick={() => setLighting(-1, 'Night')}
-        >
-          <Moon size={14} aria-hidden /> {t('lighting.allNight')}
-        </button>
-        <button
-          type="button"
-          className="btn btn--small btn--ghost"
-          onClick={() => setLighting(-1, '')}
-        >
-          {t('lighting.allDefault')}
-        </button>
-      </div>
-      <ul className="cycle__list">
-        {info.map((l, i) => (
-          <li key={`${i}-${l.scenario}`} className="cycle__row">
-            <code>{l.scenario || lines[i]}</code>
-            {l.missing && (
-              <>
-                <span className="pill pill--warn">{t('lighting.notInstalled')}</span>
-                <button
-                  type="button"
-                  className="btn btn--small btn--ghost"
-                  onClick={() => remove((j) => j !== i)}
-                >
-                  {t('lighting.remove')}
-                </button>
-              </>
-            )}
-            {l.scenario ? (
-              <select
-                className="select select--short"
-                aria-label={t('lighting.label')}
-                value={l.lighting}
-                onChange={(e) => setLighting(i, e.target.value as Lighting)}
-              >
-                <option value="">{t('lighting.default')}</option>
-                <option value="Day">{t('lighting.Day')}</option>
-                <option value="Night">{t('lighting.Night')}</option>
-              </select>
-            ) : (
-              <span className="muted">{t('lighting.unknownLine')}</span>
-            )}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
@@ -374,6 +290,7 @@ export function DefaultCycle({
   }, [startScenario]);
 
   const next = def?.lines ?? [];
+  const maps = def?.maps || next.length;
   if (next.length === 0) return null;
   const fill = () => {
     onFill(next);
@@ -382,7 +299,7 @@ export function DefaultCycle({
   };
   return (
     <div className="defaultcycle">
-      {auto && <p className="hint">{t('server.cycleDefault.filled', { n: next.length })}</p>}
+      {auto && <p className="hint">{t('server.cycleDefault.filled', { n: maps })}</p>}
       {ask ? (
         <div className="row row--wrap">
           <span>{t('server.cycleDefault.replace')}</span>
@@ -399,8 +316,7 @@ export function DefaultCycle({
           className="btn btn--small"
           onClick={() => (lines.length > 0 ? setAsk(true) : fill())}
         >
-          <ListRestart size={14} aria-hidden />{' '}
-          {t('server.cycleDefault.button', { n: next.length })}
+          <ListRestart size={14} aria-hidden /> {t('server.cycleDefault.button', { n: maps })}
         </button>
       )}
     </div>

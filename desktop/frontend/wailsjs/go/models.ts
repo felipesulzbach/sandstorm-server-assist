@@ -303,6 +303,7 @@ export namespace desktop {
 	}
 	export class CycleDefault {
 	    lines: string[];
+	    maps: number;
 	    serverHasFile: boolean;
 	
 	    static createFrom(source: any = {}) {
@@ -312,24 +313,41 @@ export namespace desktop {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.lines = source["lines"];
+	        this.maps = source["maps"];
 	        this.serverHasFile = source["serverHasFile"];
 	    }
 	}
-	export class CycleLine {
-	    scenario: string;
-	    lighting: string;
-	    missing: boolean;
+	export class CycleView {
+	    groups: server.CycleGroup[];
+	    maps: server.CycleMap[];
 	
 	    static createFrom(source: any = {}) {
-	        return new CycleLine(source);
+	        return new CycleView(source);
 	    }
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.scenario = source["scenario"];
-	        this.lighting = source["lighting"];
-	        this.missing = source["missing"];
+	        this.groups = this.convertValues(source["groups"], server.CycleGroup);
+	        this.maps = this.convertValues(source["maps"], server.CycleMap);
 	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 	export class ExistingScan {
 	    found: boolean;
@@ -1276,6 +1294,117 @@ export namespace server {
 	        this.onCrash = source["onCrash"];
 	    }
 	}
+	export class CycleEntry {
+	    index: number;
+	    scenario: string;
+	    mode: string;
+	    lighting: string;
+	    missing: boolean;
+	    raw: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CycleEntry(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.index = source["index"];
+	        this.scenario = source["scenario"];
+	        this.mode = source["mode"];
+	        this.lighting = source["lighting"];
+	        this.missing = source["missing"];
+	        this.raw = source["raw"];
+	    }
+	}
+	export class CycleGroup {
+	    map: string;
+	    label: string;
+	    modName: string;
+	    entries: CycleEntry[];
+	
+	    static createFrom(source: any = {}) {
+	        return new CycleGroup(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.map = source["map"];
+	        this.label = source["label"];
+	        this.modName = source["modName"];
+	        this.entries = this.convertValues(source["entries"], CycleEntry);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class CycleScenario {
+	    id: string;
+	    mode: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CycleScenario(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.mode = source["mode"];
+	    }
+	}
+	export class CycleMap {
+	    map: string;
+	    label: string;
+	    modId: number;
+	    modName: string;
+	    scenarios: CycleScenario[];
+	
+	    static createFrom(source: any = {}) {
+	        return new CycleMap(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.map = source["map"];
+	        this.label = source["label"];
+	        this.modId = source["modId"];
+	        this.modName = source["modName"];
+	        this.scenarios = this.convertValues(source["scenarios"], CycleScenario);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	
 	export class Diff {
 	    key: string;
 	    kind: string;
@@ -1349,6 +1478,8 @@ export namespace server {
 	export class Mutator {
 	    id: string;
 	    label: string;
+	    changes: string[];
+	    conflicts: string[];
 	
 	    static createFrom(source: any = {}) {
 	        return new Mutator(source);
@@ -1358,6 +1489,8 @@ export namespace server {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
 	        this.label = source["label"];
+	        this.changes = source["changes"];
+	        this.conflicts = source["conflicts"];
 	    }
 	}
 	export class Profile {

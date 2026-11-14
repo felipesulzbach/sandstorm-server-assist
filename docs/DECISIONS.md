@@ -574,3 +574,34 @@ one, the older one says so.
   code is requested with this key; the vault key is used only if it is not found. The key never reaches the screen
   or the logs, and it is not written in the repository (it ships with the game).
 - **Consequence:** the Mods screen no longer asks for an API key when the server is installed.
+
+## ADR-045 · Game mutators that change the same setting are exclusive
+
+- **Context:** several game mutators set the same value, so enabling more than one keeps only one of them (the
+  user cannot tell which). Read from the mutator blueprints in `pakchunk0`: `InitialSupply` (All You Can Eat 100,
+  Special Operations 30, Warlords 10, Guerrillas 5, Strapped 1, Broke 0); the squad layout (Anti-Materiel,
+  Bolt-Actions, Pistols and Shotguns Only, Competitive Loadouts); `SpeedMultiplier` (Fast Movement 1.5, Slow
+  Movement and Hardcore 0.6); `ObjectiveCaptureTime` (Competitive, Hardcore, Slow Capture Times). Soldier of
+  Fortune turns on supply gain without setting the starting supply, so it combines with the others.
+- **Decision:** each game mutator lists the settings it changes (`server.Mutator.Changes`, filled from those
+  files); `Conflicts` is derived from them. The picker disables a mutator whose setting is taken by a chosen one;
+  `CheckMutatorConflicts` refuses such a pair when the profile is saved. It is not part of `Profile.Validate`, so
+  older profiles and backups still open and start; the picker flags their pair. Mod mutators are not checked
+  (unknown effects), nor native ones with contradictory but different effects (Ultralethal and Bullet Sponge).
+- **Consequence:** a new mutator of the game is added with its `Changes` after reading its blueprint.
+
+## ADR-046 · Map rotation edited by map, file unchanged
+
+- **Context:** adding mod maps meant typing scenario names in the MapCycle text box, and a long rotation was hard
+  to read. The scenarios of the game (server paks) and of the installed mods (ADR-024) are already known.
+- **Decision:** the screen shows the rotation in blocks of consecutive lines of the same map (map name from the
+  scenario name), in file order, so a map that comes back later is a second block and the order shown is the
+  real one. **Add map** offers the game and mod maps with their scenarios; adding, removing and moving a block
+  are Go functions that return the new list (only scenario names, up to 500 lines). MapCycle.txt keeps its
+  format; the free text editor stays as an advanced option.
+- **Format:** every scenario line is written as `(Scenario="Scenario_X",Lighting="Day|Night")`; a line without a
+  lighting becomes Day (the default of the game scenarios). A rotation entry is a scenario plus a lighting, so the
+  same scenario can be in the rotation by day and again by night; adding never repeats the same pair. New maps and
+  the default rotation get each scenario by day and then by night.
+- **Consequence:** the old per-line lighting list is replaced by the blocks; the lighting choice is per scenario
+  inside each block, with no "scenario default" option in the rotation.

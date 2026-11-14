@@ -153,6 +153,10 @@ func (s *Service) SaveProfile(p server.Profile) (server.Profile, error) {
 	if err := p.Validate(); err != nil {
 		return s.data.Profile, err
 	}
+	// Só ao salvar: perfis e cópias antigos com mutators em conflito continuam abrindo e arrancando (ADR-045).
+	if err := server.CheckMutatorConflicts(p.Mutators); err != nil {
+		return s.data.Profile, err
+	}
 	p.Rules = server.CleanRules(p.Rules)
 	s.data.Profile = p
 	return p, s.save()

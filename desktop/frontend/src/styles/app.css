@@ -1767,6 +1767,12 @@ code {
   grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr));
   gap: 8px 14px;
 }
+.mutators__item.is-blocked {
+  opacity: 0.6;
+}
+.mutators__conflict {
+  color: var(--warn);
+}
 .mutators__item {
   align-items: flex-start;
 }
@@ -1853,6 +1859,93 @@ code {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Rotação por mapa (ADR-046) */
+.cyclemaps {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 560px;
+  overflow-y: auto;
+}
+.cyclemap {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-width: 0;
+}
+.cyclemap .cycle__list {
+  max-height: none;
+}
+.cyclemap__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cyclemap__name {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.cyclemap__tools {
+  display: flex;
+  gap: 2px;
+}
+.cyclemap__tools .icon-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.cyclemap__more {
+  justify-self: start;
+  max-width: 100%;
+}
+.cycleadd {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+.cycleadd__in {
+  color: var(--ok);
+}
+.cycleadd__scenarios {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+  gap: 6px 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.cycleadd__lights {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 18px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.cycleadd__lights .field__hint {
+  flex-basis: 100%;
+}
+.cycleadd__scenarios legend {
+  margin-bottom: 6px;
+}
+.cycle__text summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 12.5px;
+  margin: 4px 0;
+}
+
 .firewall {
   display: grid;
   gap: 8px;

@@ -56,7 +56,8 @@ export type ModMutator = modio.ModMutator;
 export type ModScenario = modio.ModScenario;
 export type RuleDef = server.RuleDef;
 export type RulesInfo = desktop.RulesInfo;
-export type CycleLine = desktop.CycleLine;
+export type CycleView = desktop.CycleView;
+export type CycleMap = server.CycleMap;
 export type CycleDefault = desktop.CycleDefault;
 export type LocalAddress = winsys.Address;
 export type ProfileRef = config.ProfileRef;
@@ -127,7 +128,13 @@ export const backend = {
   defaultMapCycle: () => Cfg.DefaultMapCycle(),
   rules: () => Cfg.Rules(),
   serverRules: () => Cfg.ServerRules(),
-  mapCycleLines: (lines: string[]) => Cfg.MapCycleLines(lines),
+  mapCycleView: (lines: string[]) => Cfg.MapCycleView(lines),
+  addToMapCycle: (lines: string[], after: number, ids: string[], lightings: Lighting[]) =>
+    Cfg.AddToMapCycle(lines, after, ids, lightings),
+  removeFromMapCycle: (lines: string[], indexes: number[]) =>
+    Cfg.RemoveFromMapCycle(lines, indexes),
+  moveMapCycleGroup: (lines: string[], index: number, up: boolean) =>
+    Cfg.MoveMapCycleGroup(lines, index, up),
   setMapCycleLighting: (lines: string[], index: number, lighting: Lighting) =>
     Cfg.SetMapCycleLighting(lines, index, lighting),
   localAddresses: () => Cfg.LocalAddresses(),

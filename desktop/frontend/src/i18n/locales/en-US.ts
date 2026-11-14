@@ -231,6 +231,12 @@ export const enUS = {
     mutatorsRefused:
       'On the current map the server refused: {names}. The game does not say why: it may not work in this game mode or with another mutator you chose (seen with Ultralethal in Checkpoint, with or without Bullet Sponge).',
     mutatorsRefusedBadge: 'refused by the server',
+    mutatorsConflictHint:
+      'Some game mutators change the same setting (starting supply points, classes and weapons, movement speed, capture time). Only one of them works at a time, so the others are turned off while one is on.',
+    mutatorsConflict: 'Changes the same setting as {names}. Turn that one off to use this.',
+    mutatorsConflictBoth:
+      'Changes the same setting as {names}: only one of them works. Keep just one.',
+    mutatorsConflictBadge: 'conflict',
     mutatorsFromMod: 'Mod: {name}',
     mutatorsMissing: 'No installed mod has this mutator: the server will not load it.',
     mutatorsNoMods:
@@ -276,7 +282,7 @@ export const enUS = {
     cycleDefault: {
       button: 'Use the default rotation ({n} game maps)',
       filled:
-        'Filled with the default rotation: {n} game maps in the mode of the start map. Click Save to use it, or edit the list.',
+        'Filled with the default rotation: {n} game maps in the mode of the start map, each by day and by night. Click Save to use it, or edit the list.',
       replace: 'Replace the current rotation with the default one?',
     },
     admins: {
@@ -1000,6 +1006,36 @@ export const enUS = {
       ],
     },
   },
+  cycle: {
+    hint: 'The rotation is shown by map here. The MapCycle.txt file is still one scenario per line, in this order.',
+    empty:
+      'The rotation is empty: the server keeps the MapCycle.txt it already has. Add maps or use the default rotation.',
+    unknownGroup: 'Lines the app does not read',
+    fromMod: 'Mod: {name}',
+    moveUp: 'Move {map} up',
+    moveDown: 'Move {map} down',
+    removeMap: 'Remove {map} from the rotation',
+    removeLine: 'Remove {scenario}',
+    addScenario: '+ Add a scenario of this map…',
+    addScenarioTo: 'Add a scenario of {map}',
+    addMap: 'Add map',
+    addMapTitle: 'Add a map to the rotation',
+    pickMap: 'Map',
+    pickScenarios: 'Scenarios',
+    inCycle: 'already in the rotation',
+    mapIn: 'in the rotation ({n} of {total} scenarios)',
+    lightsHint:
+      'Each ticked scenario goes in once for each ticked lighting. Tick both to play the map by day and again by night.',
+    addMapHint:
+      "Maps with ✓ are already in the rotation. To add more of their scenarios, use “Add a scenario of this map” in the map's block.",
+    allMapsIn:
+      'Every available map is already in the rotation. To add more scenarios, use “Add a scenario of this map” in each block.',
+    addSelected: 'Add to the rotation',
+    groupMods: 'From your mods',
+    groupGame: 'From the game',
+    noMaps: 'No map found. Install the server, or subscribe to map mods and start the server once.',
+    textEdit: 'Edit as text (advanced)',
+  },
   lighting: {
     label: 'Lighting',
     default: 'Scenario default',
@@ -1446,12 +1482,15 @@ export const enUS = {
       'The scenario starts with Scenario_ (example: Scenario_Farmhouse_Checkpoint_Security).',
     travelNeedsMods: 'The mod map only works with mods turned on.',
     mutator: 'Invalid mutator: {value}.',
+    mutatorConflict:
+      '{a} and {b} change the same game setting, so one would cancel the other. Keep only one of them.',
     ip: 'Type only the IP, for example 203.0.113.10.',
     steamId: 'Invalid SteamID64: {value}. It has 17 digits and starts with 7656119.',
     steamIdNotFound:
       'No SteamID64 found. Paste the 17-digit number or a steamcommunity.com/profiles/… link.',
     adminName: 'Administrator name: up to 40 characters, one line.',
     mapCycleLine: 'Each map rotation line has up to 200 characters.',
+    mapCycleTooLong: 'The map rotation has up to 500 lines.',
     modId: 'Invalid mod ID: {value}.',
     code: 'The code has 5 letters or numbers.',
     backupPassword: 'The backup password needs at least {min} characters.',

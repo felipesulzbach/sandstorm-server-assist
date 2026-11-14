@@ -41,6 +41,13 @@ Abre **Servidor**. Las pestañas son:
 - **Mapas:** mapa inicial, mapa del mod (el mapa que abre el servidor tras cargar los mods), rotación de mapas, día o
   noche y mutators (la app encuentra los mutators de tus mods instalados).
   Si el servidor rechaza un mutator, el Panel y esta lista dicen cuál.
+  Los mutators del juego que cambian el mismo ajuste (como All You Can Eat y Strapped, ambos en los
+  puntos de suministro iniciales) se anulan, así que mientras uno esté marcado los demás quedan desactivados.
+  La rotación de mapas aparece por mapa: **Añadir mapa** elige un mapa del juego o de un mod y sus
+  escenarios, cada mapa tiene botones para añadir un escenario, subir, bajar y quitar, y cada escenario
+  es de día o de noche (marca los dos para jugar el mapa de día y luego de noche). El archivo
+  MapCycle.txt sigue con un escenario por línea; **Editar como texto**
+  sigue ahí para lo demás.
   Un servidor nuevo empieza con la rotación predeterminada de los mapas del juego, en el modo del mapa inicial;
   **Usar la rotación predeterminada** la vuelve a rellenar cuando quieras. Solo aparecen los mods de la cuenta de
   mod.io del servidor.

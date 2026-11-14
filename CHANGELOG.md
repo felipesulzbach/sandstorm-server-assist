@@ -3,6 +3,27 @@
 All notable changes to Sandstorm Server Assist. Versions follow `MAJOR.MINOR.PATCH`. The GitHub release notes of
 each version come from its section here (`npm run release:publish`).
 
+## [0.2.7] - 2026-11-13
+
+### Added
+
+- **Map rotation by map.** Server › Maps shows the rotation in one block per map. **Add map** lists the game maps
+  and the maps of your installed mods; you tick the scenarios and they go to the end of the rotation (both
+  Checkpoint sides are suggested); maps already in the rotation are marked with ✓ and cannot be picked again, and
+  when all of them are in, the app says so. Each map can get another scenario, move up or down, or be removed, and each
+  scenario is by day or by night. The same scenario can be in the rotation twice, once by day and once by night:
+  new maps and the default rotation come by day and by night, or pick the other lighting in the map's block. MapCycle.txt is still one scenario
+  per line, in the order shown, now always as `(Scenario="...",Lighting="Day|Night")` (lines without a lighting
+  become Day, the default of the game scenarios); the text editor is under **Edit as text**.
+
+### Changed
+
+- **Game mutators that cancel each other.** Some game mutators change the same setting, so only one of them
+  works: starting supply points (All You Can Eat, Broke, Guerrillas, Special Operations, Strapped, Warlords),
+  classes and weapons (Anti-Materiel, Bolt-Actions, Pistols and Shotguns Only, Competitive Loadouts), movement
+  speed (Fast Movement, Slow Movement, Hardcore) and capture time (Competitive, Hardcore, Slow Capture Times).
+  In Server › Maps, choosing one now turns off the others of the same setting, and saving refuses such a pair.
+
 ## [0.2.6] - 2026-11-13
 
 ### Fixed

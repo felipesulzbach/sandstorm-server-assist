@@ -38,6 +38,12 @@ Open **Server**. The tabs are:
 - **Maps:** start map, mod map (the map the server opens after loading the mods), map cycle, day or night, and
   mutators (the app finds the mutators of your installed mods).
   If the server refuses a mutator, the Dashboard and this list say which one.
+  Game mutators that change the same setting (such as All You Can Eat and Strapped, both starting supply
+  points) cancel each other, so while one is on the others are turned off.
+  The map rotation is shown by map: **Add map** picks a game or mod map and its scenarios, each map has
+  buttons to add a scenario, move it up or down and remove it, and each scenario is by day or by night (tick
+  both to play a map by day and again by night). The
+  MapCycle.txt file stays one scenario per line; **Edit as text** is still there for anything else.
   A new server starts with the default rotation of the game maps, in the mode of the start map; **Use the default
   rotation** fills it again at any time. Only mods of the server's mod.io account are listed.
 - **Game rules:** bots and difficulty, timers, friendly fire, chat and voice, votes and more. Leave it off to keep

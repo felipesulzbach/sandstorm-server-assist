@@ -117,9 +117,11 @@ func TestFixMapCycleLine(t *testing.T) {
 	cases := map[string]string{
 		`(Scenario="Scenario=Scenario_Outback_Checkpoint_Security",Lighting="Day")`:        `(Scenario="Scenario_Outback_Checkpoint_Security",Lighting="Day")`,
 		`(Scenario = "Scenario = Scenario_Border_Checkpoint_Insurgents",Lighting="Night")`: `(Scenario = "Scenario_Border_Checkpoint_Insurgents",Lighting="Night")`,
-		`Scenario=Scenario_West_Checkpoint_Security`:                                       `Scenario_West_Checkpoint_Security`,
+		`Scenario=Scenario_West_Checkpoint_Security`:                                       `(Scenario="Scenario_West_Checkpoint_Security",Lighting="Day")`,
 		`  (Scenario="Scenario_Containment_Checkpoint_Security",Lighting="Day")  `:         `(Scenario="Scenario_Containment_Checkpoint_Security",Lighting="Day")`,
-		`Scenario_Farmhouse_Checkpoint_Security`:                                           `Scenario_Farmhouse_Checkpoint_Security`,
+		`Scenario_Farmhouse_Checkpoint_Security`:                                           `(Scenario="Scenario_Farmhouse_Checkpoint_Security",Lighting="Day")`,
+		`(Scenario="Scenario_Hold_Checkpoint_Security")`:                                   `(Scenario="Scenario_Hold_Checkpoint_Security",Lighting="Day")`,
+		`something odd`: `something odd`,
 	}
 	for in, want := range cases {
 		if got := FixMapCycleLine(in); got != want {

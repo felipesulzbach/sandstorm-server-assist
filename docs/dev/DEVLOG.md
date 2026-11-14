@@ -153,6 +153,22 @@ Short notes of each development session, newest last. They help a new session pi
   reports any element outside its card (kept outside the repository, with demo data only).
 - Published the same day as `v0.2.6` (GitHub and the bridge server).
 
+## 2026-11-13 · 0.2.7 (map rotation by map)
+
+- The maintainer asked to add mod maps without editing MapCycle by hand and to see the rotation split by map. The
+  file stays a flat list; the app groups consecutive lines of the same map and edits the list through Go
+  (ADR-046). A map that comes back later in the rotation shows as a second block, so the order on screen is the
+  real order.
+
+## 2026-11-13 · 0.2.7 (mutator conflicts)
+
+- The maintainer asked whether supply mutators (All You Can Eat, Strapped...) override each other. The mutator
+  blueprints in the server `pakchunk0` (read with a throwaway test, not committed) confirm it: six of them only
+  set `InitialSupply` (0, 1, 5, 10, 30, 100). The same check found three more shared settings: the squad layout
+  (weapon-only mutators and Competitive Loadouts), the movement speed (Fast/Slow Movement, Hardcore) and the
+  capture time (Competitive, Hardcore, Slow Capture Times). Ultralethal, Headshots Only, Hot Potato and Vampirism
+  are native classes (not readable); they stay free (ADR-045).
+
 ## Cautions for future sessions
 
 - The maintainer's real server folder has secrets in plain text (`Game.ini`, notes next to the `.bat`) and the mod.io

@@ -7,7 +7,8 @@ import { useAction } from '../../shared/hooks';
 import { fieldError, toAppError } from '../../shared/problem';
 import { useExistingSync } from '../sync/ExistingSync';
 import { AutomationTab } from './AutomationTab';
-import { CycleLighting, DefaultCycle, ModMapPicker, MutatorPicker } from './MapsExtras';
+import { CycleEditor } from './CycleEditor';
+import { DefaultCycle, ModMapPicker, MutatorPicker } from './MapsExtras';
 import { BindIpField, FirewallCard } from './NetworkExtras';
 import { PortCheck } from './PortCheck';
 import { ProfileBar } from './ProfileBar';
@@ -533,35 +534,36 @@ function MapsTab({
           {err('mutators') ?? t('server.mutatorsHint')}
         </span>
       </div>
-      <Field
-        label={t('server.mapCycle')}
-        hint={t('server.mapCycleHint')}
-        error={err('mapCycle')}
-        wide
-      >
-        <textarea
-          className="input textarea"
-          rows={8}
-          spellCheck={false}
-          value={(form.mapCycle ?? []).join('\n')}
-          onChange={(e) =>
-            set(
-              'mapCycle',
-              e.target.value
-                .split('\n')
-                .map((s) => s.trim())
-                .filter(Boolean),
-            )
-          }
-        />
-      </Field>
-      <div className="field--wide">
+      {/* Bloco, não <label>: a rotação tem os próprios botões e listas (ADR-046). */}
+      <div className={`field field--wide ${err('mapCycle') ? 'has-error' : ''}`}>
+        <span className="field__label">{t('server.mapCycle')}</span>
         <DefaultCycle
           lines={form.mapCycle ?? []}
           startScenario={form.startScenario}
           onFill={(l) => set('mapCycle', l)}
         />
-        <CycleLighting lines={form.mapCycle ?? []} onChange={(l) => set('mapCycle', l)} />
+        <CycleEditor lines={form.mapCycle ?? []} onChange={(l) => set('mapCycle', l)} />
+        {err('mapCycle') && <span className="field__error">{err('mapCycle')}</span>}
+        <details className="cycle__text">
+          <summary>{t('cycle.textEdit')}</summary>
+          <textarea
+            className="input textarea"
+            rows={8}
+            spellCheck={false}
+            aria-label={t('server.mapCycle')}
+            value={(form.mapCycle ?? []).join('\n')}
+            onChange={(e) =>
+              set(
+                'mapCycle',
+                e.target.value
+                  .split('\n')
+                  .map((s) => s.trim())
+                  .filter(Boolean),
+              )
+            }
+          />
+          <span className="field__hint">{t('server.mapCycleHint')}</span>
+        </details>
       </div>
     </div>
   );

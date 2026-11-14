@@ -135,14 +135,28 @@ func ParseAdmins(content string) []Admin {
 // recusa essa entrada ("Not adding ... to map vote, no asset found").
 var reScenarioTwice = regexp.MustCompile(`(?i)(Scenario\s*=\s*"?)\s*Scenario\s*=\s*`)
 
-// FixMapCycleLine corrige o "Scenario=" repetido e a linha solta "Scenario=Scenario_X" (vira "Scenario_X").
+// FixMapCycleLine corrige o "Scenario=" repetido e a linha solta "Scenario=Scenario_X", e escreve toda linha de
+// cenário no formato (Scenario="Scenario_X",Lighting="Day|Night") (ADR-046). Sem iluminação, vale Day, a iluminação
+// padrão dos cenários do jogo. Linhas que o app não entende voltam só sem os espaços das pontas.
 func FixMapCycleLine(line string) string {
 	line = strings.TrimSpace(line)
 	line = reScenarioTwice.ReplaceAllString(line, "$1")
 	if rest, ok := strings.CutPrefix(line, "Scenario="); ok && !strings.HasPrefix(rest, `"`) {
 		line = rest
 	}
+	if scenarioRe.MatchString(line) {
+		return CycleLine(line, LightingDay)
+	}
+	if strings.HasPrefix(line, "(") && strings.HasSuffix(line, ")") && LineScenario(line) != "" &&
+		!reLightingAttr.MatchString(line) {
+		return line[:len(line)-1] + `,Lighting="` + LightingDay + `")`
+	}
 	return line
+}
+
+// CycleLine é a linha da rotação de um cenário com a iluminação.
+func CycleLine(scenario, lighting string) string {
+	return `(Scenario="` + scenario + `",Lighting="` + lighting + `")`
 }
 
 // FixMapCycle corrige todas as linhas (FixMapCycleLine).

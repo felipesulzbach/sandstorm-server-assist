@@ -6,6 +6,8 @@ import {desktop} from '../models';
 import {winsys} from '../models';
 import {modio} from '../models';
 
+export function AddToMapCycle(arg1:Array<string>,arg2:number,arg3:Array<string>,arg4:Array<string>):Promise<Array<string>>;
+
 export function ApplyExisting(arg1:Array<string>):Promise<config.ApplyResult>;
 
 export function ChooseServerDir():Promise<server.Profile>;
@@ -24,13 +26,15 @@ export function ExtractSteamID(arg1:string):Promise<string>;
 
 export function LocalAddresses():Promise<Array<winsys.Address>>;
 
-export function MapCycleLines(arg1:Array<string>):Promise<Array<desktop.CycleLine>>;
+export function MapCycleView(arg1:Array<string>):Promise<desktop.CycleView>;
 
 export function Maps():Promise<desktop.MapsInfo>;
 
 export function ModMutators():Promise<Array<modio.ModMutator>>;
 
 export function ModScenarios():Promise<Array<modio.ModScenario>>;
+
+export function MoveMapCycleGroup(arg1:Array<string>,arg2:number,arg3:boolean):Promise<Array<string>>;
 
 export function MoveRconToVault():Promise<void>;
 
@@ -41,6 +45,8 @@ export function Profile():Promise<server.Profile>;
 export function Profiles():Promise<Array<config.ProfileRef>>;
 
 export function RconInIni():Promise<boolean>;
+
+export function RemoveFromMapCycle(arg1:Array<string>,arg2:Array<number>):Promise<Array<string>>;
 
 export function RenameProfile(arg1:string,arg2:string):Promise<Array<config.ProfileRef>>;
 

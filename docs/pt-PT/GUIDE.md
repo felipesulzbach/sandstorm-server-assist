@@ -41,6 +41,13 @@ Abra **Servidor**. Os separadores são:
 - **Mapas:** mapa inicial, mapa do mod (o mapa que o servidor abre depois de carregar os mods), rotação de mapas, dia
   ou noite e mutators (a app encontra os mutators dos mods instalados).
   Se o servidor recusar um mutator, o Painel e esta lista dizem qual.
+  Mutators do jogo que mudam o mesmo ajuste (como All You Can Eat e Strapped, ambos nos pontos de
+  abastecimento iniciais) anulam-se, por isso enquanto um estiver marcado os outros ficam desligados.
+  A rotação de mapas aparece por mapa: **Adicionar mapa** escolhe um mapa do jogo ou de um mod e os
+  cenários dele, cada mapa tem botões para adicionar um cenário, subir, descer e tirar, e cada cenário
+  é de dia ou de noite (marque os dois para jogar o mapa de dia e depois de noite). O ficheiro
+  MapCycle.txt continua com um cenário por linha; **Editar como texto**
+  continua lá para o resto.
   Um servidor novo começa com a rotação padrão dos mapas do jogo, no modo do mapa inicial; **Usar a rotação
   padrão** volta a preenchê-la a qualquer momento. Só aparecem os mods da conta do mod.io do servidor.
 - **Regras do jogo:** bots e dificuldade, tempos, fogo amigo, chat e voz, votações e mais. Deixe desligado para

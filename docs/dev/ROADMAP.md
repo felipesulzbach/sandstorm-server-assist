@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-13 (0.2.6 published).
+> Living document, updated at each step. Last update: 2026-11-13 (0.2.7 prepared).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -175,6 +175,23 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
 
 - **0.2.6 published** on 2026-11-13: GitHub Release `v0.2.6` and the bridge server; both `latest.json` serve the
   same installer (SHA-256 checked after download).
+
+## 0.2.7 · map rotation by map (ADR-046)
+
+- `server.CycleCatalog` (game scenarios from the server paks, or the `Maps` list; mod scenarios with their mod),
+  `GroupMapCycle` (blocks of consecutive lines of the same map, in file order), `AddToMapCycle`,
+  `RemoveFromMapCycle`, `MoveMapCycleGroup`. `ConfigAPI.MapCycleView` (cached catalog, 15 s) and the edit calls;
+  `MapCycleLines` and the old `CycleLighting` list were removed. Front end: `CycleEditor` (blocks, add map, add
+  scenario, move, remove, lighting) and the textarea under "Edit as text".
+- Verified: Go and front-end tests; reviewed by the maintainer in the dev app with real data.
+
+## 0.2.7 · conflicting game mutators (ADR-045)
+
+- `server.Mutator.Changes` (supply, loadout, speed, captureTime) and `Conflicts`; `CheckMutatorConflicts` runs in
+  `config.SaveProfile` only. The picker disables a game mutator whose setting is taken by a chosen one, and flags
+  a pair kept from an older profile without locking it.
+- Verified: what each mutator changes was read from the game files (blueprints in `pakchunk0`); Go and front-end
+  tests.
 
 ## Bridge from the old download server
 
