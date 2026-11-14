@@ -158,7 +158,9 @@ Short notes of each development session, newest last. They help a new session pi
 - The maintainer asked to add mod maps without editing MapCycle by hand and to see the rotation split by map. The
   file stays a flat list; the app groups consecutive lines of the same map and edits the list through Go
   (ADR-046). A map that comes back later in the rotation shows as a second block, so the order on screen is the
-  real order.
+  real order. Every line is now written as `(Scenario="...",Lighting="Day|Night")` and the default rotation and new
+  maps come by day and by night, as the maintainer asked after reviewing the dev app.
+- Published on 2026-11-14 as `v0.2.7` (GitHub and the bridge server).
 
 ## 2026-11-13 · 0.2.7 (mutator conflicts)
 

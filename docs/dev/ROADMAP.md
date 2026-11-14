@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-13 (0.2.7 prepared).
+> Living document, updated at each step. Last update: 2026-11-14 (0.2.7 published).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -184,6 +184,8 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
   `MapCycleLines` and the old `CycleLighting` list were removed. Front end: `CycleEditor` (blocks, add map, add
   scenario, move, remove, lighting) and the textarea under "Edit as text".
 - Verified: Go and front-end tests; reviewed by the maintainer in the dev app with real data.
+- **0.2.7 published** on 2026-11-14: GitHub Release `v0.2.7` and the bridge server; both `latest.json` serve the
+  same installer (SHA-256 checked after download).
 
 ## 0.2.7 · conflicting game mutators (ADR-045)
 
