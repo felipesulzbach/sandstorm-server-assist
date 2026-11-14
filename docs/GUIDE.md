@@ -28,6 +28,9 @@ The app checks for new versions by itself and installs only updates signed by th
 **Already have a server?** Choose its folder instead. The app reads the settings it used last time (from its log
 and config files) and fills the fields. When a value in the app differs from the server, it asks which one to keep.
 
+**Starting over?** If you moved or deleted the server folder, or chose a new one, the app offers **Start from
+scratch** to clear the previous server's settings (you choose whether the passwords go too).
+
 ## 3. Configure the server
 
 ![Server settings](images/server-settings.png)

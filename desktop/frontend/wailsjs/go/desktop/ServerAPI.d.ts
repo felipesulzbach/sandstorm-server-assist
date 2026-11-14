@@ -21,6 +21,8 @@ export function CheckMods():Promise<desktop.ModCheck>;
 
 export function CheckPorts():Promise<netcheck.Result>;
 
+export function ClearModio(arg1:boolean,arg2:boolean):Promise<void>;
+
 export function Connect():Promise<desktop.Connect>;
 
 export function DeleteMod(arg1:number,arg2:boolean):Promise<void>;

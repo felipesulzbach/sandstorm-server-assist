@@ -201,6 +201,10 @@ func (s *ServerAPI) DeleteMod(id int, redownload bool) error {
 // reinicia se ele está rodando (ADR-038).
 func (s *ServerAPI) DownloadNewMods() error { return s.a.modFiles.DownloadNew() }
 
+// ClearModio apaga, para começar do zero, os mods baixados (mods) e a autorização do servidor no mod.io (session).
+// Servidor parado (ADR-047).
+func (s *ServerAPI) ClearModio(mods, session bool) error { return s.a.modFiles.Clear(mods, session) }
+
 // RefreshSubscriptions lê do mod.io as inscrições da conta do servidor (usa a sessão do user.json).
 func (s *ServerAPI) RefreshSubscriptions() (ModsView, error) {
 	uf, err := modio.UserFile()

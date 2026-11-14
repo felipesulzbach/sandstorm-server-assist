@@ -179,6 +179,14 @@ Short notes of each development session, newest last. They help a new session pi
   start folder if Windows still refuses.
 - Published the same day as `v0.2.8` (GitHub and the bridge server).
 
+## 2026-11-14 · 0.2.9 (start from scratch)
+
+- After moving the server folder away, the app still had every setting of the old server. The app does not clear by
+  itself (a disk that is off looks the same); the Installation and Server screens now offer **Start from scratch**,
+  with a confirmation and a choice to clear the shared vault too (ADR-047).
+- In the maintainer's test the downloaded mods and the server's mod.io authorization stayed: they are mod.io's, in
+  Windows folders. They became two more options of the confirmation, off by default.
+
 ## Cautions for future sessions
 
 - The maintainer's real server folder has secrets in plain text (`Game.ini`, notes next to the `.bat`) and the mod.io

@@ -31,6 +31,9 @@ La app busca versiones nuevas sola y solo instala actualizaciones firmadas por e
 sus archivos de configuración) y rellena los campos. Cuando un valor de la app es distinto del servidor, pregunta
 cuál mantener.
 
+**¿Empiezas de nuevo?** Si moviste o borraste la carpeta del servidor, o elegiste otra, la app ofrece **Empezar
+de cero** para borrar los ajustes del servidor anterior (eliges si las contraseñas también se borran).
+
 ## 3. Configurar el servidor
 
 ![Ajustes del servidor](../images/server-settings.png)

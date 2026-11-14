@@ -605,3 +605,24 @@ one, the older one says so.
   the default rotation get each scenario by day and then by night.
 - **Consequence:** the old per-line lighting list is replaced by the blocks; the lighting choice is per scenario
   inside each block, with no "scenario default" option in the rotation.
+
+## ADR-047 · Start from scratch when the server folder is gone
+
+- **Context:** the maintainer moved the server and SteamCMD folders away to start over, and the app still kept the
+  old server's name, admins, maps, rules, messages and passwords. The profile and the vault belong to the app, not to
+  the server folder, so moving the folder clears nothing. Clearing by itself would be dangerous: an unplugged disk, a
+  renamed folder or a changed drive letter also look like a missing folder, and the passwords and tokens exist
+  nowhere else.
+- **Decision:** `config.FreshState` tells the Installation and Server screens when the saved server folder no longer
+  exists or has no server installed while the profile or the vault still has data. They show a notice with **Start
+  from scratch** (after a confirmation) or **Keep the settings**. `config.StartFresh` puts the active profile back to
+  the defaults keeping the chosen folders, and, if the user leaves the box ticked, empties the vault. The vault is
+  shared by all profiles, so the confirmation says how many other profiles lose the passwords too. Other profiles are
+  not changed. It is refused while the server runs or an installation is in progress.
+- **mod.io data:** the downloaded mods (`C:\Users\Public\mod.io\254`) and the server's mod.io authorization
+  (`%LOCALAPPDATA%\mod.io\254\ModServer\user.json`) are outside the server folder too, so they also stayed (seen
+  in the maintainer's test). They are two more options of the same confirmation, **off by default**: the game
+  installed on the PC may use the same mods folder, and the authorization lasts about a year.
+  `modio.RemoveAllInstalled` (every mod of `state.json` and leftover mod folders) and `modio.Logout` (deletes
+  `user.json`), through `modfiles.Clear` with the server stopped. They also make the notice appear when the folder
+  has no server.

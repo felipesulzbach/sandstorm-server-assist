@@ -31,6 +31,9 @@ A app procura versões novas sozinha e só instala atualizações assinadas pelo
 ficheiros de configuração) e preenche os campos. Quando um valor da app é diferente do servidor, pergunta qual
 manter.
 
+**Vai recomeçar?** Se moveu ou apagou a pasta do servidor, ou escolheu uma nova, a app oferece **Começar do
+zero** para limpar as definições do servidor anterior (escolhe se as palavras-passe também saem).
+
 ## 3. Configurar o servidor
 
 ![Definições do servidor](../images/server-settings.png)

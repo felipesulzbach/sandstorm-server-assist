@@ -13,6 +13,7 @@ import { bytes, duration } from '../../shared/format';
 import { useAction, useInstallState } from '../../shared/hooks';
 import { useLogs } from '../logs/LogDrawer';
 import { useExistingSync } from '../sync/ExistingSync';
+import { FreshStart } from '../fresh/FreshStart';
 
 /** Cartão de onde veio a última ação: o andamento, o resultado e o erro aparecem nele, perto do botão. */
 type Origin = 'folders' | 'steamcmd' | 'server';
@@ -82,6 +83,13 @@ export function InstallPage({ status }: { status: Status | null }) {
   return (
     <div className="page">
       <PageHead title={t('install.title')} subtitle={t('install.subtitle')} />
+      <FreshStart
+        checkKey={`${profile?.serverDir ?? ''}|${info?.serverInstalled ?? ''}`}
+        onDone={(p) => {
+          setProfile(p);
+          reload();
+        }}
+      />
 
       <section className="card">
         <h2 className="card__title">{t('install.folders')}</h2>

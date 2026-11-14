@@ -250,6 +250,8 @@ func newApp() *app {
 		StopAndWait: a.runner.StopAndWait,
 		Start:       a.runner.Start,
 		Remove:      func(id int) error { return modio.RemoveInstalled(modio.RootDir(), id) },
+		RemoveAll:   func() error { return modio.RemoveAllInstalled(modio.RootDir()) },
+		Logout:      modio.Logout,
 		Log:         func(text, level string) { log.Add("app", text, level) },
 	})
 	a.watch = watchdog.New(watchdog.Deps{

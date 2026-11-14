@@ -6,6 +6,7 @@ import { ErrorCard, Field, Guide, PageHead, SecretField } from '../../shared/com
 import { useAction } from '../../shared/hooks';
 import { fieldError, toAppError } from '../../shared/problem';
 import { useExistingSync } from '../sync/ExistingSync';
+import { FreshStart } from '../fresh/FreshStart';
 import { AutomationTab } from './AutomationTab';
 import { CycleEditor } from './CycleEditor';
 import { DefaultCycle, ModMapPicker, MutatorPicker } from './MapsExtras';
@@ -179,6 +180,14 @@ export function ServerPage() {
           setSaved(p);
           setForm(p);
           setSyncedAt(Date.now());
+        }}
+      />
+      <FreshStart
+        checkKey={form.serverDir ?? ''}
+        onDone={(p) => {
+          setSaved(p);
+          setForm(p);
+          setSyncedAt(Date.now()); // recarrega a aba de senhas (o cofre pode ter sido esvaziado)
         }}
       />
       {generalError && <ErrorCard error={generalError} onClose={() => action.setError(null)} />}

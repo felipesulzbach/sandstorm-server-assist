@@ -38,6 +38,10 @@ export function ExtractSteamID(arg1) {
   return window['go']['desktop']['ConfigAPI']['ExtractSteamID'](arg1);
 }
 
+export function FreshState() {
+  return window['go']['desktop']['ConfigAPI']['FreshState']();
+}
+
 export function LocalAddresses() {
   return window['go']['desktop']['ConfigAPI']['LocalAddresses']();
 }
@@ -120,6 +124,10 @@ export function SetMapCycleLighting(arg1, arg2, arg3) {
 
 export function SetSecret(arg1, arg2) {
   return window['go']['desktop']['ConfigAPI']['SetSecret'](arg1, arg2);
+}
+
+export function StartFresh(arg1) {
+  return window['go']['desktop']['ConfigAPI']['StartFresh'](arg1);
 }
 
 export function SwitchProfile(arg1) {

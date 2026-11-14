@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"sandstorm-server-assist/desktop/internal/adapters/fsx"
@@ -87,4 +88,46 @@ func dropFromState(path string, id int) (found bool, err error) {
 		return false, err
 	}
 	return true, fsx.WriteAtomic(path, out, true)
+}
+
+// RemoveAllInstalled apaga todos os mods baixados (ADR-047, começar do zero): cada mod do state.json e as pastas de
+// mods que sobraram sem registro. A pasta de mods do mod.io pode ser a mesma do jogo instalado no PC: só com o pedido
+// do usuário.
+func RemoveAllInstalled(root string) error {
+	list, err := ReadInstalled(root)
+	if err != nil {
+		return err
+	}
+	var errs []error
+	for _, m := range list {
+		if err := RemoveInstalled(root, m.ID); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	entries, err := os.ReadDir(filepath.Join(root, "254", "mods"))
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		errs = append(errs, err)
+	}
+	for _, e := range entries {
+		id, convErr := strconv.Atoi(e.Name())
+		if convErr != nil || id <= 0 || !e.IsDir() {
+			continue
+		}
+		if err := os.RemoveAll(ModDir(root, id)); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	return errors.Join(errs...)
+}
+
+// Logout apaga a sessão do mod.io do servidor (user.json): o servidor precisa ser autorizado de novo com um código.
+func Logout() error {
+	path, err := UserFile()
+	if err != nil {
+		return err
+	}
+	if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	return nil
 }

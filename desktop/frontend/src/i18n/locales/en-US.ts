@@ -157,6 +157,25 @@ export const enUS = {
       gslt: 'Add a Steam server token (GSLT)',
     },
   },
+  fresh: {
+    missing: 'The server folder no longer exists.',
+    notInstalled: 'There is no server installed in this folder.',
+    text: 'The app still keeps the settings of the previous server (name, admins, maps, rules, messages and, if any, passwords and tokens). If you are starting over, you can clear them.',
+    start: 'Start from scratch',
+    keep: 'Keep the settings',
+    confirm:
+      'The settings go back to the defaults; the chosen folders stay. This cannot be undone.',
+    clearSecrets: 'Also delete the saved passwords, tokens and keys',
+    sharedSecrets: 'Your other {n} profile(s) use the same passwords; they lose them too.',
+    clearMods: 'Also delete the {n} downloaded mods',
+    clearModsHint:
+      'They are in the mod.io folder of Windows, not in the server folder. If the game is installed on this PC, it may use the same folder and lose its mods too. The server downloads its subscribed mods again when it starts.',
+    logout: "Also remove the server's mod.io authorization",
+    logoutHint:
+      'The server will need a new code from mod.io (Mods › Authorize) before it can download mods.',
+    confirmYes: 'Clear and start from scratch',
+    done: 'Done: the settings are back to the defaults. Install the server and configure it again.',
+  },
   install: {
     title: 'Installation',
     subtitle: 'Download SteamCMD and install or update the dedicated server.',

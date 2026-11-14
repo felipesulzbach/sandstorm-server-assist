@@ -159,6 +159,25 @@ export const esES: Messages = {
       gslt: 'Añadir un token de servidor de Steam (GSLT)',
     },
   },
+  fresh: {
+    missing: 'La carpeta del servidor ya no existe.',
+    notInstalled: 'No hay servidor instalado en esta carpeta.',
+    text: 'La aplicación aún guarda los ajustes del servidor anterior (nombre, administradores, mapas, reglas, mensajes y, si los hay, contraseñas y tokens). Si empiezas de nuevo, puedes borrarlos.',
+    start: 'Empezar de cero',
+    keep: 'Mantener los ajustes',
+    confirm:
+      'Los ajustes vuelven a los valores por defecto; las carpetas elegidas se quedan. No se puede deshacer.',
+    clearSecrets: 'Borrar también las contraseñas, tokens y claves guardados',
+    sharedSecrets: 'Tus otros {n} perfiles usan las mismas contraseñas; también las pierden.',
+    clearMods: 'Borrar también los {n} mods descargados',
+    clearModsHint:
+      'Están en la carpeta de mod.io de Windows, no en la carpeta del servidor. Si el juego está instalado en este PC, puede usar la misma carpeta y perder también sus mods. El servidor vuelve a descargar los mods suscritos al arrancar.',
+    logout: 'Quitar también la autorización del servidor en mod.io',
+    logoutHint:
+      'El servidor necesitará un código nuevo de mod.io (Mods › Autorizar) para descargar mods.',
+    confirmYes: 'Borrar y empezar de cero',
+    done: 'Hecho: los ajustes volvieron a los valores por defecto. Instala el servidor y configúralo de nuevo.',
+  },
   install: {
     title: 'Instalación',
     subtitle: 'Descarga SteamCMD e instala o actualiza el servidor dedicado.',

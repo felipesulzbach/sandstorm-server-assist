@@ -65,3 +65,35 @@ func TestRemoveInstalled(t *testing.T) {
 		t.Error("mod 111 sumiu")
 	}
 }
+
+// Começar do zero com os mods (ADR-047): todos os mods do state.json e as pastas sem registro saem.
+func TestRemoveAllInstalled(t *testing.T) {
+	root := t.TempDir()
+	meta := filepath.Join(root, "254", "metadata")
+	if err := os.MkdirAll(meta, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	state := `{"Mods":[{"ID":111,"Profile":{"name":"A"},"State":1},{"ID":222,"Profile":{"name":"B"},"State":1}],"version":3}`
+	if err := os.WriteFile(filepath.Join(meta, "state.json"), []byte(state), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	for _, id := range []int{111, 222, 333} {
+		if err := os.MkdirAll(ModDir(root, id), 0o700); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := RemoveAllInstalled(root); err != nil {
+		t.Fatal(err)
+	}
+	if list, err := ReadInstalled(root); err != nil || len(list) != 0 {
+		t.Fatalf("state: %v %v", list, err)
+	}
+	entries, _ := os.ReadDir(filepath.Join(root, "254", "mods"))
+	if len(entries) != 0 {
+		t.Fatalf("pastas: %v", entries)
+	}
+	// Sem nada instalado: nada a fazer, sem erro.
+	if err := RemoveAllInstalled(t.TempDir()); err != nil {
+		t.Fatal(err)
+	}
+}

@@ -157,6 +157,24 @@ export const ptPT: Messages = {
       gslt: 'Adicionar um token de servidor Steam (GSLT)',
     },
   },
+  fresh: {
+    missing: 'A pasta do servidor já não existe.',
+    notInstalled: 'Não há servidor instalado nesta pasta.',
+    text: 'A aplicação ainda guarda as definições do servidor anterior (nome, administradores, mapas, regras, mensagens e, se houver, palavras-passe e tokens). Se está a começar de novo, pode limpá-las.',
+    start: 'Começar do zero',
+    keep: 'Manter as definições',
+    confirm: 'As definições voltam ao padrão; as pastas escolhidas ficam. Não dá para desfazer.',
+    clearSecrets: 'Apagar também as palavras-passe, tokens e chaves guardados',
+    sharedSecrets: 'Os seus outros {n} perfis usam as mesmas palavras-passe; também as perdem.',
+    clearMods: 'Apagar também os {n} mods transferidos',
+    clearModsHint:
+      'Estão na pasta do mod.io do Windows, não na pasta do servidor. Se o jogo estiver instalado neste PC, pode usar a mesma pasta e perder os mods dele também. O servidor transfere de novo os mods inscritos quando arranca.',
+    logout: 'Tirar também a autorização do servidor no mod.io',
+    logoutHint:
+      'O servidor vai precisar de um código novo do mod.io (Mods › Autorizar) para transferir mods.',
+    confirmYes: 'Limpar e começar do zero',
+    done: 'Feito: as definições voltaram ao padrão. Instale o servidor e configure-o de novo.',
+  },
   install: {
     title: 'Instalação',
     subtitle: 'Transfira o SteamCMD e instale ou atualize o servidor dedicado.',

@@ -24,6 +24,8 @@ export function DeleteProfile(arg1:string):Promise<Array<config.ProfileRef>>;
 
 export function ExtractSteamID(arg1:string):Promise<string>;
 
+export function FreshState():Promise<desktop.FreshInfo>;
+
 export function LocalAddresses():Promise<Array<winsys.Address>>;
 
 export function MapCycleView(arg1:Array<string>):Promise<desktop.CycleView>;
@@ -65,5 +67,7 @@ export function ServerRules():Promise<Record<string, string>>;
 export function SetMapCycleLighting(arg1:Array<string>,arg2:number,arg3:string):Promise<Array<string>>;
 
 export function SetSecret(arg1:string,arg2:string):Promise<Record<string, boolean>>;
+
+export function StartFresh(arg1:boolean):Promise<server.Profile>;
 
 export function SwitchProfile(arg1:string):Promise<server.Profile>;

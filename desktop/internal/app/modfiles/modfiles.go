@@ -22,7 +22,10 @@ type Deps struct {
 	Start       func() error
 	// Remove apaga a pasta do mod e o registro dele no state.json.
 	Remove func(id int) error
-	Log    func(text, level string)
+	// RemoveAll apaga todos os mods baixados; Logout apaga a sessão do mod.io do servidor (ADR-047). Podem ser nil.
+	RemoveAll func() error
+	Logout    func() error
+	Log       func(text, level string)
 }
 
 // Service faz um pedido por vez.
@@ -95,6 +98,38 @@ func (s *Service) DownloadNew() error {
 		s.d.Log("Starting the server to download the new mods", "info")
 	}
 	return s.d.Start()
+}
+
+// Clear apaga, para começar do zero (ADR-047), os mods baixados (mods) e a autorização do servidor no mod.io
+// (session). O servidor precisa estar parado: ele regrava o state.json ao fechar.
+func (s *Service) Clear(mods, session bool) error {
+	if !mods && !session {
+		return nil
+	}
+	if !s.lock() {
+		return problems.New(problems.Busy, "")
+	}
+	defer s.unlock()
+	if s.d.Busy != nil && s.d.Busy() {
+		return problems.New(problems.Busy, "")
+	}
+	if s.d.Running() {
+		return problems.New(problems.ServerRunning, "")
+	}
+	if mods && s.d.RemoveAll != nil {
+		if err := s.d.RemoveAll(); err != nil {
+			s.d.Log("Could not delete every downloaded mod: "+err.Error(), "error")
+			return problems.Wrap(problems.ModDelete, err)
+		}
+		s.d.Log("Deleted every downloaded mod (start from scratch)", "info")
+	}
+	if session && s.d.Logout != nil {
+		if err := s.d.Logout(); err != nil {
+			return problems.Wrap(problems.ModDelete, err)
+		}
+		s.d.Log("Removed the server's mod.io authorization (start from scratch)", "info")
+	}
+	return nil
 }
 
 func (s *Service) lock() bool {

@@ -37,6 +37,7 @@ export type Admin = server.Admin;
 export type Status = runner.Status;
 export type InstallState = installer.State;
 export type InstallInfo = installer.Info;
+export type Fresh = desktop.FreshInfo;
 export type LogLine = logbuf.Line;
 export type LogRun = desktop.LogRun;
 export type LogCleanup = desktop.LogCleanup;
@@ -128,6 +129,9 @@ export const backend = {
   defaultMapCycle: () => Cfg.DefaultMapCycle(),
   rules: () => Cfg.Rules(),
   serverRules: () => Cfg.ServerRules(),
+  freshState: () => Cfg.FreshState(),
+  startFresh: (clearSecrets: boolean) => Cfg.StartFresh(clearSecrets),
+  clearModio: (mods: boolean, session: boolean) => Srv.ClearModio(mods, session),
   mapCycleView: (lines: string[]) => Cfg.MapCycleView(lines),
   addToMapCycle: (lines: string[], after: number, ids: string[], lightings: Lighting[]) =>
     Cfg.AddToMapCycle(lines, after, ids, lightings),

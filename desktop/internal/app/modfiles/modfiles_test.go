@@ -118,3 +118,25 @@ func TestDownloadNew(t *testing.T) {
 		t.Fatalf("instalação em andamento: %v %v", err, r.calls)
 	}
 }
+
+// Começar do zero (ADR-047): mods e autorização do mod.io só com o servidor parado.
+func TestClear(t *testing.T) {
+	var calls []string
+	d := Deps{
+		Running:   func() bool { return false },
+		RemoveAll: func() error { calls = append(calls, "mods"); return nil },
+		Logout:    func() error { calls = append(calls, "session"); return nil },
+		Log:       func(string, string) {},
+	}
+	if err := New(d).Clear(true, true); err != nil || !reflect.DeepEqual(calls, []string{"mods", "session"}) {
+		t.Fatalf("%v %v", err, calls)
+	}
+	calls = nil
+	if err := New(d).Clear(false, false); err != nil || calls != nil {
+		t.Fatalf("nada pedido: %v %v", err, calls)
+	}
+	d.Running = func() bool { return true }
+	if err := New(d).Clear(true, false); code(err) != problems.ServerRunning || calls != nil {
+		t.Fatalf("servidor rodando: %v %v", err, calls)
+	}
+}

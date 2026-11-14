@@ -30,6 +30,10 @@ export function CheckPorts() {
   return window['go']['desktop']['ServerAPI']['CheckPorts']();
 }
 
+export function ClearModio(arg1, arg2) {
+  return window['go']['desktop']['ServerAPI']['ClearModio'](arg1, arg2);
+}
+
 export function Connect() {
   return window['go']['desktop']['ServerAPI']['Connect']();
 }

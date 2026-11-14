@@ -401,6 +401,28 @@ export namespace desktop {
 	        this.rules = source["rules"];
 	    }
 	}
+	export class FreshInfo {
+	    offer: boolean;
+	    missing: boolean;
+	    hasSecrets: boolean;
+	    others: number;
+	    mods: number;
+	    modioSession: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new FreshInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.offer = source["offer"];
+	        this.missing = source["missing"];
+	        this.hasSecrets = source["hasSecrets"];
+	        this.others = source["others"];
+	        this.mods = source["mods"];
+	        this.modioSession = source["modioSession"];
+	    }
+	}
 	export class ImageInfo {
 	    name: string;
 	    size: number;

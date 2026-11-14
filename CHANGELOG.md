@@ -3,6 +3,17 @@
 All notable changes to Sandstorm Server Assist. Versions follow `MAJOR.MINOR.PATCH`. The GitHub release notes of
 each version come from its section here (`npm run release:publish`).
 
+## [0.2.9] - 2026-11-14
+
+### Added
+
+- **Start from scratch:** when the server folder no longer exists, or has no server installed, and the app still
+  keeps the previous server's settings, the Installation and Server screens offer to clear them (after a
+  confirmation). The chosen folders stay; you choose whether the saved passwords and tokens go too, and, as extra
+  options that start off, the downloaded mods and the server's mod.io authorization (they live in Windows' mod.io
+  folders, which the game on the same PC may also use). Nothing is cleared by itself, since a disk that is off also
+  looks like a missing folder.
+
 ## [0.2.8] - 2026-11-14
 
 ### Fixed

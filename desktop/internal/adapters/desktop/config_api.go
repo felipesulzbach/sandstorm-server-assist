@@ -1,6 +1,9 @@
 package desktop
 
 import (
+	"os"
+
+	"sandstorm-server-assist/desktop/internal/adapters/modio"
 	"sandstorm-server-assist/desktop/internal/app/config"
 	"sandstorm-server-assist/desktop/internal/app/installer"
 	"sandstorm-server-assist/desktop/internal/domain/problems"
@@ -57,6 +60,45 @@ func (c *ConfigAPI) ExtractSteamID(text string) (string, error) {
 		return "", problems.Field("admins", "validation.steamIdNotFound")
 	}
 	return id, nil
+}
+
+// FreshInfo é o que a tela precisa para oferecer começar do zero (ADR-047). Campos copiados de config.Fresh (o
+// gerador do Wails não cria os tipos de uma struct embutida) mais os dados do mod.io no Windows.
+type FreshInfo struct {
+	Offer      bool `json:"offer"`
+	Missing    bool `json:"missing"`
+	HasSecrets bool `json:"hasSecrets"`
+	Others     int  `json:"others"`
+	// Mods é quantos mods baixados há na pasta do mod.io; ModioSession diz se o servidor tem autorização do mod.io.
+	Mods         int  `json:"mods"`
+	ModioSession bool `json:"modioSession"`
+}
+
+// FreshState diz se a tela deve oferecer começar do zero: a pasta do servidor não tem servidor (ou sumiu) e o
+// perfil, o cofre ou o mod.io do servidor ainda têm dados (ADR-047).
+func (c *ConfigAPI) FreshState() FreshInfo {
+	f := c.a.cfg.FreshState()
+	info := FreshInfo{Missing: f.Missing, HasSecrets: f.HasSecrets, Others: f.Others}
+	if list, err := modio.ReadInstalled(modio.RootDir()); err == nil {
+		info.Mods = len(list)
+	}
+	if uf, err := modio.UserFile(); err == nil {
+		_, statErr := os.Stat(uf)
+		info.ModioSession = statErr == nil
+	}
+	info.Offer = f.Offer || (f.NoServer && (info.Mods > 0 || info.ModioSession))
+	return info
+}
+
+// StartFresh volta o perfil em uso ao padrão, mantendo as pastas; clearSecrets também esvazia o cofre (ADR-047).
+func (c *ConfigAPI) StartFresh(clearSecrets bool) (server.Profile, error) {
+	if len(c.a.runner.Status().PIDs) > 0 {
+		return c.a.cfg.Profile(), problems.New(problems.ServerRunning, "")
+	}
+	if c.a.install.Busy() {
+		return c.a.cfg.Profile(), problems.New(problems.Busy, "")
+	}
+	return c.a.cfg.StartFresh(clearSecrets)
 }
 
 // ChooseServerDir abre o diálogo de pasta para a pasta do servidor.

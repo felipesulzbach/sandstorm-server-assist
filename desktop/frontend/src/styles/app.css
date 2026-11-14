@@ -1144,6 +1144,13 @@ code {
   justify-items: start;
 }
 
+/* Começar do zero quando a pasta do servidor sumiu (ADR-047) */
+.fresh {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
 /* Texto só para leitores de tela */
 .sr-only {
   position: absolute;
