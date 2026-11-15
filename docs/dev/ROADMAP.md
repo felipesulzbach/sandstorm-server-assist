@@ -1,6 +1,6 @@
 # Roadmap
 
-> Living document, updated at each step. Last update: 2026-11-15 (0.3.1 being published).
+> Living document, updated at each step. Last update: 2026-11-15 (0.3.1 published).
 > See also: [Architecture](../ARCHITECTURE.md) · [Decisions](../DECISIONS.md) · [Dev log](DEVLOG.md) ·
 > [Releasing](../RELEASING.md)
 
@@ -250,7 +250,8 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
   it self-updates on every run.
 - Useful links: official game page (Saber Interactive), Steam and Epic stores, mod.io. Console stores left out (the
   dedicated server is for PC players).
-- Status: checked by the maintainer in the dev app (2026-11-15), released as 0.3.1.
+- **0.3.1 published** on 2026-11-15 after the maintainer's check in the dev app: GitHub Release `v0.3.1`. Not
+  published on the bridge server (skipped, as in 0.3.0).
 
 ## Bridge from the old download server
 

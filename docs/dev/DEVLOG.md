@@ -225,7 +225,8 @@ Short notes of each development session, newest last. They help a new session pi
   appmanifest; SteamCMD self-updates on each run, so it gets no notice. The check never runs during an install.
 - The old official domain `insurgency-sandstorm.com` now serves an unrelated gambling page; the link uses the Saber
   Interactive game page the maintainer pointed to.
-- Not committed: waiting for the maintainer's check in the dev app.
+- The maintainer checked it in the dev app; published on 2026-11-15 as `v0.3.1` on GitHub only (bridge skipped, as in
+  0.3.0).
 
 ## Cautions for future sessions
 
