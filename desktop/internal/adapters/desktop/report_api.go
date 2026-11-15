@@ -110,8 +110,8 @@ func (r *ReportAPI) Create(req ReportRequest) (ReportResult, error) {
 		Language:   r.a.cfg.Settings().Language,
 		Created:    time.Now().Format("2006-01-02 15:04"),
 	}
-	if meta.Title == "" {
-		meta.Title = report.DefaultTitle(req.Kind, AppVersion)
+	if err := report.CheckTitle(meta.Title); err != nil {
+		return ReportResult{}, err
 	}
 	desc := scrub(req.Description, report.MaxDescription, true)
 

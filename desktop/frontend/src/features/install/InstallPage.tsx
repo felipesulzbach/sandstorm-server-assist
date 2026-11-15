@@ -11,6 +11,7 @@ import {
 import { ErrorCard, PageHead, ProgressBar } from '../../shared/components';
 import { bytes, duration } from '../../shared/format';
 import { useAction, useInstallState } from '../../shared/hooks';
+import { useServerUpdate } from '../../shared/useServerUpdate';
 import { useLogs } from '../logs/LogDrawer';
 import { useExistingSync } from '../sync/ExistingSync';
 import { FreshStart } from '../fresh/FreshStart';
@@ -20,6 +21,7 @@ type Origin = 'folders' | 'steamcmd' | 'server';
 
 export function InstallPage({ status }: { status: Status | null }) {
   const { t, date } = useI18n();
+  const serverUpdate = useServerUpdate();
   const logs = useLogs();
   const st = useInstallState();
   const action = useAction();
@@ -176,6 +178,14 @@ export function InstallPage({ status }: { status: Status | null }) {
             </p>
           )}
           {running && <p className="banner banner--warn">{t('install.server.runningWarn')}</p>}
+          {serverUpdate?.available && (
+            <p className="banner banner--info" role="status">
+              {t('install.server.newBuild', {
+                installed: serverUpdate.installed,
+                latest: serverUpdate.latest,
+              })}
+            </p>
+          )}
           <div className="row row--wrap">
             <button
               type="button"

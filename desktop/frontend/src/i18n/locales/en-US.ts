@@ -7,6 +7,11 @@ export const enUS = {
     loading: 'Loading…',
   },
   titlebar: {
+    version: 'v{version}',
+    versionHint: 'Version {version}, released on {date}',
+    serverUpdate: 'Server update available',
+    serverUpdateHint:
+      'A new version of the dedicated server is out (installed build {installed}, new build {latest}). Click to open Install.',
     help: 'Help',
     minimize: 'Minimize',
     maximize: 'Maximize',
@@ -25,6 +30,8 @@ export const enUS = {
     about: 'About',
   },
   common: {
+    clearSearch: 'Clear search',
+    noResults: 'Nothing found for "{query}".',
     save: 'Save',
     saved: 'Saved',
     cancel: 'Cancel',
@@ -208,6 +215,8 @@ export const enUS = {
       missing: 'SteamCMD not found',
     },
     server: {
+      newBuild:
+        'A new version of the dedicated server is available (installed build {installed}, new build {latest}). Stop the servers and click "Check for updates".',
       title: 'Dedicated server',
       installed: 'Installed',
       notInstalled: 'Not installed',
@@ -250,6 +259,8 @@ export const enUS = {
     },
   },
   server: {
+    mutatorsSearch: 'Search the mutators',
+    mutatorsSearchPlaceholder: 'Search by name or description',
     travelNoMods:
       'No map found in the installed mods. Subscribe to a map mod and start the server once.',
     travelNotInstalled: '{name} (not in the installed mods)',
@@ -711,6 +722,8 @@ export const enUS = {
     },
   },
   about: {
+    gameLinks: 'The game',
+    helpLinks: 'Guides and tools',
     title: 'About',
     text: 'Sandstorm Server Assist helps you install, configure and run an Insurgency: Sandstorm dedicated server with mod.io mods.',
     license: 'License',
@@ -718,7 +731,7 @@ export const enUS = {
       'Apache License 2.0. Free to use, change and share, provided "as is", without warranty.',
     disclaimer: 'Disclaimer',
     disclaimerText:
-      'Unofficial project, not affiliated with or endorsed by New World Interactive, Focus Entertainment, Valve or mod.io. Insurgency, Steam and mod.io are trademarks of their owners. You are responsible for how you use your server and for following the game, Steam and mod.io terms and your local laws. The app does not distribute the game or SteamCMD: it downloads them from the official sources.',
+      'Unofficial project, not affiliated with or endorsed by Saber Interactive, New World Interactive, Focus Entertainment, Valve or mod.io. Insurgency, Steam and mod.io are trademarks of their owners. You are responsible for how you use your server and for following the game, Steam and mod.io terms and your local laws. The app does not distribute the game or SteamCMD: it downloads them from the official sources.',
     links: 'Useful links',
     serverGuide: 'Community server guide',
     modioGuide: 'mod.io server admin guide',
@@ -727,6 +740,7 @@ export const enUS = {
       'Created by Felipe Sulzbach, with the help of Claude Code (Anthropic). Free and open source, made for the Insurgency: Sandstorm community.',
   },
   feedback: {
+    titleNeeded: 'Write a title first.',
     title: 'Feedback',
     subtitle: 'Report a problem or suggest an improvement',
     kindLabel: 'Type',
@@ -738,8 +752,8 @@ export const enUS = {
       bug: 'Tell what went wrong. The app prepares a file with the details and opens the GitHub form already filled in.',
       idea: 'Share an idea to make the app better. The app opens the GitHub form already filled in.',
     },
-    titleField: 'Title (optional)',
-    titleHint: 'One line. If empty, the app writes one.',
+    titleField: 'Title',
+    titleHint: 'Required. One line that sums up the problem or the idea.',
     description: 'Description (optional)',
     descriptionHint: {
       bug: 'What you did, what you expected and what happened.',
@@ -952,6 +966,9 @@ export const enUS = {
     help: 'Help',
   },
   links: {
+    'official-site': 'Official game page',
+    'steam-store': 'Steam store',
+    'epic-store': 'Epic Games Store',
     'steam-gslt': 'Steam: game server accounts',
     gamestats: 'Sandstorm GameStats',
     'steamid-io': 'steamid.io',
@@ -1036,6 +1053,11 @@ export const enUS = {
     },
   },
   cycle: {
+    expandAll: 'Expand all',
+    collapseAll: 'Collapse all',
+    expand: 'Show the game modes of {map}',
+    collapse: 'Hide the game modes of {map}',
+    modes: 'Modes: {n}',
     hint: 'The rotation is shown by map here. The MapCycle.txt file is still one scenario per line, in this order.',
     empty:
       'The rotation is empty: the server keeps the MapCycle.txt it already has. Add maps or use the default rotation.',
@@ -1110,6 +1132,8 @@ export const enUS = {
     Warlords: 'Start with 10 supply points.',
   },
   rules: {
+    search: 'Search the game rules',
+    searchPlaceholder: 'Name or Game.ini key',
     manage: 'Set the game rules here',
     manageHint:
       'The app writes these options to Game.ini and Engine.ini when the server starts. Empty options use the game default. Off: the app does not touch these files.',
@@ -1495,6 +1519,7 @@ export const enUS = {
     uac: 'Windows asks for administrator confirmation.',
   },
   validation: {
+    reportTitle: 'Write a title.',
     markupPlain:
       'The game does not show formatting and would show {tag} as written. Remove the tags.',
     rule: 'The value of {rule} must be between {min} and {max}.',

@@ -80,6 +80,7 @@ const FALLBACK: I18n = {
   t: (key, params) => translate('en-US', key, params),
   tl: (key, params) => translateList('en-US', key, params),
   date: (d) => String(d),
+  day: (d) => d,
 };
 
 export function I18nProvider({ initial, children }: { initial: Lang; children: ReactNode }) {
@@ -98,6 +99,12 @@ export function I18nProvider({ initial, children }: { initial: Lang; children: R
         const date = typeof d === 'string' ? new Date(d) : d;
         if (Number.isNaN(date.getTime()) || date.getFullYear() < 2000) return '—';
         return date.toLocaleString(lang, { dateStyle: 'medium', timeStyle: 'short' });
+      },
+      day: (d) => {
+        const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d);
+        const date = m ? new Date(+m[1]!, +m[2]! - 1, +m[3]!) : new Date(d);
+        if (Number.isNaN(date.getTime()) || date.getFullYear() < 2000) return '';
+        return date.toLocaleDateString(lang, { dateStyle: 'medium' });
       },
     }),
     [lang, setLang],

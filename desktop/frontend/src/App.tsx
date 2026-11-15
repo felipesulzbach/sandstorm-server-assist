@@ -110,7 +110,7 @@ function Shell({ page, setPage }: { page: PageId; setPage: (p: PageId) => void }
 
   return (
     <div className="shell">
-      <TitleBar onHelp={() => setPage('about')} />
+      <TitleBar info={info} onHelp={() => setPage('about')} onInstall={() => setPage('install')} />
       <div className="app">
         <aside className="sidebar">
           <nav aria-label={t('nav.label')}>
@@ -119,7 +119,6 @@ function Shell({ page, setPage }: { page: PageId; setPage: (p: PageId) => void }
           <ul className="nav nav--bottom">{BOTTOM.map(navItem)}</ul>
           <footer className="sidebar__foot">
             {status && <div>{t(`phase.${status.phase}`)}</div>}
-            {info && <div>{t('app.version', { version: info.appVersion })}</div>}
           </footer>
         </aside>
         <main className="content">

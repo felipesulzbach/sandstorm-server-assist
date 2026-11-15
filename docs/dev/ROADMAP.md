@@ -238,6 +238,20 @@ Details of each version are in the [dev log](DEVLOG.md) and in the [changelog](.
 - **0.3.0 published** on 2026-11-14: GitHub Release `v0.3.0` (installer and `latest.json` checked after download,
   same SHA-256). Not published on the bridge server this time (the maintainer skipped it).
 
+## Next · adjustments after 0.3.0 (maintainer's list of 2026-11-14)
+
+- Game rules: translated name plus the ini key in brackets; search by either (`shared/search.tsx`). Mutator search.
+- Map rotation: map blocks collapsed by default, **Expand all** / **Collapse all**.
+- Mods table: own vertical scroll with a sticky header.
+- Title bar: version and release date (`AppReleased` set at build time from the CHANGELOG section), click → About.
+- Feedback: title required (`report.CheckTitle`, `validation.reportTitle`).
+- Server update notice: `steamcmd.InfoArgs` / `PublicBuildID` / `NewerBuild`, `installer.LatestBuild` (one SteamCMD
+  run at a time), `servercheck.go` (2 min after start, then every 6 h; event `server:update`). No SteamCMD notice:
+  it self-updates on every run.
+- Useful links: official game page (Saber Interactive), Steam and Epic stores, mod.io. Console stores left out (the
+  dedicated server is for PC players).
+- Status: implemented, waiting for the maintainer's check in the dev app; not committed.
+
 ## Bridge from the old download server
 
 Apps up to 0.1.10 only know the old download server. Plan:

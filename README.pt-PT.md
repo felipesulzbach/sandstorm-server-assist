@@ -10,7 +10,7 @@
 Uma app gratuita para Windows que ajuda a **instalar, configurar e pôr a correr um servidor dedicado de
 Insurgency: Sandstorm com mods do mod.io**, sem editar ficheiros `.bat` e `.ini` à mão.
 
-> Ferramenta não oficial da comunidade. Sem ligação à New World Interactive, Focus Entertainment, Valve ou mod.io.
+> Ferramenta não oficial da comunidade. Sem ligação à Saber Interactive, New World Interactive, Focus Entertainment, Valve ou mod.io.
 > Veja o [DISCLAIMER.md](DISCLAIMER.md).
 
 ![Painel com o servidor a correr](docs/images/dashboard.png)

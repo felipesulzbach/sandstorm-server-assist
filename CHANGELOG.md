@@ -3,6 +3,24 @@
 All notable changes to Sandstorm Server Assist. Versions follow `MAJOR.MINOR.PATCH`. The GitHub release notes of
 each version come from its section here (`npm run release:publish`).
 
+## [Unreleased]
+
+### Added
+
+- **Search** in Server › Game rules and in the mutator list. Each game rule also shows, in brackets, its key in
+  Game.ini or Engine.ini (for example `AIDifficulty`), and the search finds a rule by either.
+- **Version always visible:** the title bar shows the app version and its release date; click it to open About.
+- **Server update notice:** when a new version of the dedicated server is out, a notice appears in the title bar
+  next to **?** and on the Installation screen. The app asks Steam (through SteamCMD) when it opens and every
+  6 hours. SteamCMD needs no notice: it updates itself every time the app uses it.
+- **Useful links** in About: the official game page, the Steam and Epic stores and mod.io.
+
+### Changed
+
+- The map rotation starts with each map collapsed: click a map to see its game modes, or **Expand all**.
+- The mods list scrolls inside its card, with the header always visible.
+- Feedback: the title is now required (the description, log and screenshot stay optional).
+
 ## [0.3.0] - 2026-11-14
 
 ### Added

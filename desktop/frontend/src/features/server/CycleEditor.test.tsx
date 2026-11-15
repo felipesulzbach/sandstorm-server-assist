@@ -112,6 +112,12 @@ describe('CycleEditor', () => {
   it('shows the rotation in one block per map', async () => {
     renderEditor();
     const farm = (await screen.findByText('Farmhouse', { selector: 'strong' })).closest('li')!;
+    // Os blocos começam recolhidos (só o nome e quantos modos); um com mod não instalado fica aberto.
+    const toggle = within(farm).getByRole('button', { name: /Farmhouse/, expanded: false });
+    expect(within(farm).getByText('Modes: 2')).toBeInTheDocument();
+    expect(within(farm).queryByText('Checkpoint Security')).toBeNull();
+    await userEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(within(farm).getByText('Checkpoint Security')).toBeInTheDocument();
     expect(within(farm).getByText('Checkpoint Insurgents')).toBeInTheDocument();
     expect(within(farm).getByRole('button', { name: 'Move Farmhouse up' })).toBeDisabled();
@@ -123,6 +129,7 @@ describe('CycleEditor', () => {
   // Rotação com mapas de mods não instalados (11/11/2026): aviso e "Remover estes mapas".
   it('removes the maps without their mod, a scenario or a whole map', async () => {
     const onChange = renderEditor();
+    await userEvent.click(await screen.findByRole('button', { name: 'Expand all' }));
     await userEvent.click(await screen.findByRole('button', { name: 'Remove these maps' }));
     expect(backend.removeFromMapCycle).toHaveBeenLastCalledWith(lines, [2]);
     expect(onChange).toHaveBeenLastCalledWith(lines.slice(0, 2));
@@ -138,6 +145,8 @@ describe('CycleEditor', () => {
 
   it('adds another scenario of a map right after its block', async () => {
     renderEditor();
+    await userEvent.click(await screen.findByRole('button', { name: 'Expand all' }));
+    expect(screen.getByRole('button', { name: 'Collapse all' })).toBeInTheDocument();
     const pick = await screen.findByRole('combobox', { name: 'Add a scenario of Farmhouse' });
     // Checkpoint Security já está de dia e Insurgents de noite: cada um só aparece na outra iluminação.
     expect(within(pick).queryByText('Checkpoint Security · Day')).toBeNull();

@@ -18,6 +18,10 @@ export function InstallServer(arg1) {
   return window['go']['desktop']['InstallAPI']['InstallServer'](arg1);
 }
 
+export function ServerUpdate() {
+  return window['go']['desktop']['InstallAPI']['ServerUpdate']();
+}
+
 export function State() {
   return window['go']['desktop']['InstallAPI']['State']();
 }

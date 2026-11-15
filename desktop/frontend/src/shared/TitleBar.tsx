@@ -1,15 +1,28 @@
 import { useEffect, useState } from 'react';
 import { useI18n } from '../i18n';
-import { backend, windowControls } from './backend';
+import { RefreshCw } from 'lucide-react';
+import { backend, windowControls, type AppInfo } from './backend';
 import { useUpdate } from './useUpdate';
+import { useServerUpdate } from './useServerUpdate';
 import { AppIcon } from './AppIcon';
 
 /**
  * Barra de título do app (mesmo modelo do midia-multi-tools e do game-in): a barra inteira arrasta a janela,
  * duplo clique maximiza, e os botões de minimizar, maximizar e fechar ficam à direita.
  */
-export function TitleBar({ onHelp }: { onHelp: () => void }) {
-  const { t } = useI18n();
+export function TitleBar({
+  info,
+  onHelp,
+  onInstall,
+}: {
+  info: AppInfo | null;
+  onHelp: () => void;
+  onInstall: () => void;
+}) {
+  const { t, day } = useI18n();
+  const server = useServerUpdate();
+  // Versão e data de lançamento sempre à vista (a de desenvolvimento não tem data).
+  const released = info?.released ? day(info.released) : '';
   const [maximised, setMaximised] = useState(false);
   const update = useUpdate();
   const st = update.state;
@@ -30,7 +43,35 @@ export function TitleBar({ onHelp }: { onHelp: () => void }) {
       <AppIcon className="titlebar__icon" />
       <span className="titlebar__title">{t('app.name')}</span>
       <span className="titlebar__beta">{t('app.beta')}</span>
+      {info && (
+        <button
+          type="button"
+          className="titlebar__version"
+          title={
+            released
+              ? t('titlebar.versionHint', { version: info.appVersion, date: released })
+              : t('app.version', { version: info.appVersion })
+          }
+          onClick={onHelp}
+        >
+          {t('titlebar.version', { version: info.appVersion })}
+          {released && <span className="titlebar__released">{` · ${released}`}</span>}
+        </button>
+      )}
       <div className="titlebar__actions">
+        {server?.available && (
+          <button
+            type="button"
+            className="titlebar__notice"
+            title={t('titlebar.serverUpdateHint', {
+              installed: server.installed,
+              latest: server.latest,
+            })}
+            onClick={onInstall}
+          >
+            <RefreshCw size={12} aria-hidden /> {t('titlebar.serverUpdate')}
+          </button>
+        )}
         {update.error !== null && (
           <span className="titlebar__msg" role="alert">
             {t('update.installFailed')}

@@ -8,7 +8,7 @@
 A free Windows app that helps you **install, configure and run an Insurgency: Sandstorm dedicated server with
 mod.io mods**, without editing `.bat` and `.ini` files by hand.
 
-> Unofficial community tool. Not affiliated with New World Interactive, Focus Entertainment, Valve or mod.io.
+> Unofficial community tool. Not affiliated with Saber Interactive, New World Interactive, Focus Entertainment, Valve or mod.io.
 > See [DISCLAIMER.md](DISCLAIMER.md).
 
 ![Dashboard with the server running](docs/images/dashboard.png)

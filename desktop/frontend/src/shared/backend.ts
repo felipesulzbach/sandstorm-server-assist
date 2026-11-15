@@ -56,6 +56,7 @@ export type Mutator = server.Mutator;
 export type ModMutator = modio.ModMutator;
 export type ModScenario = modio.ModScenario;
 export type RuleDef = server.RuleDef;
+export type ServerUpdate = desktop.ServerUpdate;
 export type RulesInfo = desktop.RulesInfo;
 export type CycleView = desktop.CycleView;
 export type CycleMap = server.CycleMap;
@@ -154,6 +155,7 @@ export const backend = {
 
   installState: () => Inst.State(),
   installInfo: () => Inst.Info(),
+  serverUpdate: () => Inst.ServerUpdate(),
   fetchSteamCmd: () => Inst.FetchSteamCMD(),
   installServer: (validate: boolean) => Inst.InstallServer(validate),
   cancelInstall: () => Inst.Cancel(),
@@ -216,7 +218,13 @@ export const backend = {
 
 /** Assina um evento do Go. Devolve a função que cancela. */
 export function on<T>(
-  event: 'server:status' | 'fleet:status' | 'install:state' | 'log:lines' | 'update:state',
+  event:
+    | 'server:status'
+    | 'fleet:status'
+    | 'install:state'
+    | 'log:lines'
+    | 'update:state'
+    | 'server:update',
   fn: (v: T) => void,
 ) {
   return EventsOn(event, fn);

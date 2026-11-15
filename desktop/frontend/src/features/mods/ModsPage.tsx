@@ -206,7 +206,7 @@ export function ModsPage({ status }: { status: Status | null }) {
         {!view?.mods?.length ? (
           <p className="muted">{t('mods.list.empty')}</p>
         ) : (
-          <div className="table-scroll">
+          <div className="table-scroll table-scroll--tall">
             <table className="table">
               <thead>
                 <tr>

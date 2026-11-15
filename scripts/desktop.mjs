@@ -72,13 +72,19 @@ switch (process.argv[2]) {
       process.exit(1);
     }
     syncWailsVersion(appVersion);
+    // Data de lançamento: a da seção da versão no CHANGELOG ("## [0.3.0] - 2026-11-14"); sem ela, a de hoje.
+    const changelog = readFileSync(join(ROOT, 'CHANGELOG.md'), 'utf8');
+    const released =
+      changelog.match(
+        new RegExp(`^## \\[${appVersion.replace(/\./g, '\\.')}\\] - (\\d{4}-\\d{2}-\\d{2})`, 'm'),
+      )?.[1] ?? new Date().toISOString().slice(0, 10);
     const nsis = process.argv.includes('--nsis');
     wails(
       'build',
       '-clean',
       '-trimpath',
       '-ldflags',
-      `-s -w -X ${APP}/desktop/internal/adapters/desktop.AppVersion=${appVersion}`,
+      `-s -w -X ${APP}/desktop/internal/adapters/desktop.AppVersion=${appVersion} -X ${APP}/desktop/internal/adapters/desktop.AppReleased=${released}`,
       // Instalador por usuário (sem administrador): permite a atualização automática (ADR-014).
       ...(nsis ? ['-nsis', '-installscope', 'user'] : []),
     );
@@ -90,7 +96,7 @@ switch (process.argv[2]) {
       copyFileSync(join(DESKTOP, 'build', 'bin', `${APP}-amd64-installer.exe`), setup);
       console.log(`✔ Instalador: ${setup}`);
     }
-    console.log(`✔ App ${appVersion} em ${join(DESKTOP, 'build', 'bin')}`);
+    console.log(`✔ App ${appVersion} (${released}) em ${join(DESKTOP, 'build', 'bin')}`);
     break;
   }
   case 'package': {

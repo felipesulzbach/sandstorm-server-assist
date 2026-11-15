@@ -66,3 +66,7 @@ GitHub, STUN, UPnP on the local network), backups and the feedback reports.
 - 2026-11-11: Go 1.27.4 for GO-2026-6859 (HTTP/1 server crash); the app has no HTTP server, the legacy `checker/` has.
 - 2026-11-11: port diagnosis (`adapters/netdiag`): G107/G704 suppressed for UPnP requests, with the address checked by
   `lanURL` (private IPv4 of the device that answered). Feedback zip: G304 for the image chosen in the Windows dialog.
+- 2026-11-14: server version notice: SteamCMD runs `steamcmd.InfoArgs` (`app_info_print`, nothing installed) only after
+  `trust.VerifySigner`, never at the same time as an install (`installer.Service.steam` lock), with a 3 min limit and
+  the output capped at 8 MB and not logged. New links by key only (Saber Interactive game page, Steam and Epic stores);
+  the old `insurgency-sandstorm.com` domain now hosts an unrelated gambling site and must not be linked.

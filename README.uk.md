@@ -10,7 +10,7 @@
 Безкоштовний застосунок для Windows, який допомагає **встановити, налаштувати й запустити виділений сервер
 Insurgency: Sandstorm з модами mod.io** без ручного редагування файлів `.bat` і `.ini`.
 
-> Неофіційний інструмент спільноти. Не пов'язаний з New World Interactive, Focus Entertainment, Valve чи mod.io.
+> Неофіційний інструмент спільноти. Не пов'язаний з Saber Interactive, New World Interactive, Focus Entertainment, Valve чи mod.io.
 > Див. [DISCLAIMER.md](DISCLAIMER.md).
 
 ![Панель із запущеним сервером](docs/images/dashboard.png)

@@ -15,6 +15,9 @@ short hints and "How to get it?" guides.
 
 The app checks for new versions by itself and installs only updates signed by the project.
 
+The bar at the top of the window always shows the app version and its release date; click it to open
+**About**, where **Useful links** also has the official game page, the Steam and Epic stores and mod.io.
+
 ## 2. Install the server
 
 ![Installation screen](images/install.png)
@@ -30,6 +33,10 @@ and config files) and fills the fields. When a value in the app differs from the
 
 **Starting over?** If you moved or deleted the server folder, or chose a new one, the app offers **Start from
 scratch** to clear the previous server's settings (you choose whether the passwords go too).
+
+When a new version of the dedicated server is out, a notice appears at the top of the window, next to **?**.
+Click it to open **Installation**, stop the servers and click **Check for updates**. The app asks Steam when it
+opens and every 6 hours.
 
 ## 3. Configure the server
 
@@ -58,6 +65,10 @@ Open **Server**. The tabs are:
 - **Network:** ports, the IP players use, the Firewall rule and the port diagnosis (section 5).
 - **Messages:** message of the day (loading screen) and chat messages when a player joins or leaves.
 - **Automation:** scheduled messages, daily restart, restart after a crash and Discord notices.
+
+In **Game rules**, each rule shows its name and, in brackets, its key in Game.ini or Engine.ini (for example
+`AIDifficulty`); the search box finds a rule by either. The mutator list also has a search box. In the rotation,
+each map starts collapsed: click its name to see its game modes, or **Expand all**.
 
 Click **Save** after changing a tab.
 
@@ -159,7 +170,8 @@ Without the password the backup cannot be opened.
 To report a problem or suggest an improvement, open **Feedback**:
 
 1. Choose **Report a problem** or **Suggest an improvement**.
-2. Optionally type a title and a description, keep **Include the app log** ticked and add a screenshot (up to 5 MB).
+2. Type a title (required). The description is optional; keep **Include the app log** ticked and add a
+   screenshot if you want (up to 5 MB).
 3. Click **Prepare and open GitHub**. The app saves a `.zip` on your PC and opens the GitHub form already filled in.
 4. Drag the `.zip` into the form and click **Create**. You need a free GitHub account.
 

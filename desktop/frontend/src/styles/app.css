@@ -137,6 +137,10 @@ code {
 .titlebar__title {
   font-weight: 600;
   white-space: nowrap;
+  /* Com avisos na barra e pouca largura, o nome encolhe (reticências) em vez de os botões quebrarem. */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .titlebar__beta {
@@ -154,6 +158,7 @@ code {
   gap: 8px;
   margin-left: auto;
   padding-right: 8px;
+  flex: none;
 }
 
 .titlebar__help {
@@ -1550,6 +1555,7 @@ code {
   color: var(--ok-soft);
   font-size: 11.5px;
   font-weight: 700;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -2160,4 +2166,126 @@ code {
   display: grid;
   gap: 6px;
   margin-bottom: 10px;
+}
+
+/* ---- busca nas listas (Regras do jogo, Mutators) ---- */
+.searchbox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 420px;
+  min-width: 0;
+}
+.searchbox__icon {
+  position: absolute;
+  left: 10px;
+  color: var(--muted);
+  pointer-events: none;
+}
+.searchbox__input {
+  width: 100%;
+  padding-left: 32px;
+  padding-right: 34px;
+}
+.searchbox__input::-webkit-search-cancel-button {
+  display: none;
+}
+.searchbox__clear {
+  position: absolute;
+  right: 2px;
+  width: 26px;
+  height: 26px;
+}
+
+/* Chave original do Game.ini/Engine.ini ao lado do nome traduzido. */
+.rules__key {
+  /* A chave vai inteira para a linha de baixo; só quebra no meio se for maior que a coluna. */
+  display: inline-block;
+  max-width: 100%;
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+/* ---- rotação: blocos de mapa recolhíveis ---- */
+.cyclemap__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 2px 4px 2px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cyclemap__toggle strong {
+  overflow-wrap: anywhere;
+}
+.cyclemap__chevron {
+  flex: none;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+.cyclemap.is-open .cyclemap__chevron {
+  transform: rotate(90deg);
+}
+.cyclemap__count {
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+/* ---- tabela de mods com rolagem própria (o cabeçalho fica fixo) ---- */
+.table-scroll--tall {
+  max-height: min(60vh, 560px);
+  overflow-y: auto;
+}
+.table-scroll--tall thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+
+/* ---- barra de título: versão sempre à vista e aviso de versão nova do servidor ---- */
+.titlebar__version {
+  --wails-draggable: no-drag;
+  flex: none;
+  padding: 1px 7px;
+  border: 1px solid color-mix(in srgb, var(--sidebar-text) 35%, transparent);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--sidebar-text);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.titlebar__version:hover {
+  border-color: var(--sidebar-text);
+}
+.titlebar__released {
+  font-weight: 400;
+  opacity: 0.85;
+}
+.titlebar__notice {
+  --wails-draggable: no-drag;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.titlebar__notice:hover {
+  filter: brightness(1.08);
 }

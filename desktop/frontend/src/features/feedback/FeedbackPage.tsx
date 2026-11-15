@@ -10,6 +10,7 @@ import {
 import { ErrorCard, Field, PageHead } from '../../shared/components';
 import { bytes } from '../../shared/format';
 import { useAction } from '../../shared/hooks';
+import { fieldError } from '../../shared/problem';
 
 /**
  * Relato de problema e sugestão de melhoria (ADR-034). O Go monta um zip no PC (texto, log mascarado e imagem
@@ -25,6 +26,9 @@ export function FeedbackPage() {
   const [includeLog, setIncludeLog] = useState(true);
   const [image, setImage] = useState<ReportImage | null>(null);
   const [done, setDone] = useState<ReportResult | null>(null);
+  // O título é obrigatório (o Go confere); o botão só libera com ele escrito.
+  const titleError = fieldError(action.error, 'title');
+  const noTitle = title.trim() === '';
 
   const chooseKind = (k: ReportKind) => {
     setKind(k);
@@ -75,15 +79,27 @@ export function FeedbackPage() {
         </div>
         <p className="muted">{t(`feedback.intro.${kind}`)}</p>
 
-        {action.error && <ErrorCard error={action.error} onClose={() => action.setError(null)} />}
+        {action.error && !titleError && (
+          <ErrorCard error={action.error} onClose={() => action.setError(null)} />
+        )}
 
         <div className="form form--single">
-          <Field label={t('feedback.titleField')} hint={t('feedback.titleHint')}>
+          <Field
+            label={t('feedback.titleField')}
+            hint={t('feedback.titleHint')}
+            error={titleError ? t(titleError.msg ?? '', titleError.params) : null}
+          >
             <input
               className="input"
               maxLength={120}
+              required
+              aria-required="true"
+              aria-invalid={titleError ? true : undefined}
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (titleError) action.setError(null);
+              }}
             />
           </Field>
           <Field label={t('feedback.description')} hint={t(`feedback.descriptionHint.${kind}`)}>
@@ -138,7 +154,8 @@ export function FeedbackPage() {
           <button
             type="button"
             className="btn btn--primary"
-            disabled={action.busy}
+            disabled={action.busy || noTitle}
+            title={noTitle ? t('feedback.titleNeeded') : undefined}
             onClick={create}
           >
             <Send size={16} aria-hidden /> {t('feedback.create')}

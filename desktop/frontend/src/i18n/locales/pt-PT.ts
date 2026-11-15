@@ -8,6 +8,11 @@ export const ptPT: Messages = {
     loading: 'A carregar…',
   },
   titlebar: {
+    version: 'v{version}',
+    versionHint: 'Versão {version}, lançada em {date}',
+    serverUpdate: 'Atualização do servidor disponível',
+    serverUpdateHint:
+      'Saiu uma versão nova do servidor dedicado (build instalada {installed}, nova {latest}). Clique para abrir Instalar.',
     help: 'Ajuda',
     minimize: 'Minimizar',
     maximize: 'Maximizar',
@@ -26,6 +31,8 @@ export const ptPT: Messages = {
     about: 'Sobre',
   },
   common: {
+    clearSearch: 'Limpar pesquisa',
+    noResults: 'Nada encontrado para "{query}".',
     save: 'Guardar',
     saved: 'Guardado',
     cancel: 'Cancelar',
@@ -209,6 +216,8 @@ export const ptPT: Messages = {
       missing: 'SteamCMD não encontrado',
     },
     server: {
+      newBuild:
+        'Há uma versão nova do servidor dedicado (build instalada {installed}, nova {latest}). Pare os servidores e clique em "Procurar atualizações".',
       title: 'Servidor dedicado',
       installed: 'Instalado',
       notInstalled: 'Não instalado',
@@ -252,6 +261,8 @@ export const ptPT: Messages = {
     },
   },
   server: {
+    mutatorsSearch: 'Pesquisar mutators',
+    mutatorsSearchPlaceholder: 'Pesquise pelo nome ou pela descrição',
     travelNoMods:
       'Nenhum mapa encontrado nos mods instalados. Subscreva um mod de mapa e inicie o servidor uma vez.',
     travelNotInstalled: '{name} (não está nos mods instalados)',
@@ -718,6 +729,8 @@ export const ptPT: Messages = {
     },
   },
   about: {
+    gameLinks: 'O jogo',
+    helpLinks: 'Guias e ferramentas',
     title: 'Sobre',
     text: 'O Sandstorm Server Assist ajuda a instalar, configurar e executar um servidor dedicado de Insurgency: Sandstorm com mods do mod.io.',
     license: 'Licença',
@@ -725,7 +738,7 @@ export const ptPT: Messages = {
       'Apache License 2.0. Livre para usar, alterar e partilhar, fornecido "tal como está", sem garantia.',
     disclaimer: 'Aviso legal',
     disclaimerText:
-      'Projeto não oficial, sem ligação nem aprovação da New World Interactive, Focus Entertainment, Valve ou mod.io. Insurgency, Steam e mod.io são marcas dos respetivos donos. É responsável pela forma como usa o seu servidor e por cumprir os termos do jogo, da Steam e do mod.io e as leis do seu país. A aplicação não distribui o jogo nem o SteamCMD: transfere-os das fontes oficiais.',
+      'Projeto não oficial, sem ligação nem aprovação da Saber Interactive, New World Interactive, Focus Entertainment, Valve ou mod.io. Insurgency, Steam e mod.io são marcas dos respetivos donos. É responsável pela forma como usa o seu servidor e por cumprir os termos do jogo, da Steam e do mod.io e as leis do seu país. A aplicação não distribui o jogo nem o SteamCMD: transfere-os das fontes oficiais.',
     links: 'Ligações úteis',
     serverGuide: 'Guia de servidores da comunidade',
     modioGuide: 'Guia de administração de servidores do mod.io',
@@ -734,6 +747,7 @@ export const ptPT: Messages = {
       'Criado por Felipe Sulzbach, com a ajuda do Claude Code (Anthropic). Gratuito e de código aberto, feito para a comunidade de Insurgency: Sandstorm.',
   },
   feedback: {
+    titleNeeded: 'Escreva um título primeiro.',
     title: 'Feedback',
     subtitle: 'Relatar um problema ou sugerir uma melhoria',
     kindLabel: 'Tipo',
@@ -745,8 +759,8 @@ export const ptPT: Messages = {
       bug: 'Conte o que correu mal. A app prepara um ficheiro com os detalhes e abre o formulário do GitHub já preenchido.',
       idea: 'Partilhe uma ideia para melhorar a app. A app abre o formulário do GitHub já preenchido.',
     },
-    titleField: 'Título (opcional)',
-    titleHint: 'Uma linha. Se ficar vazio, a app escreve um.',
+    titleField: 'Título',
+    titleHint: 'Obrigatório. Uma linha que resuma o problema ou a ideia.',
     description: 'Descrição (opcional)',
     descriptionHint: {
       bug: 'O que fez, o que esperava e o que aconteceu.',
@@ -960,6 +974,9 @@ export const ptPT: Messages = {
     help: 'Ajuda',
   },
   links: {
+    'official-site': 'Página oficial do jogo',
+    'steam-store': 'Loja Steam',
+    'epic-store': 'Epic Games Store',
     'steam-gslt': 'Steam: contas de servidor de jogo',
     gamestats: 'Sandstorm GameStats',
     'steamid-io': 'steamid.io',
@@ -1044,6 +1061,11 @@ export const ptPT: Messages = {
     },
   },
   cycle: {
+    expandAll: 'Expandir todos',
+    collapseAll: 'Recolher todos',
+    expand: 'Mostrar os modos de jogo de {map}',
+    collapse: 'Esconder os modos de jogo de {map}',
+    modes: 'Modos: {n}',
     hint: 'Aqui a rotação aparece por mapa. O ficheiro MapCycle.txt continua com um cenário por linha, nesta ordem.',
     empty:
       'A rotação está vazia: o servidor mantém o MapCycle.txt que já tem. Adicione mapas ou use a rotação padrão.',
@@ -1119,6 +1141,8 @@ export const ptPT: Messages = {
     Warlords: 'Começa com 10 pontos de abastecimento.',
   },
   rules: {
+    search: 'Pesquisar regras do jogo',
+    searchPlaceholder: 'Nome ou chave do Game.ini',
     manage: 'Definir as regras do jogo aqui',
     manageHint:
       'O app grava estas opções no Game.ini e no Engine.ini quando o servidor inicia. Opções vazias usam o padrão do jogo. Desligado: o app não mexe nestes ficheiros.',
@@ -1506,6 +1530,7 @@ export const ptPT: Messages = {
     uac: 'O Windows pede a confirmação de administrador.',
   },
   validation: {
+    reportTitle: 'Escreva um título.',
     markupPlain: 'O jogo não mostra formatação e mostraria {tag} escrito. Tire as tags.',
     rule: 'O valor de {rule} tem de estar entre {min} e {max}.',
     ruleBool: 'Escolha ligado ou desligado em {rule}.',

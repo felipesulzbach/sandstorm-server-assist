@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useI18n } from '../../i18n';
 import { backend, type Profile, type RuleDef, type RulesInfo } from '../../shared/backend';
+import { matches, SearchBox } from '../../shared/search';
 
 /**
  * Regras do jogo (ADR-022): opções do Game.ini e do Engine.ini que o Go sabe gravar. A lista, os limites e os
@@ -18,6 +19,7 @@ export function RulesTab({
   const { t } = useI18n();
   const [info, setInfo] = useState<RulesInfo | null>(null);
   const [fromServer, setFromServer] = useState<Record<string, string>>({});
+  const [query, setQuery] = useState('');
   const rules = (form.rules ?? null) as Record<string, string> | null;
   const managed = rules !== null;
 
@@ -37,6 +39,8 @@ export function RulesTab({
   }, [managed, form.serverDir]);
   if (!info) return null;
   const serverCount = Object.keys(fromServer).length;
+  // Busca pelo nome traduzido e pela chave original do Game.ini/Engine.ini (a tela só esconde o que não bate).
+  const shown = info.rules.filter((r) => matches(query, t(`rules.items.${r.id}.label`), r.key));
   const value = (id: string) => rules?.[id] ?? '';
   const put = (id: string, v: string) => {
     const next = { ...(rules ?? {}) };
@@ -99,26 +103,46 @@ export function RulesTab({
         </div>
       )}
       {error && <p className="banner banner--error field--wide">{error}</p>}
+      {managed && (
+        <div className="field--wide">
+          <SearchBox
+            value={query}
+            onChange={setQuery}
+            label={t('rules.search')}
+            placeholder={t('rules.searchPlaceholder')}
+          />
+        </div>
+      )}
+      {managed && shown.length === 0 && (
+        <p className="muted field--wide">{t('common.noResults', { query })}</p>
+      )}
       {managed &&
-        info.groups.map((g) => (
-          <fieldset key={g} className="rules__group field--wide">
-            <legend>{t(`rules.groups.${g}`)}</legend>
-            <div className="form">
-              {info.rules
-                .filter((r) => r.group === g)
-                .map((r) => (
-                  <label key={r.id} className="field">
-                    <span className="field__label">{t(`rules.items.${r.id}.label`)}</span>
-                    {input(r)}
-                    <span className="field__hint">
-                      {t(`rules.items.${r.id}.hint`)}
-                      {r.kind !== 'bool' && ` (${r.min}–${r.max})`}
-                    </span>
-                  </label>
-                ))}
-            </div>
-          </fieldset>
-        ))}
+        info.groups
+          .filter((g) => shown.some((r) => r.group === g))
+          .map((g) => (
+            <fieldset key={g} className="rules__group field--wide">
+              <legend>{t(`rules.groups.${g}`)}</legend>
+              <div className="form">
+                {shown
+                  .filter((r) => r.group === g)
+                  .map((r) => (
+                    <label key={r.id} className="field">
+                      <span className="field__label">
+                        {t(`rules.items.${r.id}.label`)}{' '}
+                        <code className="rules__key" title={`${r.file} · [${r.section}]`}>
+                          ({r.key})
+                        </code>
+                      </span>
+                      {input(r)}
+                      <span className="field__hint">
+                        {t(`rules.items.${r.id}.hint`)}
+                        {r.kind !== 'bool' && ` (${r.min}–${r.max})`}
+                      </span>
+                    </label>
+                  ))}
+              </div>
+            </fieldset>
+          ))}
     </div>
   );
 }

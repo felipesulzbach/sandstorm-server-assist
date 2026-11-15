@@ -17,6 +17,9 @@ dicas curtas e guias "Como obter?".
 
 A app procura versões novas sozinha e só instala atualizações assinadas pelo projeto.
 
+A barra no topo da janela mostra sempre a versão da app e a data de lançamento; clique nela para abrir
+**Sobre**, onde **Ligações úteis** tem também a página oficial do jogo, as lojas Steam e Epic e o mod.io.
+
 ## 2. Instalar o servidor
 
 ![Ecrã de instalação](../images/install.png)
@@ -33,6 +36,10 @@ manter.
 
 **Vai recomeçar?** Se moveu ou apagou a pasta do servidor, ou escolheu uma nova, a app oferece **Começar do
 zero** para limpar as definições do servidor anterior (escolhe se as palavras-passe também saem).
+
+Quando sai uma versão nova do servidor dedicado, aparece um aviso no topo da janela, ao lado do **?**. Clique
+nele para abrir **Instalação**, pare os servidores e clique em **Procurar atualizações**. A app pergunta à Steam
+ao abrir e a cada 6 horas.
 
 ## 3. Configurar o servidor
 
@@ -62,6 +69,11 @@ Abra **Servidor**. Os separadores são:
 - **Rede:** portas, o IP que os jogadores usam, a regra da firewall e o diagnóstico de portas (secção 5).
 - **Mensagens:** mensagem do dia (ecrã de carregamento) e mensagens no chat quando um jogador entra ou sai.
 - **Automação:** mensagens programadas, reinício diário, reinício depois de uma falha e avisos no Discord.
+
+Em **Regras do jogo**, cada regra mostra o nome e, entre parênteses, a chave no Game.ini ou no Engine.ini (por
+exemplo `AIDifficulty`); a caixa de pesquisa encontra a regra por qualquer um dos dois. A lista de mutators também
+tem pesquisa. Na rotação, cada mapa começa recolhido: clique no nome para ver os modos de jogo, ou em **Expandir
+todos**.
 
 Clique em **Guardar** depois de mudar um separador.
 
@@ -168,8 +180,8 @@ palavra-passe e escolha a pasta do servidor. Sem a palavra-passe a cópia não a
 Para relatar um problema ou sugerir uma melhoria, abra **Feedback**:
 
 1. Escolha **Relatar um problema** ou **Sugerir uma melhoria**.
-2. Se quiser, escreva um título e uma descrição, mantenha **Incluir o registo da app** marcado e junte uma captura de
-   ecrã (até 5 MB).
+2. Escreva um título (obrigatório). A descrição é opcional; mantenha **Incluir o registo da app** marcado e junte
+   uma captura de ecrã se quiser (até 5 MB).
 3. Clique em **Preparar e abrir o GitHub**. A app guarda um `.zip` no PC e abre o formulário do GitHub já preenchido.
 4. Arraste o `.zip` para o formulário e clique em **Create**. É preciso uma conta gratuita no GitHub.
 

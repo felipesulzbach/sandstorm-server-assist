@@ -2,6 +2,7 @@ package steamcmd
 
 import (
 	"slices"
+	"strings"
 	"testing"
 )
 
@@ -63,5 +64,54 @@ func TestWrongInstallDir(t *testing.T) {
 	}
 	if WrongInstallDir("Success! App '581330' fully installed.") {
 		t.Fatal("false positive")
+	}
+}
+
+// Versão publicada do servidor (aviso de atualização): o buildid do ramo público, não o de outros ramos.
+func TestPublicBuildID(t *testing.T) {
+	out := `"581330"
+{
+	"common" { "name" "Insurgency: Sandstorm Dedicated Server" }
+	"depots"
+	{
+		"branches"
+		{
+			"beta"
+			{
+				"buildid"		"999"
+			}
+			"public"
+			{
+				"buildid"		"12345678"
+				"timeupdated"		"1700000000"
+			}
+		}
+	}
+}`
+	if got := PublicBuildID(out); got != "12345678" {
+		t.Fatalf("got %q", got)
+	}
+	for _, bad := range []string{"", "no info", `"branches" { "public" { } } "buildid" "5"`} {
+		if got := PublicBuildID(bad); got != "" {
+			t.Errorf("%q: got %q", bad, got)
+		}
+	}
+	if args := strings.Join(InfoArgs(581330), " "); args != "+login anonymous +app_info_update 1 +app_info_print 581330 +quit" {
+		t.Error(args)
+	}
+}
+
+func TestNewerBuild(t *testing.T) {
+	cases := []struct {
+		installed, latest string
+		want              bool
+	}{
+		{"100", "101", true}, {"101", "101", false}, {"102", "101", false},
+		{"", "101", false}, {"100", "", false}, {"x", "101", false}, {"0", "5", false},
+	}
+	for _, c := range cases {
+		if got := NewerBuild(c.installed, c.latest); got != c.want {
+			t.Errorf("%+v: got %v", c, got)
+		}
 	}
 }

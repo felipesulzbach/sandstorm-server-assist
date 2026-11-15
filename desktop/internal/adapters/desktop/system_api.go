@@ -21,11 +21,15 @@ type SystemAPI struct{ a *app }
 
 // links são os únicos endereços que a tela pode pedir para abrir (pela chave, nunca pela URL).
 var links = map[string]string{
-	"steam-gslt":          "https://steamcommunity.com/dev/managegameservers",
-	"gamestats":           "https://gamestats.sandstorm.game/",
-	"steamid-io":          "https://steamid.io/",
-	"steam-profile":       "https://steamcommunity.com/my/profile",
-	"modio":               "https://mod.io/g/insurgencysandstorm",
+	"steam-gslt":    "https://steamcommunity.com/dev/managegameservers",
+	"gamestats":     "https://gamestats.sandstorm.game/",
+	"steamid-io":    "https://steamid.io/",
+	"steam-profile": "https://steamcommunity.com/my/profile",
+	"modio":         "https://mod.io/g/insurgencysandstorm",
+	// Página oficial do jogo (Saber Interactive) e lojas que vendem o jogo para PC (Epic joga junto com a Steam).
+	"official-site":       "https://saber.games/games/sandstorm",
+	"steam-store":         "https://store.steampowered.com/app/581320/",
+	"epic-store":          "https://store.epicgames.com/p/insurgency-sandstorm",
 	"modio-subscriptions": "https://mod.io/g/insurgencysandstorm",
 	"modio-api-access":    "https://mod.io/me/access",
 	"modio-status":        "https://status.mod.io/",
@@ -42,10 +46,12 @@ var links = map[string]string{
 
 // Info é o que a tela mostra sobre o app.
 type Info struct {
-	AppVersion string   `json:"appVersion"`
-	GoVersion  string   `json:"goVersion"`
-	Languages  []string `json:"languages"`
-	Problems   []string `json:"problems"`
+	AppVersion string `json:"appVersion"`
+	// Released é a data de lançamento da versão (AAAA-MM-DD), vazia na de desenvolvimento.
+	Released  string   `json:"released"`
+	GoVersion string   `json:"goVersion"`
+	Languages []string `json:"languages"`
+	Problems  []string `json:"problems"`
 }
 
 // Info devolve versão e listas fixas.
@@ -54,7 +60,8 @@ func (s *SystemAPI) Info() Info {
 	if bi, ok := debug.ReadBuildInfo(); ok {
 		gv = bi.GoVersion
 	}
-	return Info{AppVersion: AppVersion, GoVersion: gv, Languages: config.Languages, Problems: problems.Codes}
+	return Info{AppVersion: AppVersion, Released: releaseDate(AppReleased), GoVersion: gv, Languages: config.Languages,
+		Problems: problems.Codes}
 }
 
 // OpenLink abre no navegador um dos endereços conhecidos (pela chave).
@@ -171,4 +178,12 @@ func (s *SystemAPI) InstallUpdate() error {
 	}
 	runtime.Quit(s.a.ctx) // o instalador espera o app fechar
 	return nil
+}
+
+// releaseDate só deixa passar uma data AAAA-MM-DD válida (o valor vem do build).
+func releaseDate(s string) string {
+	if _, err := time.Parse("2006-01-02", s); err != nil {
+		return ""
+	}
+	return s
 }

@@ -34,6 +34,10 @@ import (
 // AppVersion é trocada no build (-ldflags "-X .../desktop.AppVersion=x.y.z").
 var AppVersion = "0.1.0-dev"
 
+// AppReleased é a data de lançamento da versão (AAAA-MM-DD, da seção dela no CHANGELOG), trocada no build. Vazia
+// na versão de desenvolvimento.
+var AppReleased = ""
+
 // app junta os serviços compartilhados pelas APIs. Os de cada servidor (runner, log, chat...) ficam em servers
 // (ADR-048).
 type app struct {
@@ -54,6 +58,8 @@ type app struct {
 	modNew   *modfiles.Service
 	// scenarios guarda os cenários que existem (jogo base e mods instalados) para conferir a rotação (ADR-030).
 	scenarios *scenarioCache
+	// srvCheck guarda a versão publicada do servidor dedicado (aviso na barra de título).
+	srvCheck serverCheck
 }
 
 // Run monta a aplicação e abre a janela. Só volta quando a janela fecha.
@@ -187,7 +193,10 @@ const (
 
 // startUpdates liga a procura de atualizações (uma vez).
 func (a *app) startUpdates() {
-	a.updatesOnce.Do(func() { go a.updates.Run(a.ctx, updateFirstCheck, updateInterval) })
+	a.updatesOnce.Do(func() {
+		go a.updates.Run(a.ctx, updateFirstCheck, updateInterval)
+		go a.runServerCheck(a.ctx)
+	})
 }
 
 // newUpdater monta a atualização automática. Sem pasta de cache, chave ou endereço válidos, ela fica desligada

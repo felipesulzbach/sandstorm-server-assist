@@ -17,6 +17,10 @@ también tiene consejos cortos y guías "¿Cómo conseguirlo?".
 
 La app busca versiones nuevas sola y solo instala actualizaciones firmadas por el proyecto.
 
+La barra de arriba de la ventana muestra siempre la versión de la app y su fecha de publicación; púlsala para
+abrir **Acerca de**, donde **Enlaces útiles** también tiene la página oficial del juego, las tiendas Steam y Epic y
+mod.io.
+
 ## 2. Instalar el servidor
 
 ![Pantalla de instalación](../images/install.png)
@@ -33,6 +37,10 @@ cuál mantener.
 
 **¿Empiezas de nuevo?** Si moviste o borraste la carpeta del servidor, o elegiste otra, la app ofrece **Empezar
 de cero** para borrar los ajustes del servidor anterior (eliges si las contraseñas también se borran).
+
+Cuando sale una versión nueva del servidor dedicado, aparece un aviso arriba de la ventana, junto al **?**.
+Púlsalo para abrir **Instalación**, detén los servidores y pulsa **Buscar actualizaciones**. La app pregunta a Steam
+al abrirse y cada 6 horas.
 
 ## 3. Configurar el servidor
 
@@ -63,6 +71,11 @@ Abre **Servidor**. Las pestañas son:
 - **Red:** puertos, la IP que usan los jugadores, la regla del firewall y el diagnóstico de puertos (sección 5).
 - **Mensajes:** mensaje del día (pantalla de carga) y mensajes en el chat cuando un jugador entra o sale.
 - **Automatización:** mensajes programados, reinicio diario, reinicio tras un cierre inesperado y avisos en Discord.
+
+En **Reglas del juego**, cada regla muestra su nombre y, entre paréntesis, su clave en Game.ini o Engine.ini (por
+ejemplo `AIDifficulty`); el cuadro de búsqueda encuentra la regla por cualquiera de los dos. La lista de mutators
+también tiene búsqueda. En la rotación, cada mapa empieza contraído: pulsa su nombre para ver sus modos de juego, o
+**Expandir todos**.
 
 Pulsa **Guardar** después de cambiar una pestaña.
 
@@ -168,8 +181,8 @@ contraseña y elige la carpeta del servidor. Sin la contraseña la copia no se p
 Para informar de un problema o sugerir una mejora, abre **Comentarios**:
 
 1. Elige **Informar de un problema** o **Sugerir una mejora**.
-2. Si quieres, escribe un título y una descripción, deja marcado **Incluir el registro de la app** y añade una
-   captura de pantalla (hasta 5 MB).
+2. Escribe un título (obligatorio). La descripción es opcional; deja marcado **Incluir el registro de la app** y
+   añade una captura de pantalla si quieres (hasta 5 MB).
 3. Pulsa **Preparar y abrir GitHub**. La app guarda un `.zip` en tu PC y abre el formulario de GitHub ya rellenado.
 4. Arrastra el `.zip` al formulario y pulsa **Create**. Necesitas una cuenta gratuita de GitHub.
 

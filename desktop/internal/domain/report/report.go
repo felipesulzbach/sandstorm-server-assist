@@ -11,6 +11,8 @@ import (
 	"strings"
 	"unicode"
 	"unicode/utf8"
+
+	"sandstorm-server-assist/desktop/internal/domain/problems"
 )
 
 // Tipos de relato.
@@ -86,12 +88,13 @@ type Meta struct {
 	Created    string // data e hora, já formatada
 }
 
-// DefaultTitle é o título quando a pessoa não escreve um.
-func DefaultTitle(kind, version string) string {
-	if kind == Idea {
-		return "Idea for version " + version
+// CheckTitle exige o título do relato (já limpo): é ele que dá nome à issue no GitHub e ajuda a achar relatos
+// parecidos. Descrição, log e imagem continuam opcionais.
+func CheckTitle(title string) error {
+	if strings.TrimSpace(title) == "" {
+		return problems.Field("title", "validation.reportTitle")
 	}
-	return "Problem in version " + version
+	return nil
 }
 
 // Text é o report.txt do zip.

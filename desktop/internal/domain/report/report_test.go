@@ -1,9 +1,12 @@
 package report
 
 import (
+	"errors"
 	"net/url"
 	"strings"
 	"testing"
+
+	"sandstorm-server-assist/desktop/internal/domain/problems"
 )
 
 func TestClean(t *testing.T) {
@@ -67,11 +70,25 @@ func TestImageExt(t *testing.T) {
 }
 
 func TestTextAndDefaults(t *testing.T) {
-	b := string(Text(Meta{Kind: Idea, Title: DefaultTitle(Idea, "0.2.0")}, ""))
-	if !strings.Contains(b, "Idea for version 0.2.0") || !strings.Contains(b, "(none)") {
+	b := string(Text(Meta{Kind: Idea, Title: "Server list filter"}, ""))
+	if !strings.Contains(b, "Server list filter") || !strings.Contains(b, "(none)") {
 		t.Fatal(b)
 	}
 	if !ValidKind(Bug) || ValidKind("other") {
 		t.Fatal("kind")
+	}
+}
+
+// O título é obrigatório; espaços não contam como título.
+func TestCheckTitle(t *testing.T) {
+	for _, title := range []string{"", "   ", "\t"} {
+		err := CheckTitle(title)
+		var pe *problems.Error
+		if !errors.As(err, &pe) || pe.Field != "title" || pe.Msg != "validation.reportTitle" {
+			t.Errorf("%q: %v", title, err)
+		}
+	}
+	if err := CheckTitle("Crash on start"); err != nil {
+		t.Error(err)
 	}
 }

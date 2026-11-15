@@ -81,6 +81,9 @@ type Service struct {
 	cancel context.CancelFunc
 	notify func(State)
 	log    Logger
+	// steam: uma execução do SteamCMD por vez. A instalação espera a verificação de versão terminar; a verificação
+	// não roda se a instalação estiver em andamento (os dois mexem na pasta do SteamCMD).
+	steam sync.Mutex
 	// speed: amostras para calcular velocidade.
 	lastDone int64
 	lastAt   time.Time
@@ -267,7 +270,11 @@ func (s *Service) FetchSteamCMD(dir string) error {
 	if err != nil {
 		return err
 	}
-	go func() { s.end(FetchSteamCMD, s.fetchSteamCMD(ctx, dir)) }()
+	go func() {
+		s.steam.Lock()
+		defer s.steam.Unlock()
+		s.end(FetchSteamCMD, s.fetchSteamCMD(ctx, dir))
+	}()
 	return nil
 }
 
@@ -361,7 +368,11 @@ func (s *Service) Install(steamcmdDir, serverDir string, validate bool) error {
 	if err != nil {
 		return err
 	}
-	go func() { s.end(InstallServer, s.install(ctx, exe, serverDir, validate)) }()
+	go func() {
+		s.steam.Lock()
+		defer s.steam.Unlock()
+		s.end(InstallServer, s.install(ctx, exe, serverDir, validate))
+	}()
 	return nil
 }
 
@@ -512,4 +523,72 @@ func (s *Service) logf(text string) {
 	if s.log != nil {
 		s.log.Add("app", text, "info")
 	}
+}
+
+// Tempo máximo da verificação de versão e tamanho máximo da saída lida.
+const (
+	latestTimeout = 3 * time.Minute
+	latestMaxOut  = 8 << 20
+)
+
+// ErrSteamBusy: o SteamCMD está em uso (instalação em andamento); a verificação fica para a próxima vez.
+var ErrSteamBusy = errors.New("steamcmd busy")
+
+// LatestBuild pergunta ao SteamCMD qual é a versão publicada (buildid) do servidor, sem instalar nada. Antes, o
+// próprio SteamCMD se atualiza se houver versão nova dele (é assim a cada execução). Com uma instalação em
+// andamento, volta ErrSteamBusy sem esperar.
+func (s *Service) LatestBuild(ctx context.Context, steamcmdDir string) (string, error) {
+	exe := SteamCMDExe(steamcmdDir)
+	if !fsx.Exists(exe) {
+		return "", problems.New(problems.SteamCMDFailed, "steamcmd.exe not found")
+	}
+	if s.Busy() || !s.steam.TryLock() {
+		return "", ErrSteamBusy
+	}
+	defer s.steam.Unlock()
+	if err := trust.VerifySigner(exe, "Valve"); err != nil {
+		return "", problems.Wrap(problems.SteamCMDSignature, err)
+	}
+	ctx, cancel := context.WithTimeout(ctx, latestTimeout)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, exe, steamcmd.InfoArgs(server.AppID)...) // #nosec G204 -- steamcmd.exe assinado pela Valve; argumentos do domínio
+	cmd.Dir = filepath.Dir(exe)
+	cmd.SysProcAttr = proc.HideConsole()
+	var out limitedBuffer
+	out.max = latestMaxOut
+	cmd.Stdout, cmd.Stderr = &out, &out
+	err := cmd.Run()
+	if id := steamcmd.PublicBuildID(out.String()); id != "" {
+		return id, nil
+	}
+	if ctx.Err() != nil {
+		// Tempo esgotado: o SteamCMD pode ter aberto uma cópia atualizada de si mesmo; encerra o que sobrou.
+		if list, _ := proc.FindInDir(filepath.Dir(exe), "steamcmd"); len(list) > 0 {
+			for _, p := range list {
+				_ = proc.Kill(p.PID)
+			}
+		}
+		return "", ctx.Err()
+	}
+	if err != nil {
+		return "", problems.Wrap(problems.SteamCMDFailed, err)
+	}
+	return "", problems.New(problems.SteamCMDFailed, "no buildid in app_info_print")
+}
+
+// limitedBuffer guarda até max bytes da saída e descarta o resto.
+type limitedBuffer struct {
+	bytes.Buffer
+	max int
+}
+
+func (b *limitedBuffer) Write(p []byte) (int, error) {
+	if room := b.max - b.Len(); room > 0 {
+		if len(p) > room {
+			b.Buffer.Write(p[:room])
+		} else {
+			b.Buffer.Write(p)
+		}
+	}
+	return len(p), nil
 }

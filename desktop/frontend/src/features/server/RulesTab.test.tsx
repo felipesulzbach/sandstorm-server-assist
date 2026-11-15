@@ -10,8 +10,24 @@ vi.mock('../../shared/backend', () => ({
       Promise.resolve({
         groups: ['coop'],
         rules: [
-          { id: 'aiDifficulty', group: 'coop', kind: 'float', min: 0, max: 1, default: '0.5' },
-          { id: 'minimumEnemies', group: 'coop', kind: 'int', min: 0, max: 100, default: '6' },
+          {
+            id: 'aiDifficulty',
+            group: 'coop',
+            key: 'AIDifficulty',
+            kind: 'float',
+            min: 0,
+            max: 1,
+            default: '0.5',
+          },
+          {
+            id: 'minimumEnemies',
+            group: 'coop',
+            key: 'MinimumEnemies',
+            kind: 'int',
+            min: 0,
+            max: 100,
+            default: '6',
+          },
         ],
       }),
     serverRules: () => Promise.resolve({ aiDifficulty: '0.1', minimumEnemies: '8' }),
@@ -37,6 +53,21 @@ describe('RulesTab', () => {
     expect(await screen.findByText(/already sets 2 game rules/)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Use the server rules' }));
     expect(set).toHaveBeenCalledWith({ aiDifficulty: '0.1', minimumEnemies: '8' });
+  });
+
+  // Pedido de 14/11/2026: nome traduzido com a chave original entre parênteses, e busca pelos dois.
+  it('shows the Game.ini key and filters by name or key', async () => {
+    render(ui({}, () => {}));
+    expect(await screen.findByText('(AIDifficulty)')).toBeInTheDocument();
+    expect(screen.getByText('(MinimumEnemies)')).toBeInTheDocument();
+    const search = screen.getByRole('searchbox', { name: 'Search the game rules' });
+    await userEvent.type(search, 'aidiff');
+    expect(screen.getByText('(AIDifficulty)')).toBeInTheDocument();
+    expect(screen.queryByText('(MinimumEnemies)')).toBeNull();
+    await userEvent.clear(search);
+    await userEvent.type(search, 'minimum enem');
+    expect(screen.getByText('(MinimumEnemies)')).toBeInTheDocument();
+    expect(screen.queryByText('(AIDifficulty)')).toBeNull();
   });
 
   it('does not offer them when the app already manages the rules', async () => {

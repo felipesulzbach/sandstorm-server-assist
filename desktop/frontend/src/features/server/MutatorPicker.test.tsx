@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import { I18nProvider } from '../../i18n';
 
@@ -52,6 +53,28 @@ describe('MutatorPicker', () => {
     expect(within(sponge).getByRole('checkbox')).toBeEnabled();
     const eat = screen.getByText('All You Can Eat', { selector: 'span' }).closest('label')!;
     expect(within(eat).getByRole('checkbox')).toBeEnabled();
+  });
+
+  // Busca na lista (pedido de 14/11/2026): pelo nome, pela chave do jogo ou pela descrição.
+  it('filters the list by name, game key or description', async () => {
+    render(
+      <I18nProvider initial="en-US">
+        <MutatorPicker value={[]} onChange={() => {}} />
+      </I18nProvider>,
+    );
+    const search = await screen.findByRole('searchbox', { name: 'Search the mutators' });
+    await userEvent.type(search, 'all you');
+    expect(screen.getByText('All You Can Eat', { selector: 'span' })).toBeInTheDocument();
+    expect(screen.queryByText('Bullet Sponge')).toBeNull();
+    await userEvent.clear(search);
+    await userEvent.type(search, 'bulletsponge');
+    expect(screen.getByText('Bullet Sponge')).toBeInTheDocument();
+    expect(screen.queryByText('Strapped', { selector: 'span' })).toBeNull();
+    await userEvent.clear(search);
+    await userEvent.type(search, 'zzz');
+    expect(screen.getByText('Nothing found for "zzz".')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Clear search' }));
+    expect(screen.getByText('Strapped', { selector: 'span' })).toBeInTheDocument();
   });
 
   it('flags two conflicting mutators kept from an older profile without locking them', async () => {

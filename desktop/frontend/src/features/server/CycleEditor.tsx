@@ -1,5 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, ArrowDown, ArrowUp, Moon, Plus, Sun, Trash2, X } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  ChevronRight,
+  Moon,
+  Plus,
+  Sun,
+  Trash2,
+  X,
+} from 'lucide-react';
 import { useI18n } from '../../i18n';
 import { backend, type CycleMap, type CycleView, type Lighting } from '../../shared/backend';
 
@@ -34,6 +44,8 @@ export function CycleEditor({
   const { t } = useI18n();
   const [view, setView] = useState<CycleView | null>(null);
   const [adding, setAdding] = useState(false);
+  // Mapas abertos (pelo nome): todos começam recolhidos, mostrando só o nome e quantos modos têm.
+  const [open, setOpen] = useState<Set<string>>(new Set());
   const key = lines.join('\n');
 
   useEffect(() => {
@@ -83,6 +95,17 @@ export function CycleEditor({
       .flatMap((s) => LIGHTS.map((light) => ({ ...s, light })))
       .filter((s) => !inCycleLit.has(litKey(s.id, s.light)));
 
+  const groupKey = (map: string, first: number) => (map ? map.toLowerCase() : `#${first}`);
+  const keys = groups.map((g) => groupKey(g.map, g.entries[0]!.index));
+  const toggle = (k: string) =>
+    setOpen((s) => {
+      const next = new Set(s);
+      if (next.has(k)) next.delete(k);
+      else next.add(k);
+      return next;
+    });
+  const allOpen = keys.length > 0 && keys.every((k) => open.has(k));
+
   return (
     <div className="cycle">
       <p className="hint">{t('cycle.hint')}</p>
@@ -101,6 +124,13 @@ export function CycleEditor({
       )}
       {lines.length > 0 && (
         <div className="row row--wrap">
+          <button
+            type="button"
+            className="btn btn--small btn--ghost"
+            onClick={() => setOpen(allOpen ? new Set() : new Set(keys))}
+          >
+            {t(allOpen ? 'cycle.collapseAll' : 'cycle.expandAll')}
+          </button>
           <span className="field__label">{t('lighting.cycleTitle')}</span>
           <button
             type="button"
@@ -126,11 +156,28 @@ export function CycleEditor({
           const last = g.entries[g.entries.length - 1]!.index;
           const name = g.map ? g.label || human(g.map) : t('cycle.unknownGroup');
           const more = g.map ? moreFor(g.map) : [];
+          const k = groupKey(g.map, first);
+          // Um bloco com linha de mod não instalado fica aberto: o aviso aponta para ela.
+          const isOpen = open.has(k) || g.entries.some((e) => e.missing);
+          const listId = `cyclemap-${gi}`;
           return (
-            <li key={`${first}-${g.map}`} className="cyclemap">
+            <li key={`${first}-${g.map}`} className={`cyclemap${isOpen ? ' is-open' : ''}`}>
               <div className="cyclemap__head">
                 <div className="cyclemap__name">
-                  <strong>{name}</strong>
+                  <button
+                    type="button"
+                    className="cyclemap__toggle"
+                    aria-expanded={isOpen}
+                    aria-controls={listId}
+                    title={t(isOpen ? 'cycle.collapse' : 'cycle.expand', { map: name })}
+                    onClick={() => toggle(k)}
+                  >
+                    <ChevronRight size={16} aria-hidden className="cyclemap__chevron" />
+                    <strong>{name}</strong>
+                    <span className="muted cyclemap__count">
+                      {t('cycle.modes', { n: g.entries.length })}
+                    </span>
+                  </button>
                   {g.modName && (
                     <span className="muted">
                       <span className="mutators__badge">{t('server.mutatorsBadge')}</span>{' '}
@@ -170,41 +217,43 @@ export function CycleEditor({
                   </button>
                 </div>
               </div>
-              <ul className="cycle__list">
-                {g.entries.map((e) => (
-                  <li key={e.index} className="cycle__row">
-                    <code title={e.scenario || e.raw}>
-                      {e.scenario ? human(e.mode || e.scenario) : e.raw}
-                    </code>
-                    {e.missing && (
-                      <span className="pill pill--warn">{t('lighting.notInstalled')}</span>
-                    )}
-                    {e.scenario ? (
-                      <select
-                        className="select select--short"
-                        aria-label={t('lighting.label')}
-                        value={e.lighting}
-                        onChange={(ev) => setLighting(e.index, ev.target.value as Lighting)}
+              {isOpen && (
+                <ul className="cycle__list" id={listId}>
+                  {g.entries.map((e) => (
+                    <li key={e.index} className="cycle__row">
+                      <code title={e.scenario || e.raw}>
+                        {e.scenario ? human(e.mode || e.scenario) : e.raw}
+                      </code>
+                      {e.missing && (
+                        <span className="pill pill--warn">{t('lighting.notInstalled')}</span>
+                      )}
+                      {e.scenario ? (
+                        <select
+                          className="select select--short"
+                          aria-label={t('lighting.label')}
+                          value={e.lighting}
+                          onChange={(ev) => setLighting(e.index, ev.target.value as Lighting)}
+                        >
+                          <option value="Day">{t('lighting.Day')}</option>
+                          <option value="Night">{t('lighting.Night')}</option>
+                        </select>
+                      ) : (
+                        <span className="muted">{t('lighting.unknownLine')}</span>
+                      )}
+                      <button
+                        type="button"
+                        className="icon-btn"
+                        title={t('cycle.removeLine', { scenario: e.scenario || e.raw })}
+                        aria-label={t('cycle.removeLine', { scenario: e.scenario || e.raw })}
+                        onClick={() => remove([e.index])}
                       >
-                        <option value="Day">{t('lighting.Day')}</option>
-                        <option value="Night">{t('lighting.Night')}</option>
-                      </select>
-                    ) : (
-                      <span className="muted">{t('lighting.unknownLine')}</span>
-                    )}
-                    <button
-                      type="button"
-                      className="icon-btn"
-                      title={t('cycle.removeLine', { scenario: e.scenario || e.raw })}
-                      aria-label={t('cycle.removeLine', { scenario: e.scenario || e.raw })}
-                      onClick={() => remove([e.index])}
-                    >
-                      <X size={16} aria-hidden />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              {more.length > 0 && (
+                        <X size={16} aria-hidden />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {isOpen && more.length > 0 && (
                 <select
                   className="select cyclemap__more"
                   aria-label={t('cycle.addScenarioTo', { map: name })}

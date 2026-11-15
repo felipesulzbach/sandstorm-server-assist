@@ -8,6 +8,7 @@ import {
   type ModScenario,
   type Mutator,
 } from '../../shared/backend';
+import { matches, SearchBox } from '../../shared/search';
 
 /**
  * Mutators (ADR-022, ADR-023): os dos mods instalados (o Go lê os .pak) e os oficiais do jogo, numa lista com
@@ -26,6 +27,7 @@ export function MutatorPicker({
   const [mods, setMods] = useState<ModMutator[] | null>(null);
   // Mutators que o servidor recusou no mapa atual (ADR-041), lidos do estado do servidor.
   const [refused, setRefused] = useState<string[]>([]);
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
     backend
@@ -52,6 +54,11 @@ export function MutatorPicker({
   // Mutators do jogo marcados que trocam o mesmo ajuste que este (a lista de conflitos vem do Go, ADR-045).
   const labelOf = new Map(list.map((m) => [m.id, m.label]));
   const blockers = (m: Mutator) => (m.conflicts ?? []).filter((c) => value.includes(c));
+  // Busca pelo nome, pela chave do jogo e pela descrição (só esconde da lista; os marcados continuam marcados).
+  const modsShown = (mods ?? []).filter((m) => matches(query, m.id, m.modName));
+  const missingShown = missing.filter((id) => matches(query, id));
+  const gameShown = list.filter((m) => matches(query, m.id, m.label, t(`mutators.${m.id}`)));
+  const searching = query.trim() !== '';
 
   const item = (
     id: string,
@@ -100,22 +107,41 @@ export function MutatorPicker({
           {t('server.mutatorsRefused', { names: refused.join(', ') })}
         </p>
       )}
+      <SearchBox
+        value={query}
+        onChange={setQuery}
+        label={t('server.mutatorsSearch')}
+        placeholder={t('server.mutatorsSearchPlaceholder')}
+      />
       <div className="mutators__scroll">
-        <p className="mutators__group">{t('server.mutatorsMods')}</p>
-        <div className="mutators__grid">
-          {(mods ?? []).map((m) =>
-            item(m.id, m.id, t('server.mutatorsFromMod', { name: m.modName }), 'mod'),
-          )}
-          {missing.map((id) => item(id, id, t('server.mutatorsMissing'), 'missing'))}
-        </div>
-        {mods && mods.length === 0 && missing.length === 0 && (
+        {(!searching || modsShown.length + missingShown.length > 0) && (
+          <>
+            <p className="mutators__group">{t('server.mutatorsMods')}</p>
+            <div className="mutators__grid">
+              {modsShown.map((m) =>
+                item(m.id, m.id, t('server.mutatorsFromMod', { name: m.modName }), 'mod'),
+              )}
+              {missingShown.map((id) => item(id, id, t('server.mutatorsMissing'), 'missing'))}
+            </div>
+          </>
+        )}
+        {!searching && mods && mods.length === 0 && missing.length === 0 && (
           <p className="hint">{t('server.mutatorsNoMods')}</p>
         )}
-        <p className="mutators__group">{t('server.mutatorsGame')}</p>
-        <p className="hint">{t('server.mutatorsConflictHint')}</p>
-        <div className="mutators__grid">
-          {list.map((m) => item(m.id, m.label, t(`mutators.${m.id}`), 'game', blockers(m)))}
-        </div>
+        {gameShown.length > 0 && (
+          <>
+            <p className="mutators__group">{t('server.mutatorsGame')}</p>
+            <p className="hint">{t('server.mutatorsConflictHint')}</p>
+            <div className="mutators__grid">
+              {gameShown.map((m) =>
+                item(m.id, m.label, t(`mutators.${m.id}`), 'game', blockers(m)),
+              )}
+            </div>
+          </>
+        )}
+        {searching && modsShown.length + missingShown.length + gameShown.length === 0 && (
+          <p className="muted">{t('common.noResults', { query })}</p>
+        )}
       </div>
     </div>
   );

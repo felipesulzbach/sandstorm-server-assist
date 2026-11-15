@@ -8,6 +8,11 @@ export const uk: Messages = {
     loading: 'Завантаження…',
   },
   titlebar: {
+    version: 'v{version}',
+    versionHint: 'Версія {version}, випущена {date}',
+    serverUpdate: 'Доступне оновлення сервера',
+    serverUpdateHint:
+      'Вийшла нова версія виділеного сервера (встановлена збірка {installed}, нова {latest}). Натисніть, щоб відкрити Встановлення.',
     help: 'Довідка',
     minimize: 'Згорнути',
     maximize: 'Розгорнути',
@@ -26,6 +31,8 @@ export const uk: Messages = {
     about: 'Про програму',
   },
   common: {
+    clearSearch: 'Очистити пошук',
+    noResults: 'За запитом «{query}» нічого не знайдено.',
     save: 'Зберегти',
     saved: 'Збережено',
     cancel: 'Скасувати',
@@ -209,6 +216,8 @@ export const uk: Messages = {
       missing: 'SteamCMD не знайдено',
     },
     server: {
+      newBuild:
+        'Доступна нова версія виділеного сервера (встановлена збірка {installed}, нова {latest}). Зупиніть сервери й натисніть «Перевірити оновлення».',
       title: 'Виділений сервер',
       installed: 'Встановлено',
       notInstalled: 'Не встановлено',
@@ -250,6 +259,8 @@ export const uk: Messages = {
     },
   },
   server: {
+    mutatorsSearch: 'Пошук мутаторів',
+    mutatorsSearchPlaceholder: 'Пошук за назвою або описом',
     travelNoMods:
       'У встановлених модах не знайдено жодної мапи. Підпишіться на мод із мапою й запустіть сервер один раз.',
     travelNotInstalled: '{name} (немає у встановлених модах)',
@@ -713,6 +724,8 @@ export const uk: Messages = {
     },
   },
   about: {
+    gameLinks: 'Гра',
+    helpLinks: 'Посібники та інструменти',
     title: 'Про програму',
     text: 'Sandstorm Server Assist допомагає встановити, налаштувати й запустити виділений сервер Insurgency: Sandstorm з модами з mod.io.',
     license: 'Ліцензія',
@@ -720,7 +733,7 @@ export const uk: Messages = {
       'Apache License 2.0. Можна вільно використовувати, змінювати й поширювати; надається «як є», без гарантій.',
     disclaimer: 'Відмова від відповідальності',
     disclaimerText:
-      'Неофіційний проєкт, не пов’язаний із New World Interactive, Focus Entertainment, Valve чи mod.io і не схвалений ними. Insurgency, Steam і mod.io — торговельні марки їхніх власників. Ви відповідаєте за те, як використовуєте свій сервер, і за дотримання умов гри, Steam і mod.io, а також законів своєї країни. Застосунок не поширює гру та SteamCMD: він завантажує їх з офіційних джерел.',
+      'Неофіційний проєкт, не пов’язаний із Saber Interactive, New World Interactive, Focus Entertainment, Valve чи mod.io і не схвалений ними. Insurgency, Steam і mod.io — торговельні марки їхніх власників. Ви відповідаєте за те, як використовуєте свій сервер, і за дотримання умов гри, Steam і mod.io, а також законів своєї країни. Застосунок не поширює гру та SteamCMD: він завантажує їх з офіційних джерел.',
     links: 'Корисні посилання',
     serverGuide: 'Посібник зі серверів від спільноти',
     modioGuide: 'Посібник mod.io для адміністраторів серверів',
@@ -729,6 +742,7 @@ export const uk: Messages = {
       'Створено Felipe Sulzbach за допомогою Claude Code (Anthropic). Безкоштовно й з відкритим кодом, для спільноти Insurgency: Sandstorm.',
   },
   feedback: {
+    titleNeeded: 'Спочатку напишіть заголовок.',
     title: "Зворотний зв'язок",
     subtitle: 'Повідомити про проблему або запропонувати покращення',
     kindLabel: 'Тип',
@@ -740,8 +754,8 @@ export const uk: Messages = {
       bug: 'Розкажіть, що пішло не так. Застосунок підготує файл із подробицями й відкриє вже заповнену форму на GitHub.',
       idea: 'Поділіться ідеєю, як зробити застосунок кращим. Застосунок відкриє вже заповнену форму на GitHub.',
     },
-    titleField: "Заголовок (необов'язково)",
-    titleHint: 'Один рядок. Якщо порожньо, застосунок напише його сам.',
+    titleField: 'Заголовок',
+    titleHint: "Обов'язково. Один рядок, що коротко описує проблему або ідею.",
     description: "Опис (необов'язково)",
     descriptionHint: {
       bug: 'Що ви зробили, чого очікували і що сталося.',
@@ -956,6 +970,9 @@ export const uk: Messages = {
     help: 'Довідка',
   },
   links: {
+    'official-site': 'Офіційна сторінка гри',
+    'steam-store': 'Магазин Steam',
+    'epic-store': 'Epic Games Store',
     'steam-gslt': 'Steam: облікові записи ігрових серверів',
     gamestats: 'Sandstorm GameStats',
     'steamid-io': 'steamid.io',
@@ -1040,6 +1057,11 @@ export const uk: Messages = {
     },
   },
   cycle: {
+    expandAll: 'Розгорнути всі',
+    collapseAll: 'Згорнути всі',
+    expand: 'Показати режими гри карти {map}',
+    collapse: 'Сховати режими гри карти {map}',
+    modes: 'Режими: {n}',
     hint: 'Тут ротацію показано за мапами. Файл MapCycle.txt лишається списком: один сценарій у рядку, у цьому порядку.',
     empty:
       'Ротація порожня: сервер залишить свій MapCycle.txt. Додайте мапи або використайте стандартну ротацію.',
@@ -1117,6 +1139,8 @@ export const uk: Messages = {
     Warlords: 'Старт з 10 очками постачання.',
   },
   rules: {
+    search: 'Пошук правил гри',
+    searchPlaceholder: 'Назва або ключ Game.ini',
     manage: 'Задавати правила гри тут',
     manageHint:
       'Застосунок записує ці параметри в Game.ini та Engine.ini під час запуску сервера. Порожні параметри беруть значення гри. Вимкнено: застосунок не чіпає ці файли.',
@@ -1503,6 +1527,7 @@ export const uk: Messages = {
     uac: 'Windows попросить підтвердження адміністратора.',
   },
   validation: {
+    reportTitle: 'Напишіть заголовок.',
     markupPlain: 'Гра не показує форматування й виведе {tag} як текст. Приберіть теги.',
     rule: 'Значення {rule} має бути від {min} до {max}.',
     ruleBool: 'Виберіть «увімк.» або «вимк.» для {rule}.',

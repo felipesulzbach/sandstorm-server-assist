@@ -12,6 +12,8 @@ export interface I18nValue<L extends string = string> {
   tl: (key: string, params?: Params) => string[];
   /** Data e hora no formato do idioma. */
   date: (d: Date | string) => string;
+  /** Data sem hora; "AAAA-MM-DD" é lida como dia local (sem fuso). */
+  day: (d: string) => string;
 }
 
 export const I18nCtx = createContext<I18nValue | null>(null);

@@ -125,3 +125,45 @@ func NestedDirs(serverDir, steamcmdDir string) bool {
 	}
 	return a == b || strings.HasPrefix(b, a+`\`) || strings.HasPrefix(a, b+`\`)
 }
+
+// InfoArgs monta os argumentos do SteamCMD para ler as informações públicas de um app (sem instalar nada): a
+// versão publicada (buildid) do servidor, para avisar quando há atualização.
+func InfoArgs(appID int) []string {
+	return []string{"+login", "anonymous", "+app_info_update", "1", "+app_info_print", strconv.Itoa(appID), "+quit"}
+}
+
+var (
+	reBranches = regexp.MustCompile(`"branches"\s*\{`)
+	rePublic   = regexp.MustCompile(`"public"\s*\{`)
+	reBuildID  = regexp.MustCompile(`"buildid"\s+"(\d{1,12})"`)
+)
+
+// PublicBuildID lê da saída do app_info_print o buildid do ramo público ("" quando não acha).
+func PublicBuildID(out string) string {
+	b := reBranches.FindStringIndex(out)
+	if b == nil {
+		return ""
+	}
+	rest := out[b[1]:]
+	p := rePublic.FindStringIndex(rest)
+	if p == nil {
+		return ""
+	}
+	rest = rest[p[1]:]
+	// O buildid tem de estar dentro do bloco "public" (antes de ele fechar).
+	if end := strings.IndexByte(rest, '}'); end >= 0 {
+		rest = rest[:end]
+	}
+	if m := reBuildID.FindStringSubmatch(rest); m != nil {
+		return m[1]
+	}
+	return ""
+}
+
+// NewerBuild diz se a versão publicada é mais nova que a instalada (buildids só crescem). Valor vazio ou estranho
+// não conta como atualização.
+func NewerBuild(installed, latest string) bool {
+	i, err1 := strconv.ParseInt(installed, 10, 64)
+	l, err2 := strconv.ParseInt(latest, 10, 64)
+	return err1 == nil && err2 == nil && i > 0 && l > i
+}

@@ -216,6 +216,17 @@ Short notes of each development session, newest last. They help a new session pi
 - Restart and Stop also act on the ticked servers; **Select all** in the list.
 - Published the same day as `v0.3.0` on GitHub only (bridge skipped by the maintainer).
 
+## 2026-11-14 · adjustments after 0.3.0
+
+- The maintainer's list of eight adjustments: ini keys and search in Game rules, mutator search, collapsed map
+  blocks in the rotation, a scroll for the mods table, version and release date in the title bar, required feedback
+  title, a notice for new dedicated server versions and more useful links.
+- Server versions come from SteamCMD `app_info_print` (the public branch `buildid`) compared with the installed
+  appmanifest; SteamCMD self-updates on each run, so it gets no notice. The check never runs during an install.
+- The old official domain `insurgency-sandstorm.com` now serves an unrelated gambling page; the link uses the Saber
+  Interactive game page the maintainer pointed to.
+- Not committed: waiting for the maintainer's check in the dev app.
+
 ## Cautions for future sessions
 
 - The maintainer's real server folder has secrets in plain text (`Game.ini`, notes next to the `.bat`) and the mod.io

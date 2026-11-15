@@ -52,7 +52,7 @@ function UpdatesCard() {
 }
 
 export function AboutPage({ info, terms }: { info: AppInfo | null; terms: Terms | null }) {
-  const { t, date } = useI18n();
+  const { t, date, day } = useI18n();
   const [reading, setReading] = useState<'terms' | 'privacy' | null>(null);
   return (
     <div className="page page--narrow">
@@ -61,7 +61,13 @@ export function AboutPage({ info, terms }: { info: AppInfo | null; terms: Terms 
         <AppIcon size={48} />
         <div>
           <h2>{t('app.name')}</h2>
-          {info && <p className="muted">{t('app.version', { version: info.appVersion })}</p>}
+          {info && (
+            <p className="muted">
+              {info.released
+                ? t('titlebar.versionHint', { version: info.appVersion, date: day(info.released) })
+                : t('app.version', { version: info.appVersion })}
+            </p>
+          )}
           <p>{t('about.text')}</p>
         </div>
       </section>
@@ -110,6 +116,14 @@ export function AboutPage({ info, terms }: { info: AppInfo | null; terms: Terms 
       </section>
       <section className="card">
         <h2 className="card__title">{t('about.links')}</h2>
+        <p className="muted">{t('about.gameLinks')}</p>
+        <div className="row row--wrap">
+          <LinkButton linkKey="official-site" />
+          <LinkButton linkKey="steam-store" />
+          <LinkButton linkKey="epic-store" />
+          <LinkButton linkKey="modio" />
+        </div>
+        <p className="muted">{t('about.helpLinks')}</p>
         <div className="row row--wrap">
           <LinkButton linkKey="server-guide" label={t('about.serverGuide')} />
           <LinkButton linkKey="modio-admin-guide" label={t('about.modioGuide')} />
