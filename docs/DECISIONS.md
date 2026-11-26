@@ -208,6 +208,9 @@ one, the older one says so.
 - **Also:** the map cycle fixes `Scenario="Scenario=...` (pasted from a mod page; the game rejects the entry) when
   saving, opening and writing MapCycle.txt; mods uninstalled by the server leave the Mods list; errors the game
   always writes (cosmetics, replay, voice, GameStats frame, assets repeated across maps) count as warnings.
+- **Update (0.3.2):** a pending **update** of an installed mod (`PendingChanges with state Updated`) does the same:
+  on 2026-11-26 the server downloaded the Daybreak update, mounted only Daybreak and travelled to the mod map without
+  the others. The runner now counts every pending change except `Removed`.
 
 ## ADR-018 · Logs per server run, optional cleanup and a single app instance
 

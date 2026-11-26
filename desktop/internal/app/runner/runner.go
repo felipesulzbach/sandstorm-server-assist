@@ -611,7 +611,9 @@ func (s *Service) apply(ev logparse.Event) {
 		} else if m.State == "" {
 			m.State = "pending"
 		}
-		if ev.Action == "Added" {
+		// Mod novo (Added) ou com atualização (Updated, visto em 26/11/2026 com o Daybreak): o servidor baixa, monta
+		// só esse e viaja sem os outros. Os dois pedem a conferência dos mods montados (ADR-017).
+		if ev.Action != "Removed" {
 			s.added[ev.ModID] = true
 		}
 	case logparse.Travel:
@@ -620,7 +622,7 @@ func (s *Service) apply(ev logparse.Event) {
 		// A viagem da inicialização aconteceu: a partir daqui qualquer mapa vale (troca de mapa pelo app, pela
 		// rotação ou por um admin). Sem isso o app ficava preso em "a carregar o mapa" depois de uma troca.
 		s.travelMap = ""
-		// Com mods novos nesta partida, o servidor monta só os que baixou e viaja sem os já instalados.
+		// Com mods novos ou atualizados nesta partida, o servidor monta só os que baixou e viaja sem os outros.
 		if len(s.added) > 0 {
 			s.remountCheck = true
 		}

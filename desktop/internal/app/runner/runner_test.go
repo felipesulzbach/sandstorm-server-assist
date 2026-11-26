@@ -282,6 +282,30 @@ func TestRestartsOnceWhenInstalledModsWereNotMounted(t *testing.T) {
 	}
 }
 
+// Linhas reais (26/11/2026): uma atualização do Daybreak ficou pendente ("state Updated"); o servidor montou só ele e
+// viajou para o Border sem os outros mods. O app não reiniciava, porque só conferia mods novos ("Added").
+func TestRestartsOnceWhenAModUpdateLeftOthersOut(t *testing.T) {
+	s, f, dir := setup(t)
+	s.d.InstalledMods = func() []int { return []int{5748299, 4422455, 98145, 2123731} }
+	if err := s.Start(); err != nil {
+		t.Fatal(err)
+	}
+	appendLog(t, dir,
+		"[2026.11.26-03.07.59:102][  0]LogModioGame: ModSubsystem: mod.io initialization complete with result: ok",
+		"[2026.11.26-03.08.04:161][  0]LogModioGame: ModSubsystem: Mod added, id: 5748299 to PendingChanges with state Updated",
+		"[2026.11.26-03.08.04:161][  0]LogModioGame: ModSubsystem: ModManager enabled",
+		"[2026.11.26-03.08.05:924][  0]LogModioGame: ModSubsystem: ModManager Event received. ModId: 5748299, ModEvent: BeginUpdate, Message: ok",
+		"[2026.11.26-03.08.25:163][  0]LogModioGame: ModSubsystem: ModManager Event received. ModId: 5748299, ModEvent: Updated, Message: ok",
+		"[2026.11.26-03.08.25:163][  0]LogModioGame: ModSubsystem: OnModActivatedFromCloud: Daybreak[5748299] bFromGameServer = true",
+		"[2026.11.26-03.08.25:187][  0]LogGameMode: ProcessServerTravel: Border?Scenario=Scenario_Border_Checkpoint_Insurgents",
+	)
+	s.Tick()
+	waitStarts(t, f, 2)
+	if st := s.Status(); !st.Remount {
+		t.Fatalf("depois da atualização: %+v", st)
+	}
+}
+
 func TestNoRestartWhenAllInstalledModsMounted(t *testing.T) {
 	s, f, dir := setup(t)
 	s.d.InstalledMods = func() []int { return []int{4422455} }

@@ -3,6 +3,14 @@
 All notable changes to Sandstorm Server Assist. Versions follow `MAJOR.MINOR.PATCH`. The GitHub release notes of
 each version come from its section here (`npm run release:publish`).
 
+## [0.3.2] - 2026-11-26
+
+### Fixed
+
+- **Only one mod loaded after a mod update.** When a mod had an update waiting, the server downloaded it, loaded only
+  that mod and went to the mod map without the others. The app already restarted the server once for new
+  subscriptions; it now does the same after a mod update, so every mod loads.
+
 ## [0.3.1] - 2026-11-15
 
 ### Added
