@@ -234,6 +234,7 @@ Short notes of each development session, newest last. They help a new session pi
   (Daybreak), then only Daybreak activated and the travel to Border. Same server rule as new subscriptions
   (ADR-017), but the runner only counted `Added`. It now counts every pending change except `Removed`, so the app
   restarts once and every mod loads. Test with the real lines.
+- Published on 2026-11-26 as `v0.3.2` on GitHub only (bridge skipped, as in 0.3.0 and 0.3.1).
 
 ## Cautions for future sessions
 
