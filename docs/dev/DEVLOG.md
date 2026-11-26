@@ -242,6 +242,7 @@ Short notes of each development session, newest last. They help a new session pi
   restart waits for the processes to end, but Windows still holds the ports for a few seconds (the app's own RCON
   connection for chat and players was on that port). The runner remembers when the server stopped; within a minute
   of that, the start check waits up to 30 s for `port-taken` to clear. Otherwise the error is immediate.
+- Published on 2026-11-26 as `v0.3.3` on GitHub only (bridge skipped, as in 0.3.0 to 0.3.2).
 
 ## Cautions for future sessions
 
