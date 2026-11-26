@@ -528,3 +528,40 @@ func TestRefusedMutators(t *testing.T) {
 		t.Fatalf("depois do próximo mapa: %v", got)
 	}
 }
+
+// 26/11/2026: no Reiniciar, o Windows ainda segurava a porta do RCON por alguns segundos e o início dava "porta usada
+// por outro programa". Logo depois de parar, o início espera a porta soltar; sem parada recente, o erro é na hora.
+func TestRestartWaitsForPortsToBeFreed(t *testing.T) {
+	s, f, _ := setup(t)
+	busy := 2 // a porta ainda está presa nas duas primeiras conferências
+	var checks int
+	s.d.CheckStart = func(server.Profile, server.Secrets) error {
+		checks++
+		if checks <= busy {
+			return problems.New(problems.PortTaken, "")
+		}
+		return nil
+	}
+	if err := s.Start(); err == nil {
+		t.Fatal("sem parada recente o erro deve aparecer na hora")
+	}
+	if checks != 1 {
+		t.Fatalf("conferências sem parada recente: %d", checks)
+	}
+
+	f.mu.Lock()
+	f.running = true
+	f.mu.Unlock()
+	checks, busy = 0, 2
+	if err := s.Restart(); err != nil {
+		t.Fatalf("reiniciar: %v", err)
+	}
+	if checks != 3 {
+		t.Fatalf("conferências no reiniciar: %d", checks)
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if !f.running {
+		t.Fatal("servidor não iniciou")
+	}
+}

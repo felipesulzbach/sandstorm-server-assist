@@ -167,7 +167,18 @@ type Service struct {
 	remounted    bool
 	// cleanPending: limpar os logs antigos assim que o servidor criar o log desta partida.
 	cleanPending bool
+	// stoppedAt é quando o servidor deste app sumiu pela última vez (ver portWait).
+	stoppedAt time.Time
 }
+
+// Logo depois de o servidor parar, o Windows ainda segura as portas dele por alguns segundos (o RCON, que o app
+// também usava para o chat e os jogadores). No Reiniciar, a conferência das portas dava "porta usada por outro
+// programa" (visto em 26/11/2026); um momento depois, o mesmo início funcionava. Até portRecent depois de parar, o
+// início espera até portWait as portas ficarem livres antes de mostrar o erro.
+const (
+	portRecent = time.Minute
+	portWait   = 30 * time.Second
+)
 
 // authTimeout é quanto o app espera a sessão nova do mod.io aparecer.
 const authTimeout = 2 * time.Minute
@@ -271,7 +282,7 @@ func (s *Service) start(code string) error {
 		return err
 	}
 	if s.d.CheckStart != nil {
-		if err := s.d.CheckStart(p, sec); err != nil {
+		if err := s.checkStartWaiting(p, sec); err != nil {
 			return err
 		}
 	}
@@ -332,6 +343,30 @@ func (s *Service) start(code string) error {
 	}
 	s.emitLocked()
 	return nil
+}
+
+// checkStartWaiting confere as portas; se o servidor acabou de parar e só falta o Windows soltar uma porta, espera.
+func (s *Service) checkStartWaiting(p server.Profile, sec server.Secrets) error {
+	err := s.d.CheckStart(p, sec)
+	s.mu.Lock()
+	recent := !s.stoppedAt.IsZero() && s.d.Now().Sub(s.stoppedAt) < portRecent
+	s.mu.Unlock()
+	if err == nil || !recent || !portTaken(err) {
+		return err
+	}
+	s.log("app", "The server just stopped; waiting for Windows to free its ports")
+	deadline := s.d.Now().Add(portWait)
+	for portTaken(err) && s.d.Now().Before(deadline) {
+		time.Sleep(time.Second)
+		err = s.d.CheckStart(p, sec)
+	}
+	return err
+}
+
+// portTaken diz se o erro é de porta usada por outro programa.
+func portTaken(err error) bool {
+	var pe *problems.Error
+	return errors.As(err, &pe) && pe.Code == problems.PortTaken
 }
 
 func codeOrNone(code string) string {
@@ -405,6 +440,9 @@ func (s *Service) waitGone(limit time.Duration) error {
 	deadline := s.d.Now().Add(limit)
 	for s.d.Now().Before(deadline) {
 		if list, _ := s.procs(p); len(list) == 0 {
+			s.mu.Lock()
+			s.stoppedAt = s.d.Now()
+			s.mu.Unlock()
 			return nil
 		}
 		time.Sleep(500 * time.Millisecond)
@@ -500,6 +538,7 @@ func (s *Service) Tick() {
 		}
 		s.stopping = false
 		s.authCode = ""
+		s.stoppedAt = s.d.Now()
 		clearRun = true // a partida acabou: o registro não vale mais
 	case !running && installed && s.st.Phase == NotInstalled:
 		s.st.Phase = Stopped

@@ -236,6 +236,13 @@ Short notes of each development session, newest last. They help a new session pi
   restarts once and every mod loads. Test with the real lines.
 - Published on 2026-11-26 as `v0.3.2` on GitHub only (bridge skipped, as in 0.3.0 and 0.3.1).
 
+## 2026-11-26 · 0.3.3 (restart and busy ports)
+
+- **Restart** showed "Port used by another program" for the RCON port, and **Start** a moment later worked. The
+  restart waits for the processes to end, but Windows still holds the ports for a few seconds (the app's own RCON
+  connection for chat and players was on that port). The runner remembers when the server stopped; within a minute
+  of that, the start check waits up to 30 s for `port-taken` to clear. Otherwise the error is immediate.
+
 ## Cautions for future sessions
 
 - The maintainer's real server folder has secrets in plain text (`Game.ini`, notes next to the `.bat`) and the mod.io

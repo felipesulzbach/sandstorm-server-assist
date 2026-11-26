@@ -3,6 +3,15 @@
 All notable changes to Sandstorm Server Assist. Versions follow `MAJOR.MINOR.PATCH`. The GitHub release notes of
 each version come from its section here (`npm run release:publish`).
 
+## [0.3.3] - 2026-11-26
+
+### Fixed
+
+- **Restart said "Port used by another program".** Right after the server stops, Windows keeps its ports (the RCON
+  port) for a few seconds, so the port check before starting failed and a second click on Start worked. When the
+  server has just stopped, the start now waits up to 30 seconds for the ports to be freed. A port used by another
+  program still shows the error right away.
+
 ## [0.3.2] - 2026-11-26
 
 ### Fixed
